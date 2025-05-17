@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiDollarSign, FiTrendingUp, FiAlertCircle, FiCalendar, FiDownload, FiFilter, FiSearch, FiExternalLink, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiDollarSign, FiTrendingUp, FiAlertCircle, FiDownload, FiFilter, FiSearch, FiExternalLink, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 
 interface Transaction {
   id: string;
@@ -55,12 +55,10 @@ const mockTransactions: Transaction[] = [
 
 export function PaymentManagement() {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState('7d');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
-  const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
 
   const stats = {
     totalRevenue: transactions
@@ -76,11 +74,6 @@ export function PaymentManagement() {
   const handleRefund = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setIsRefundModalOpen(true);
-  };
-
-  const handleDispute = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-    setIsDisputeModalOpen(true);
   };
 
   const processRefund = (reason: string) => {

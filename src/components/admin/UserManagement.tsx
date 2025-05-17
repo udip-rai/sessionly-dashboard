@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiSearch, FiFilter, FiDownload, FiMail, FiPhone, FiGlobe, FiStar, FiEdit2, FiTrash2, FiLock } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiDownload, FiMail, FiPhone, FiGlobe, FiStar, FiEdit2, FiLock } from 'react-icons/fi';
 
 interface User {
   id: string;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiCheck, FiX, FiSearch, FiFilter, FiDownload, FiMail, FiPhone, FiGlobe, FiStar, FiChevronRight } from 'react-icons/fi';
-import { Category, ExpertCategory, mockCategories } from '../../types/categories';
+import { ExpertCategory } from '../../types/categories';
 
 interface ExpertApplication {
   id: string;

@@ -83,7 +83,7 @@ export function Sidebar() {
                 />
                 {item.name}
               </div>
-              {'alert' in item && item.alert && (
+              {Boolean('alert' in item && item.alert) && (
                 <FiAlertCircle className={`
                   h-5 w-5 text-red-500
                   ${currentPath === item.path ? 'text-white' : 'text-red-500'}

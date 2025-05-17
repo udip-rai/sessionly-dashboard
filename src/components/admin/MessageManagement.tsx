@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiMail, FiUsers, FiSearch, FiFilter, FiSend, FiCheckCircle, FiClock } from 'react-icons/fi';
+import { FiMail, FiUsers, FiCheckCircle, FiClock } from 'react-icons/fi';
 
 interface EmailTemplate {
   id: string;
