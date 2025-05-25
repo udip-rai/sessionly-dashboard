@@ -1,12 +1,22 @@
-import { useState } from 'react';
-import { FiDollarSign, FiTrendingUp, FiAlertCircle, FiDownload, FiFilter, FiSearch, FiExternalLink, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { useState } from "react";
+import {
+  FiDollarSign,
+  FiTrendingUp,
+  FiAlertCircle,
+  FiDownload,
+  FiFilter,
+  FiSearch,
+  FiExternalLink,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
 
 interface Transaction {
   id: string;
   date: string;
   amount: number;
-  type: 'payment' | 'refund' | 'payout';
-  status: 'completed' | 'pending' | 'failed' | 'disputed';
+  type: "payment" | "refund" | "payout";
+  status: "completed" | "pending" | "failed" | "disputed";
   studentName: string;
   expertName: string;
   sessionId: string;
@@ -17,58 +27,64 @@ interface Transaction {
 
 const mockTransactions: Transaction[] = [
   {
-    id: 'txn_1',
-    date: '2025-05-10T14:30:00',
-    amount: 150.00,
-    type: 'payment',
-    status: 'completed',
-    studentName: 'John Smith',
-    expertName: 'Dr. Sarah Johnson',
-    sessionId: 'sess_123',
-    paymentMethod: 'Visa ***1234'
+    id: "txn_1",
+    date: "2025-05-10T14:30:00",
+    amount: 150.0,
+    type: "payment",
+    status: "completed",
+    studentName: "John Smith",
+    expertName: "Dr. Sarah Johnson",
+    sessionId: "sess_123",
+    paymentMethod: "Visa ***1234",
   },
   {
-    id: 'txn_2',
-    date: '2025-05-09T10:15:00',
-    amount: 75.00,
-    type: 'refund',
-    status: 'completed',
-    studentName: 'Emily Brown',
-    expertName: 'Michael Wilson',
-    sessionId: 'sess_124',
-    paymentMethod: 'Mastercard ***5678',
-    refundReason: 'Session cancelled by expert'
+    id: "txn_2",
+    date: "2025-05-09T10:15:00",
+    amount: 75.0,
+    type: "refund",
+    status: "completed",
+    studentName: "Emily Brown",
+    expertName: "Michael Wilson",
+    sessionId: "sess_124",
+    paymentMethod: "Mastercard ***5678",
+    refundReason: "Session cancelled by expert",
   },
   {
-    id: 'txn_3',
-    date: '2025-05-08T16:45:00',
-    amount: 200.00,
-    type: 'payment',
-    status: 'disputed',
-    studentName: 'Alice Johnson',
-    expertName: 'Dr. Robert Lee',
-    sessionId: 'sess_125',
-    paymentMethod: 'PayPal',
-    disputeReason: 'Service not as described'
-  }
+    id: "txn_3",
+    date: "2025-05-08T16:45:00",
+    amount: 200.0,
+    type: "payment",
+    status: "disputed",
+    studentName: "Alice Johnson",
+    expertName: "Dr. Robert Lee",
+    sessionId: "sess_125",
+    paymentMethod: "PayPal",
+    disputeReason: "Service not as described",
+  },
 ];
 
 export function PaymentManagement() {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateRange, setDateRange] = useState('7d');
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(mockTransactions);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState("7d");
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
   const stats = {
     totalRevenue: transactions
-      .filter(t => t.type === 'payment' && t.status === 'completed')
+      .filter((t) => t.type === "payment" && t.status === "completed")
       .reduce((sum, t) => sum + t.amount, 0),
     totalRefunds: transactions
-      .filter(t => t.type === 'refund')
+      .filter((t) => t.type === "refund")
       .reduce((sum, t) => sum + t.amount, 0),
-    disputeRate: ((transactions.filter(t => t.status === 'disputed').length / transactions.length) * 100).toFixed(1),
-    pendingDisputes: transactions.filter(t => t.status === 'disputed').length
+    disputeRate: (
+      (transactions.filter((t) => t.status === "disputed").length /
+        transactions.length) *
+      100
+    ).toFixed(1),
+    pendingDisputes: transactions.filter((t) => t.status === "disputed").length,
   };
 
   const handleRefund = (transaction: Transaction) => {
@@ -76,20 +92,22 @@ export function PaymentManagement() {
     setIsRefundModalOpen(true);
   };
 
+  // Removed unused handleDispute function
+
   const processRefund = (reason: string) => {
     if (!selectedTransaction) return;
-    
+
     const refund: Transaction = {
       id: `txn_ref_${Date.now()}`,
       date: new Date().toISOString(),
       amount: selectedTransaction.amount,
-      type: 'refund',
-      status: 'completed',
+      type: "refund",
+      status: "completed",
       studentName: selectedTransaction.studentName,
       expertName: selectedTransaction.expertName,
       sessionId: selectedTransaction.sessionId,
       paymentMethod: selectedTransaction.paymentMethod,
-      refundReason: reason
+      refundReason: reason,
     };
 
     setTransactions([refund, ...transactions]);
@@ -97,19 +115,28 @@ export function PaymentManagement() {
     setSelectedTransaction(null);
   };
 
-  const resolveDispute = (transaction: Transaction, resolution: 'approve' | 'deny') => {
-    setTransactions(transactions.map(t =>
-      t.id === transaction.id
-        ? { ...t, status: resolution === 'approve' ? 'completed' : 'failed' }
-        : t
-    ));
+  const resolveDispute = (
+    transaction: Transaction,
+    resolution: "approve" | "deny",
+  ) => {
+    setTransactions(
+      transactions.map((t) =>
+        t.id === transaction.id
+          ? { ...t, status: resolution === "approve" ? "completed" : "failed" }
+          : t,
+      ),
+    );
   };
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Payment Management</h1>
-        <p className="text-gray-600 mt-2">Monitor transactions, process refunds, and handle disputes</p>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Payment Management
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Monitor transactions, process refunds, and handle disputes
+        </p>
       </div>
 
       {/* Stats Overview */}
@@ -146,7 +173,9 @@ export function PaymentManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Dispute Rate</p>
-              <h3 className="text-2xl font-semibold text-gray-900">{stats.disputeRate}%</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">
+                {stats.disputeRate}%
+              </h3>
             </div>
             <div className="p-3 bg-yellow-50 rounded-lg">
               <FiAlertCircle className="w-6 h-6 text-yellow-600" />
@@ -158,7 +187,9 @@ export function PaymentManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Pending Disputes</p>
-              <h3 className="text-2xl font-semibold text-gray-900">{stats.pendingDisputes}</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">
+                {stats.pendingDisputes}
+              </h3>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
               <FiAlertCircle className="w-6 h-6 text-red-600" />
@@ -208,25 +239,46 @@ export function PaymentManagement() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Transaction
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Date
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Amount
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Status
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Student
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Expert
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Actions
               </th>
             </tr>
@@ -236,24 +288,29 @@ export function PaymentManagement() {
               <tr key={transaction.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className={`p-2 rounded-lg mr-3 ${
-                      transaction.type === 'payment'
-                        ? 'bg-green-100'
-                        : transaction.type === 'refund'
-                        ? 'bg-orange-100'
-                        : 'bg-gray-100'
-                    }`}>
-                      <FiDollarSign className={`w-4 h-4 ${
-                        transaction.type === 'payment'
-                          ? 'text-green-600'
-                          : transaction.type === 'refund'
-                          ? 'text-orange-600'
-                          : 'text-gray-600'
-                      }`} />
+                    <div
+                      className={`p-2 rounded-lg mr-3 ${
+                        transaction.type === "payment"
+                          ? "bg-green-100"
+                          : transaction.type === "refund"
+                          ? "bg-orange-100"
+                          : "bg-gray-100"
+                      }`}
+                    >
+                      <FiDollarSign
+                        className={`w-4 h-4 ${
+                          transaction.type === "payment"
+                            ? "text-green-600"
+                            : transaction.type === "refund"
+                            ? "text-orange-600"
+                            : "text-gray-600"
+                        }`}
+                      />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                        {transaction.type.charAt(0).toUpperCase() +
+                          transaction.type.slice(1)}
                       </div>
                       <div className="text-sm text-gray-500">
                         {transaction.paymentMethod}
@@ -275,16 +332,19 @@ export function PaymentManagement() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                    transaction.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : transaction.status === 'disputed'
-                      ? 'bg-red-100 text-red-800'
-                      : transaction.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                  <span
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${
+                      transaction.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : transaction.status === "disputed"
+                        ? "bg-red-100 text-red-800"
+                        : transaction.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {transaction.status.charAt(0).toUpperCase() +
+                      transaction.status.slice(1)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -294,22 +354,23 @@ export function PaymentManagement() {
                   {transaction.expertName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {transaction.status === 'disputed' ? (
+                  {transaction.status === "disputed" ? (
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => resolveDispute(transaction, 'approve')}
+                        onClick={() => resolveDispute(transaction, "approve")}
                         className="text-green-600 hover:text-green-700"
                       >
                         <FiCheckCircle className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => resolveDispute(transaction, 'deny')}
+                        onClick={() => resolveDispute(transaction, "deny")}
                         className="text-red-600 hover:text-red-700"
                       >
                         <FiXCircle className="w-5 h-5" />
                       </button>
                     </div>
-                  ) : transaction.type === 'payment' && transaction.status === 'completed' ? (
+                  ) : transaction.type === "payment" &&
+                    transaction.status === "completed" ? (
                     <button
                       onClick={() => handleRefund(transaction)}
                       className="text-navy hover:text-navy/80"
@@ -332,9 +393,12 @@ export function PaymentManagement() {
       {isRefundModalOpen && selectedTransaction && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Issue Refund</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Issue Refund
+            </h3>
             <p className="text-sm text-gray-600 mb-4">
-              You are about to refund ${selectedTransaction.amount.toFixed(2)} to {selectedTransaction.studentName}
+              You are about to refund ${selectedTransaction.amount.toFixed(2)}{" "}
+              to {selectedTransaction.studentName}
             </p>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -344,7 +408,9 @@ export function PaymentManagement() {
                 className="w-full rounded-lg border-gray-200 text-sm focus:border-navy focus:ring-navy"
                 defaultValue=""
               >
-                <option value="" disabled>Select a reason</option>
+                <option value="" disabled>
+                  Select a reason
+                </option>
                 <option value="session_cancelled">Session Cancelled</option>
                 <option value="quality_issues">Quality Issues</option>
                 <option value="technical_problems">Technical Problems</option>
@@ -359,7 +425,7 @@ export function PaymentManagement() {
                 Cancel
               </button>
               <button
-                onClick={() => processRefund('Session Cancelled')}
+                onClick={() => processRefund("Session Cancelled")}
                 className="px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90"
               >
                 Confirm Refund

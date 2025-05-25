@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FiMail, FiUsers, FiCheckCircle, FiClock } from 'react-icons/fi';
+import { useState } from "react";
+import { FiMail, FiUsers, FiCheckCircle, FiClock } from "react-icons/fi";
 
 interface EmailTemplate {
   id: string;
@@ -16,7 +16,7 @@ interface EmailCampaign {
   content: string;
   targetGroup: string;
   recipientCount: number;
-  status: 'draft' | 'scheduled' | 'sent';
+  status: "draft" | "scheduled" | "sent";
   scheduledDate?: string;
   sentDate?: string;
   openRate?: number;
@@ -24,59 +24,63 @@ interface EmailCampaign {
 
 const mockTemplates: EmailTemplate[] = [
   {
-    id: 'template1',
-    name: 'Welcome Email',
-    subject: 'Welcome to Sessionly!',
-    content: 'Dear {name},\n\nWelcome to Sessionly! We\'re excited to have you join our platform...',
-    lastUsed: '2025-05-01'
+    id: "template1",
+    name: "Welcome Email",
+    subject: "Welcome to Sessionly!",
+    content:
+      "Dear {name},\n\nWelcome to Sessionly! We're excited to have you join our platform...",
+    lastUsed: "2025-05-01",
   },
   {
-    id: 'template2',
-    name: 'Session Reminder',
-    subject: 'Your upcoming session reminder',
-    content: 'Dear {name},\n\nThis is a reminder about your upcoming session...',
-    lastUsed: '2025-05-08'
-  }
+    id: "template2",
+    name: "Session Reminder",
+    subject: "Your upcoming session reminder",
+    content:
+      "Dear {name},\n\nThis is a reminder about your upcoming session...",
+    lastUsed: "2025-05-08",
+  },
 ];
 
 const mockCampaigns: EmailCampaign[] = [
   {
-    id: 'campaign1',
-    name: 'May Newsletter',
-    subject: 'Latest Updates from Sessionly',
-    content: 'Dear valued members...',
-    targetGroup: 'All Users',
+    id: "campaign1",
+    name: "May Newsletter",
+    subject: "Latest Updates from Sessionly",
+    content: "Dear valued members...",
+    targetGroup: "All Users",
     recipientCount: 2500,
-    status: 'sent',
-    sentDate: '2025-05-01',
-    openRate: 68
+    status: "sent",
+    sentDate: "2025-05-01",
+    openRate: 68,
   },
   {
-    id: 'campaign2',
-    name: 'Expert Onboarding Follow-up',
-    subject: 'Complete Your Expert Profile',
-    content: 'Dear {expert_name}...',
-    targetGroup: 'New Experts',
+    id: "campaign2",
+    name: "Expert Onboarding Follow-up",
+    subject: "Complete Your Expert Profile",
+    content: "Dear {expert_name}...",
+    targetGroup: "New Experts",
     recipientCount: 45,
-    status: 'scheduled',
-    scheduledDate: '2025-05-15'
-  }
+    status: "scheduled",
+    scheduledDate: "2025-05-15",
+  },
 ];
 
 export function MessageManagement() {
-  const [activeTab, setActiveTab] = useState<'compose' | 'templates' | 'campaigns'>('compose');
+  const [activeTab, setActiveTab] = useState<
+    "compose" | "templates" | "campaigns"
+  >("compose");
   const [templates, setTemplates] = useState<EmailTemplate[]>(mockTemplates);
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>(mockCampaigns);
-  
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [subject, setSubject] = useState('');
-  const [content, setContent] = useState('');
-  const [targetGroup, setTargetGroup] = useState('all');
+
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("");
+  const [targetGroup, setTargetGroup] = useState("all");
   const [recipientCount, setRecipientCount] = useState(0);
 
   const handleSendEmail = () => {
     // Implementation for sending email
-    console.log('Sending email:', { subject, content, targetGroup });
+    console.log("Sending email:", { subject, content, targetGroup });
   };
 
   const handleSaveTemplate = () => {
@@ -85,7 +89,7 @@ export function MessageManagement() {
       name: subject,
       subject,
       content,
-      lastUsed: new Date().toISOString().split('T')[0]
+      lastUsed: new Date().toISOString().split("T")[0],
     };
     setTemplates([...templates, newTemplate]);
   };
@@ -98,7 +102,7 @@ export function MessageManagement() {
       content,
       targetGroup,
       recipientCount,
-      status: 'draft'
+      status: "draft",
     };
     setCampaigns([...campaigns, newCampaign]);
   };
@@ -106,8 +110,12 @@ export function MessageManagement() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Message Management</h1>
-        <p className="text-gray-600 mt-2">Send targeted emails and manage campaigns</p>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Message Management
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Send targeted emails and manage campaigns
+        </p>
       </div>
 
       {/* Stats Overview */}
@@ -163,31 +171,31 @@ export function MessageManagement() {
         <div className="border-b border-gray-100">
           <nav className="flex gap-8 px-6">
             <button
-              onClick={() => setActiveTab('compose')}
+              onClick={() => setActiveTab("compose")}
               className={`py-4 text-sm font-medium border-b-2 ${
-                activeTab === 'compose'
-                  ? 'border-navy text-navy'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                activeTab === "compose"
+                  ? "border-navy text-navy"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
               Compose
             </button>
             <button
-              onClick={() => setActiveTab('templates')}
+              onClick={() => setActiveTab("templates")}
               className={`py-4 text-sm font-medium border-b-2 ${
-                activeTab === 'templates'
-                  ? 'border-navy text-navy'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                activeTab === "templates"
+                  ? "border-navy text-navy"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
               Templates
             </button>
             <button
-              onClick={() => setActiveTab('campaigns')}
+              onClick={() => setActiveTab("campaigns")}
               className={`py-4 text-sm font-medium border-b-2 ${
-                activeTab === 'campaigns'
-                  ? 'border-navy text-navy'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                activeTab === "campaigns"
+                  ? "border-navy text-navy"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
               Campaigns
@@ -196,7 +204,7 @@ export function MessageManagement() {
         </div>
 
         <div className="p-6">
-          {activeTab === 'compose' && (
+          {activeTab === "compose" && (
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -206,7 +214,9 @@ export function MessageManagement() {
                   value={selectedTemplate}
                   onChange={(e) => {
                     setSelectedTemplate(e.target.value);
-                    const template = templates.find(t => t.id === e.target.value);
+                    const template = templates.find(
+                      (t) => t.id === e.target.value,
+                    );
                     if (template) {
                       setSubject(template.subject);
                       setContent(template.content);
@@ -215,7 +225,7 @@ export function MessageManagement() {
                   className="w-full rounded-lg border-gray-200 text-sm focus:border-navy focus:ring-navy"
                 >
                   <option value="">Select a template</option>
-                  {templates.map(template => (
+                  {templates.map((template) => (
                     <option key={template.id} value={template.id}>
                       {template.name}
                     </option>
@@ -232,7 +242,7 @@ export function MessageManagement() {
                   onChange={(e) => {
                     setTargetGroup(e.target.value);
                     // Set mock recipient count based on selection
-                    setRecipientCount(e.target.value === 'all' ? 2500 : 500);
+                    setRecipientCount(e.target.value === "all" ? 2500 : 500);
                   }}
                   className="w-full rounded-lg border-gray-200 text-sm focus:border-navy focus:ring-navy"
                 >
@@ -244,7 +254,8 @@ export function MessageManagement() {
                 </select>
                 {recipientCount > 0 && (
                   <p className="mt-2 text-sm text-gray-600">
-                    This will be sent to approximately {recipientCount} recipients
+                    This will be sent to approximately {recipientCount}{" "}
+                    recipients
                   </p>
                 )}
               </div>
@@ -300,21 +311,23 @@ export function MessageManagement() {
             </div>
           )}
 
-          {activeTab === 'templates' && (
+          {activeTab === "templates" && (
             <div className="space-y-6">
-              {templates.map(template => (
+              {templates.map((template) => (
                 <div
                   key={template.id}
                   className="p-4 border border-gray-200 rounded-lg hover:border-navy transition-colors duration-200"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{template.name}</h3>
+                    <h3 className="font-medium text-gray-900">
+                      {template.name}
+                    </h3>
                     <button
                       onClick={() => {
                         setSelectedTemplate(template.id);
                         setSubject(template.subject);
                         setContent(template.content);
-                        setActiveTab('compose');
+                        setActiveTab("compose");
                       }}
                       className="text-sm text-navy hover:text-navy/80"
                     >
@@ -332,38 +345,53 @@ export function MessageManagement() {
             </div>
           )}
 
-          {activeTab === 'campaigns' && (
+          {activeTab === "campaigns" && (
             <div className="space-y-6">
-              {campaigns.map(campaign => (
+              {campaigns.map((campaign) => (
                 <div
                   key={campaign.id}
                   className="p-4 border border-gray-200 rounded-lg hover:border-navy transition-colors duration-200"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{campaign.name}</h3>
-                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      campaign.status === 'sent'
-                        ? 'bg-green-100 text-green-800'
-                        : campaign.status === 'scheduled'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                    <h3 className="font-medium text-gray-900">
+                      {campaign.name}
+                    </h3>
+                    <span
+                      className={`px-3 py-1 text-xs font-medium rounded-full ${
+                        campaign.status === "sent"
+                          ? "bg-green-100 text-green-800"
+                          : campaign.status === "scheduled"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {campaign.status.charAt(0).toUpperCase() +
+                        campaign.status.slice(1)}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-600">Target Group: {campaign.targetGroup}</p>
-                      <p className="text-gray-600">Recipients: {campaign.recipientCount}</p>
+                      <p className="text-gray-600">
+                        Target Group: {campaign.targetGroup}
+                      </p>
+                      <p className="text-gray-600">
+                        Recipients: {campaign.recipientCount}
+                      </p>
                     </div>
                     <div>
-                      {campaign.status === 'sent' ? (
+                      {campaign.status === "sent" ? (
                         <>
-                          <p className="text-gray-600">Sent: {campaign.sentDate}</p>
-                          <p className="text-gray-600">Open Rate: {campaign.openRate}%</p>
+                          <p className="text-gray-600">
+                            Sent: {campaign.sentDate}
+                          </p>
+                          <p className="text-gray-600">
+                            Open Rate: {campaign.openRate}%
+                          </p>
                         </>
-                      ) : campaign.status === 'scheduled' ? (
-                        <p className="text-gray-600">Scheduled: {campaign.scheduledDate}</p>
+                      ) : campaign.status === "scheduled" ? (
+                        <p className="text-gray-600">
+                          Scheduled: {campaign.scheduledDate}
+                        </p>
                       ) : null}
                     </div>
                   </div>

@@ -1,13 +1,17 @@
-import { useState } from 'react';
-import { BookingsList } from './BookingsList';
-import { bookings } from '../../data/bookings';
+import { useState } from "react";
+import { BookingsList } from "./BookingsList";
+import { bookings } from "../../data/bookings";
 
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState('upcoming');
-  
-  const filteredBookings = bookings.filter(booking => 
-    activeTab === 'upcoming' ? booking.status === 'upcoming' : booking.status === 'completed'
+  const [activeTab, setActiveTab] = useState("upcoming");
+
+  const filteredBookings = bookings.filter((booking) =>
+    activeTab === "upcoming"
+      ? booking.status === "upcoming"
+      : booking.status === "completed",
   );
+
+  console.log("STUDENT DASHBOARD");
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -15,21 +19,21 @@ export function Dashboard() {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex gap-8">
             <button
-              onClick={() => setActiveTab('upcoming')}
+              onClick={() => setActiveTab("upcoming")}
               className={`py-4 text-sm font-medium ${
-                activeTab === 'upcoming'
-                  ? 'border-b-2 border-green-600 text-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "upcoming"
+                  ? "border-b-2 border-green-600 text-green-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               UPCOMING
             </button>
             <button
-              onClick={() => setActiveTab('past')}
+              onClick={() => setActiveTab("past")}
               className={`py-4 text-sm font-medium ${
-                activeTab === 'past'
-                  ? 'border-b-2 border-green-600 text-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                activeTab === "past"
+                  ? "border-b-2 border-green-600 text-green-600"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               PAST
@@ -46,10 +50,9 @@ export function Dashboard() {
             No {activeTab} calls scheduled
           </h2>
           <p className="text-gray-600">
-            {activeTab === 'upcoming' 
-              ? 'Browse experts to schedule your next call'
-              : 'Your past calls will appear here'
-            }
+            {activeTab === "upcoming"
+              ? "Browse experts to schedule your next call"
+              : "Your past calls will appear here"}
           </p>
         </div>
       )}
