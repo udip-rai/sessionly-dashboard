@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { useAuthStore } from "../store/useAuthStore";
+import { userService } from "../api/services/user.service";
 import AuthHero from "../components/auth/AuthHero";
 import {
   FormContainer,
@@ -96,13 +97,24 @@ export default function LoginPage() {
                       credentialResponse.credential,
                     );
 
-                    // Store auth data
+                    // Store auth token first so it's available for subsequent API calls
+                    setToken(response.token);
+
+                    // Now fetch user data with the new token
+                    const userData = await userService.getCurrentUser(
+                      response.userType,
+                    );
+
+                    // Store complete user data
                     setUser({
                       id: response.id,
                       userType: response.userType,
                       redirectUrl: response.redirectUrl,
+                      name:
+                        userData?.user?.username ||
+                        userData?.user?.email?.split("@")[0] ||
+                        "User",
                     });
-                    setToken(response.token);
 
                     // Navigate based on response
                     if (

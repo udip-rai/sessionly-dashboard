@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { FiUser, FiPhone, FiLink, FiGithub } from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
@@ -74,6 +74,25 @@ export default function StudentProfileSetup({
     otherUrls: [""],
   });
 
+  // Update initial form state if profile is partially complete
+  useEffect(() => {
+    if (profileStatus && profileStatus.missingFields.length > 0) {
+      setCurrentStep(getMissingFieldStep(profileStatus.missingFields[0]));
+    }
+  }, [profileStatus]);
+
+  const getMissingFieldStep = (field: string): number => {
+    const fieldToStep: Record<string, number> = {
+      username: 1,
+      bio: 1,
+      phone: 2,
+      linkedinUrl: 3,
+      websiteUrl: 3,
+      otherUrls: 3,
+    };
+    return fieldToStep[field] || 1;
+  };
+
   const updateProfileMutation = useMutation({
     mutationFn: () => {
       if (!user?.id) throw new Error("User ID not found");
@@ -141,11 +160,35 @@ export default function StudentProfileSetup({
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return formData.username.trim() !== "" && formData.bio.trim() !== "";
+        const basicInfoMissing = ["username", "bio"].some((field) =>
+          profileStatus?.missingFields.includes(field),
+        );
+        if (basicInfoMissing) {
+          return formData.username.trim() !== "" && formData.bio.trim() !== "";
+        }
+        return true;
       case 2:
-        return formData.phone.trim() !== "";
+        const contactInfoMissing = ["phone"].some((field) =>
+          profileStatus?.missingFields.includes(field),
+        );
+        if (contactInfoMissing) {
+          return formData.phone.trim() !== "";
+        }
+        return true;
       case 3:
-        return true; // Social links are optional
+        const socialInfoMissing = [
+          "linkedinUrl",
+          "websiteUrl",
+          "otherUrls",
+        ].some((field) => profileStatus?.missingFields.includes(field));
+        if (socialInfoMissing) {
+          return (
+            formData.linkedinUrl.trim() !== "" ||
+            formData.websiteUrl.trim() !== "" ||
+            formData.otherUrls.some((url) => url.trim() !== "")
+          );
+        }
+        return true;
       default:
         return false;
     }

@@ -16,29 +16,59 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { NavItem } from "../../types/navigation";
 import { useAuth } from "../../context/AuthContext";
+import { useEffect, useState } from "react";
+import { userService } from "../../api/services/user.service";
 
 export function Sidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const isStaffDashboard = currentPath.startsWith("/staff-dashboard");
   const isAdminDashboard = currentPath.startsWith("/admin-dashboard");
+  const { user } = useAuth();
+  const [userData, setUserData] = useState<{
+    name: string;
+    userType: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.userType) return;
+      try {
+        const userData = await userService.getCurrentUser(user.userType); // Get display name with fallback hierarchy: username -> email first part -> 'User'
+        const displayName =
+          userData?.user?.username ||
+          (userData?.user?.email ? userData.user.email.split("@")[0] : "User");
+
+        setUserData({
+          name: displayName,
+          userType: userData?.user?.userType,
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    if (user?.userType) {
+      fetchUserData();
+    }
+  }, [user?.userType]);
 
   const expertNavItems: NavItem[] = [
-    { name: "Your Bookings", icon: FiCalendar, path: "/expert-dashboard" },
+    { name: "Your Bookings", icon: FiCalendar, path: "/staff-dashboard" },
     {
       name: "Availability",
       icon: FiClock,
-      path: "/expert-dashboard/availability",
+      path: "/staff-dashboard/availability",
     },
     {
       name: "Payments",
       icon: FiDollarSign,
-      path: "/expert-dashboard/payments",
+      path: "/staff-dashboard/payments",
     },
     {
       name: "Your Profile",
       icon: FiUser,
-      path: "/expert-dashboard/profile",
+      path: "/staff-dashboard/profile",
       alert: true,
     },
   ];
@@ -106,24 +136,26 @@ export function Sidebar() {
     : isStaffDashboard
     ? expertNavItems
     : studentNavItems;
+  console.log("userData", userData);
 
   return (
     <aside className="w-72 bg-white border-r border-gray-100 shadow-sm flex flex-col overflow-hidden">
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-navy to-navy-dark flex items-center justify-center text-white text-sm font-medium shadow-md">
-            MM
+            {userData?.name
+              ? userData.name.substring(0, 2).toUpperCase()
+              : "..."}
           </div>
           <div>
-            {" "}
             <span className="text-xs font-medium text-gray-900">
-              Milan Mahat
+              {userData?.name || "Loading..."}
             </span>
             <p className="text-[11px] text-gray-500">
-              {isAdminDashboard
+              {userData?.userType === "admin"
                 ? "Super Admin"
-                : isStaffDashboard
-                ? "staff"
+                : userData?.userType === "staff"
+                ? "Expert"
                 : "Student"}
             </p>
           </div>

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { FiMail } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
+import { userService } from "../api/services/user.service";
+import { useAuthStore } from "../store/useAuthStore";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -13,6 +14,8 @@ interface GoogleCredentialResponse {
 export default function StudentSignup() {
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const setUser = useAuthStore((state) => state.setUser);
+  const setToken = useAuthStore((state) => state.setToken);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -102,16 +105,48 @@ export default function StudentSignup() {
                       credentialResponse.credential,
                       "student",
                     );
-                    navigate("/student-dashboard");
-                  } catch (error) {
-                    setError(
-                      "Failed to sign up with Google. Please try again.",
+
+                    // Store auth token first so it's available for subsequent API calls
+                    setToken(response.token);
+
+                    // Now fetch user data with the new token
+                    const userData = await userService.getCurrentUser(
+                      "student",
                     );
+
+                    // Store complete user data
+                    setUser({
+                      id: response.id,
+                      userType: response.userType,
+                      redirectUrl: response.redirectUrl,
+                      name:
+                        userData?.user?.username ||
+                        userData?.user?.email?.split("@")[0] ||
+                        "User",
+                    });
+
+                    // Navigate based on profile status
+                    if (
+                      response.profileStatus &&
+                      !response.profileStatus.isComplete
+                    ) {
+                      navigate("/student/profile-setup");
+                    } else {
+                      navigate(response.redirectUrl || "/student-dashboard");
+                    }
+                  } catch (error: unknown) {
+                    const errorMessage =
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to sign up with Google. Please try again.";
+
+                    setError(errorMessage);
                     console.error("Error during Google signup:", error);
                   }
                 }}
                 onError={() => {
                   setError("Failed to sign up with Google. Please try again.");
+                  console.error("Google OAuth Sign-in failed");
                 }}
                 useOneTap
                 theme="outline"

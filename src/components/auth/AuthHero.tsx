@@ -41,13 +41,19 @@ export default function AuthHero() {
       <div className="relative h-full flex flex-col justify-center px-16">
         <div className="max-w-3xl mx-auto text-center w-full">
           <div className="mb-12">
-            <div className="flex items-center justify-center">
-              <div className="w-96 h-12">
-                <img
-                  src="/src/assets/images/sessionly-logo.png"
-                  alt="Sessionly"
-                  className="w-full h-full object-contain"
-                />
+            <div className="flex items-center justify-center mb-20 relative">
+              <div className="relative w-96 h-20 transform hover:scale-105 transition-transform duration-300">
+                {/* Skewed background elements with improved colors and effects */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-blue-600/30 backdrop-blur-sm transform -skew-x-12 -translate-x-4 rounded-lg"></div>
+                <div className="absolute inset-0 bg-gradient-to-l from-white/40 to-white/20 backdrop-blur-sm transform skew-x-12 translate-x-4 rounded-lg"></div>
+                {/* Main logo container with enhanced glass effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/95 to-white/85 backdrop-blur-md rounded-lg shadow-xl border border-white/20">
+                  <img
+                    src="/src/assets/images/sessionly-logo.png"
+                    alt="Sessionly"
+                    className="w-full h-full object-cover p-3"
+                  />
+                </div>
               </div>
             </div>
           </div>
