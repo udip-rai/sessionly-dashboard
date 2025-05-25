@@ -15,9 +15,11 @@ import {
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
 import { NavItem } from "../../types/navigation";
+import { useAuth } from "../../context/AuthContext";
 
 export function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuth();
   const currentPath = location.pathname;
   const isExpertDashboard = currentPath.startsWith("/expert-dashboard");
   const isAdminDashboard = currentPath.startsWith("/admin-dashboard");
@@ -107,17 +109,18 @@ export function Sidebar() {
     : studentNavItems;
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-100 shadow-sm flex flex-col h-[calc(100vh-64px)]">
+    <aside className="w-72 bg-white border-r border-gray-100 shadow-sm flex flex-col overflow-hidden">
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-navy to-navy-dark flex items-center justify-center text-white text-sm font-medium shadow-md">
             MM
           </div>
           <div>
-            <span className="text-sm font-medium text-gray-900">
+            {" "}
+            <span className="text-xs font-medium text-gray-900">
               Milan Mahat
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-[11px] text-gray-500">
               {isAdminDashboard
                 ? "Super Admin"
                 : isExpertDashboard
@@ -128,14 +131,14 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="p-6 flex-1">
+      <nav className="flex-1 overflow-y-auto p-6">
         <div className="space-y-1 mb-8">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.path}
               className={`
-                group flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200
+                group flex items-center justify-between px-4 py-3 text-xs font-medium rounded-lg transition-all duration-200
                 ${
                   currentPath === item.path
                     ? "bg-navy text-white shadow-sm"
@@ -201,7 +204,10 @@ export function Sidebar() {
       </nav>
 
       <div className="p-6 border-t border-gray-100">
-        <button className="w-full flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg transition-all duration-200">
+        <button
+          onClick={useAuth().logout}
+          className="w-full flex items-center px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg transition-all duration-200"
+        >
           <FiLogOut className="mr-3 h-5 w-5 text-gray-400" />
           Sign Out
         </button>

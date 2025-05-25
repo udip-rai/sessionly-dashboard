@@ -18,7 +18,7 @@ export function Navbar() {
       ];
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-lg flex-none">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
