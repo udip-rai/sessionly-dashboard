@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { assets } from "@/constants/assets";
 
 export default function AuthHero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -49,7 +50,7 @@ export default function AuthHero() {
                 {/* Main logo container with enhanced glass effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/95 to-white/85 backdrop-blur-md rounded-lg shadow-xl border border-white/20">
                   <img
-                    src="/src/assets/images/sessionly-logo.png"
+                    src={assets.logo}
                     alt="Sessionly"
                     className="w-full h-full object-cover p-3"
                   />

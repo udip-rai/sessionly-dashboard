@@ -69,7 +69,7 @@ export default function LoginPage() {
         {/* Scrollable Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
           <FormContainer>
-            <div className="w-full mb-6">
+            <div className="w-full mb-6 flex justify-center">
               <GoogleLogin
                 onSuccess={async (
                   credentialResponse: GoogleCredentialResponse,
@@ -181,15 +181,21 @@ export default function LoginPage() {
               <FormButton type="submit">Sign in</FormButton>
 
               <div className="mt-8 space-y-4">
-                <p className="text-sm text-gray-600">Don't have an account yet?</p>
+                <p className="text-sm text-gray-600">
+                  Don't have an account yet?
+                </p>
                 <div className="grid grid-cols-2 gap-4">
                   <Link
                     to="/signup/student"
                     className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 group"
                   >
                     <div className="text-center">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">Sign up as Student</p>
-                      <p className="text-xs text-gray-500 mt-1">Find your perfect mentor</p>
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
+                        Sign up as Student
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Find your perfect mentor
+                      </p>
                     </div>
                   </Link>
                   <Link
@@ -197,8 +203,12 @@ export default function LoginPage() {
                     className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 hover:border-blue-300 transition-all duration-200 group"
                   >
                     <div className="text-center">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">Sign up as Expert</p>
-                      <p className="text-xs text-gray-500 mt-1">Share your expertise</p>
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
+                        Sign up as Expert
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Share your expertise
+                      </p>
                     </div>
                   </Link>
                 </div>
