@@ -68,11 +68,15 @@ export const studentService = {
     }
     if (data.image) formData.append("image", data.image);
 
-    const response = await api.put<UpdateProfileResponse>(endpoint, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await api.patch<UpdateProfileResponse>(
+      endpoint,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response;
   },
 };
