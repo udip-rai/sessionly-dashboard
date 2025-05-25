@@ -1,9 +1,24 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { googleAuthService } from "../api/services/google-auth.service";
+import { useAuthStore } from "../store/useAuthStore";
 import AuthHero from "../components/auth/AuthHero";
+import {
+  FormContainer,
+  FormInput,
+  FormLabel,
+  FormButton,
+  FormError,
+  FormDivider,
+  FormSection,
+} from "../components/auth/AuthForm";
+
+interface GoogleCredentialResponse {
+  credential?: string;
+}
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,20 +26,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
+  const setToken = useAuthStore((state) => state.setToken);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const testMe = await login({ email, password });
-      console.log("testMe", testMe);
+      await login({ email, password });
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
           "Invalid credentials. Please try again.",
       );
-      // Prevent form from resetting on error
       e.preventDefault();
       return false;
     }
@@ -51,106 +67,123 @@ export default function LoginPage() {
 
         {/* Scrollable Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
-          <div className="w-full max-w-sm mx-auto space-y-8">
-            <div className="flex gap-4 justify-center">
+          <FormContainer>
+            <div className="flex gap-4 justify-center mb-8">
               <Link
                 to="/signup/student"
-                className="text-sm text-navy hover:text-blue-700 transition-colors duration-200"
+                className="text-sm font-medium text-navy hover:text-blue-700 transition-colors duration-200"
               >
                 Sign up as Student
               </Link>
               <Link
                 to="/signup/staff"
-                className="text-sm text-navy hover:text-blue-700 transition-colors duration-200"
+                className="text-sm font-medium text-navy hover:text-blue-700 transition-colors duration-200"
               >
                 Sign up as Expert
               </Link>
             </div>
 
-            <button className="w-full flex justify-center items-center px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 hover:border-navy">
-              <FcGoogle className="h-5 w-5 mr-3" />
-              Continue with Google
-            </button>
+            <div className="w-full mb-6">
+              <GoogleLogin
+                onSuccess={async (
+                  credentialResponse: GoogleCredentialResponse,
+                ) => {
+                  try {
+                    if (!credentialResponse.credential) {
+                      throw new Error("No credentials received from Google");
+                    }
+                    const response = await googleAuthService.signInWithGoogle(
+                      credentialResponse.credential,
+                    );
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-4 bg-white text-xs text-gray-500">
-                  or continue with email
-                </span>
-              </div>
+                    // Store auth data
+                    setUser({
+                      id: response.id,
+                      userType: response.userType,
+                      redirectUrl: response.redirectUrl,
+                    });
+                    setToken(response.token);
+
+                    // Navigate based on response
+                    if (
+                      response.profileStatus &&
+                      !response.profileStatus.isComplete
+                    ) {
+                      navigate(
+                        response.userType === "staff"
+                          ? "/staff/profile-setup"
+                          : "/student/profile-setup",
+                      );
+                    } else {
+                      navigate(
+                        response.redirectUrl ||
+                          `/${response.userType}-dashboard`,
+                      );
+                    }
+                  } catch (error) {
+                    setError("Failed to login with Google. Please try again.");
+                    console.error("Error during Google login:", error);
+                  }
+                }}
+                onError={() => {
+                  setError("Failed to login with Google. Please try again.");
+                }}
+                useOneTap
+                theme="outline"
+                size="large"
+                text="continue_with"
+                shape="rectangular"
+                width="100%"
+              />
             </div>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              {error && (
-                <div className="p-2.5 text-xs text-red-600 bg-red-50 rounded-lg">
-                  {error}
-                </div>
-              )}
+            <FormDivider />
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && <FormError>{error}</FormError>}
+
+              <FormSection>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormInput
                   id="email"
                   name="email"
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy transition-all duration-200"
                   placeholder="name@company.com"
                 />
-              </div>
+              </FormSection>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-xs font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <div className="mt-1 relative">
-                  <input
+              <FormSection>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <div className="relative">
+                  <FormInput
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy transition-all duration-200"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
-                      <FiEyeOff className="h-4 w-4 text-gray-400" />
+                      <FiEyeOff className="h-4 w-4" />
                     ) : (
-                      <FiEye className="h-4 w-4 text-gray-400" />
+                      <FiEye className="h-4 w-4" />
                     )}
                   </button>
                 </div>
-              </div>
+              </FormSection>
 
-              <div>
-                <button
-                  type="submit"
-                  className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-navy hover:bg-navy/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy"
-                >
-                  Sign in
-                </button>
-              </div>
+              <FormButton type="submit">Sign in</FormButton>
             </form>
-          </div>
+          </FormContainer>
         </div>
       </div>
     </div>

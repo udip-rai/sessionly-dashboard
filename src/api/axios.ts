@@ -19,7 +19,7 @@ export const BASE_API = axios.create({
 // Request interceptor
 BASE_API.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = Cookies.get("auth_token");
+    const token = Cookies.get("token");
 
     // Add token to headers if it exists
     if (token) {
@@ -46,7 +46,7 @@ BASE_API.interceptors.response.use(
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
       // Clear auth state
-      Cookies.remove("auth_token");
+      Cookies.remove("token");
       useAuthStore.getState().logout();
       window.location.href = "/login";
       return Promise.reject(error);

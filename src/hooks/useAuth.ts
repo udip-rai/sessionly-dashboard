@@ -7,7 +7,7 @@ import { showToast } from "../utils/toast";
 import Cookies from "js-cookie";
 
 const setAuthToken = (token: string) => {
-  Cookies.set("auth_token", token, { expires: 7, secure: true });
+  Cookies.set("token", token, { expires: 7, secure: true });
 };
 
 export function useExpertSignup() {

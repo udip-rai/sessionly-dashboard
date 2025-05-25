@@ -18,11 +18,11 @@ interface AuthState {
 
 // Token management functions
 const setAuthToken = (token: string) => {
-  Cookies.set("auth_token", token, { expires: 7, secure: true });
+  Cookies.set("token", token, { expires: 7, secure: true });
 };
 
 const removeAuthToken = () => {
-  Cookies.remove("auth_token");
+  Cookies.remove("token");
 };
 
 export const useAuthStore = create<AuthState>()(
