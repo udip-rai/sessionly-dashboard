@@ -50,8 +50,9 @@ export const studentService = {
   updateStudentProfile: async (
     studentId: string,
     data: UpdateStudentProfileData,
-  ) => {
+  ): Promise<UpdateProfileResponse> => {
     const formData = new FormData();
+    const endpoint = STUDENT_APIS.updateProfile(studentId);
 
     // Handle each field explicitly
     if (data.username) formData.append("username", data.username);
@@ -67,15 +68,11 @@ export const studentService = {
     }
     if (data.image) formData.append("image", data.image);
 
-    const response = await api.put<UpdateProfileResponse>(
-      STUDENT_APIS.updateProfile,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    const response = await api.put<UpdateProfileResponse>(endpoint, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
-    );
+    });
     return response;
   },
 };

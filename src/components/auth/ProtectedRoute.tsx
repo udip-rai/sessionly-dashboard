@@ -11,32 +11,17 @@ export function ProtectedRoute({
   allowedRoles,
 }: ProtectedRouteProps) {
   const location = useLocation();
-  const { isAuthenticated, userRole, profileStatus } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !userRole) {
     return <Navigate to="/login" state={{ from: location }} replace />;
-  } // If authenticated but no role, something is wrong - redirect to login
-  if (!userRole) {
-    return <Navigate to="/login" replace />;
-  }
-  // If user with incomplete profile, redirect to profile setup
-  if (profileStatus && !profileStatus.isComplete) {
-    if (userRole === "staff" && location.pathname !== "/staff/profile-setup") {
-      return <Navigate to="/staff/profile-setup" replace />;
-    }
-    if (
-      userRole === "student" &&
-      location.pathname !== "/student/profile-setup"
-    ) {
-      return <Navigate to="/student/profile-setup" replace />;
-    }
   }
 
-  // If route requires specific roles and user's role isn't included
+  // Check if user has permission
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    // Redirect to user's appropriate dashboard based on redirectUrl from auth response
     return <Navigate to={`/${userRole}-dashboard`} replace />;
   }
 
+  // Return the protected content
   return <>{children}</>;
 }

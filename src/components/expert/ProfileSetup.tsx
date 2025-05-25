@@ -75,8 +75,8 @@ interface APICategory {
 
 export default function ProfileSetup({
   onComplete,
-  profileStatus,
-}: ProfileSetupProps) {
+}: // profileStatus,
+ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
   const [formData, setFormData] = useState<FormData>({
@@ -88,7 +88,7 @@ export default function ProfileSetup({
     websiteUrl: "",
     expertiseAreas: [],
   });
-  const [error, setError] = useState("");
+  const [_, setError] = useState("");
   const { data: categoriesResponse } = useQuery<CategoriesResponse>({
     queryKey: ["expertiseAreas"],
     queryFn: profileService.getExpertiseAreas,

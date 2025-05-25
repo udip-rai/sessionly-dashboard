@@ -1,6 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/useAuthStore";
-import Cookies from "js-cookie";
 
 // Extract values and set defaults
 const baseURL = `${import.meta.env.VITE_PUBLIC_BASE_URL}/api/v2`;
@@ -10,6 +9,7 @@ const TIMEOUT = 15000; // 15 seconds
 export const BASE_API = axios.create({
   baseURL,
   timeout: TIMEOUT,
+  // withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -19,7 +19,7 @@ export const BASE_API = axios.create({
 // Request interceptor
 BASE_API.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = Cookies.get("token");
+    const token = useAuthStore.getState().token;
 
     // Add token to headers if it exists
     if (token) {
@@ -45,10 +45,12 @@ BASE_API.interceptors.response.use(
   async (error: AxiosError) => {
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
-      // Clear auth state
-      Cookies.remove("token");
+      // Clear auth state using only the store
       useAuthStore.getState().logout();
-      window.location.href = "/login";
+      // Only redirect if we're not already on the login page
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
       return Promise.reject(error);
     }
 
