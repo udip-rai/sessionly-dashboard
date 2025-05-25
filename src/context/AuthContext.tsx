@@ -7,11 +7,27 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface SignupData {
+  username: string;
+  email: string;
+  phone: string;
+  bio: string;
+  linkedinUrl: string;
+  websiteUrl?: string;
+  otherUrls?: string[];
+  password: string;
+  userType: "student" | "expert";
+  expertiseAreas?: string[];
+  hourlyRate?: string;
+  profileImage?: File;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   userRole: "admin" | "expert" | "student" | null;
+  signup: (data: SignupData) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -53,8 +69,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate("/login");
   };
 
+  const signup = async (data: SignupData) => {
+    try {
+      // For demo purposes, simulate API call
+      console.log("Signup data:", data);
+
+      // In a real app, you would make an API call here
+      // For now, we'll simulate a successful signup
+      setIsAuthenticated(true);
+      setUserRole(data.userType);
+      localStorage.setItem("sessionly_token", "demo_token");
+      localStorage.setItem("sessionly_role", data.userType);
+
+      return true;
+    } catch (error) {
+      console.error("Signup error:", error);
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userRole }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, userRole, signup }}
+    >
       {children}
     </AuthContext.Provider>
   );

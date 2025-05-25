@@ -22,6 +22,8 @@ import { ContentManagement } from "./components/admin/ContentManagement";
 import { BookingManagement } from "./components/admin/BookingManagement";
 import { MessageManagement } from "./components/admin/MessageManagement";
 import { PaymentManagement } from "./components/admin/PaymentManagement";
+import ExpertSignup from "./pages/expert-signup";
+import StudentSignup from "./pages/student-signup";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -39,6 +41,8 @@ function App() {
           )
         }
       />
+      <Route path="/signup/student" element={<StudentSignup />} />
+      <Route path="/signup/expert" element={<ExpertSignup />} />
 
       {/* Protected Admin Routes */}
       <Route
