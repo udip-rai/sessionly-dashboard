@@ -7,7 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        'navy': '#1E1B3C',
+        'navy-light': '#FFFFFF', // Pure white for start
+        'navy': '#2834B3', // Softer version of the logo's blue
+        'navy-dark': '#1E1B3C', // Darker blue for depth
         'Sessionly-orange': '#FF7D6B',
       },
       fontFamily: {
