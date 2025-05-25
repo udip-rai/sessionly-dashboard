@@ -18,7 +18,7 @@ export function Navbar() {
       ];
 
   return (
-    <nav className="bg-gradient-to-r from-white from-0% via-navy via-60% to-navy-dark shadow-lg">
+    <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -29,7 +29,7 @@ export function Navbar() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-white/90 hover:text-white transition-colors duration-200"
+                className="text-gray-600 hover:text-navy hover:bg-navy-hover px-3 py-2 rounded-md transition-all duration-200"
               >
                 {link.label}
               </a>
