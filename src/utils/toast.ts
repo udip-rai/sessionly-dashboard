@@ -1,0 +1,60 @@
+import toast from "react-hot-toast";
+
+const baseToastOptions = {
+  style: {
+    borderRadius: "14px",
+    padding: "16px 20px",
+    boxShadow:
+      "0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 6px 12px -6px rgba(0, 0, 0, 0.08)",
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    maxWidth: "400px",
+    border: "1px solid rgba(0, 0, 0, 0.05)",
+    animation: "toast-slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+  },
+  duration: 4000,
+  position: "top-right",
+  className:
+    "transform transition-all duration-300 hover:scale-105 hover:shadow-xl",
+  onClick: () => toast.dismiss(),
+};
+
+export const showToast = {
+  success: (message: string) => {
+    toast.success(message, {
+      ...baseToastOptions,
+      duration: 3000,
+      position: "top-right",
+      className: "!bg-white !text-green-600",
+    });
+  },
+
+  error: (message: string) => {
+    toast.error(message, {
+      ...baseToastOptions,
+      duration: 4000,
+      position: "top-right",
+      className: "!bg-white !text-red-600",
+    });
+  },
+
+  warning: (message: string) => {
+    toast(message, {
+      ...baseToastOptions,
+      duration: 3000,
+      position: "top-right",
+      icon: "⚠️",
+      className: "!bg-white !text-yellow-600",
+    });
+  },
+
+  info: (message: string) => {
+    toast(message, {
+      ...baseToastOptions,
+      duration: 3000,
+      position: "top-right",
+      icon: "ℹ️",
+      className: "!bg-white !text-navy",
+    });
+  },
+};

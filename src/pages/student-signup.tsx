@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { FiUser, FiMail, FiPhone, FiLink, FiLinkedin } from "react-icons/fi";
+import { FiMail } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../context/AuthContext";
 import AuthHero from "../components/auth/AuthHero";
@@ -9,13 +9,7 @@ export default function StudentSignup() {
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
-    phone: "",
-    bio: "",
-    linkedinUrl: "",
-    websiteUrl: "",
-    otherUrls: [""],
     password: "",
     confirmPassword: "",
   });
@@ -23,7 +17,6 @@ export default function StudentSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
-    if (!formData.username.trim()) return "Username is required";
     if (!formData.email.trim()) return "Email is required";
     if (!formData.password) return "Password is required";
     if (formData.password.length < 6)
@@ -46,9 +39,9 @@ export default function StudentSignup() {
 
     try {
       const success = await signup({
-        ...formData,
+        email: formData.email,
+        password: formData.password,
         userType: "student",
-        otherUrls: formData.otherUrls.filter((url) => url.trim() !== ""),
       });
 
       if (success) {
@@ -73,9 +66,9 @@ export default function StudentSignup() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Form Section - Left */}
-      <div className="w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scroll-smooth">
+      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto">
         {/* Fixed Header */}
         <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white z-10 pb-6 border-b border-gray-50">
           <div className="w-full max-w-sm mx-auto space-y-1.5 text-center">
@@ -88,7 +81,7 @@ export default function StudentSignup() {
           </div>
         </div>
 
-        {/*  Form Container */}
+        {/* Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
           <div className="w-full max-w-sm mx-auto space-y-8">
             <button className="w-full flex justify-center items-center px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 hover:border-navy">
@@ -114,30 +107,6 @@ export default function StudentSignup() {
                 </div>
               )}
 
-              {/* Username field */}
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-xs font-medium text-gray-700"
-                >
-                  Username
-                </label>
-                <div className="mt-1 relative rounded-lg">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiUser className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="pl-10 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                  />
-                </div>
-              </div>
-
               {/* Email field */}
               <div>
                 <label
@@ -158,11 +127,12 @@ export default function StudentSignup() {
                     value={formData.email}
                     onChange={handleChange}
                     className="pl-10 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                    placeholder="name@example.com"
                   />
                 </div>
               </div>
 
-              {/* Password fields in one group */}
+              {/* Password fields */}
               <div className="space-y-4">
                 <div>
                   <label
@@ -179,6 +149,7 @@ export default function StudentSignup() {
                     value={formData.password}
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                    placeholder="At least 6 characters"
                   />
                 </div>
 
@@ -197,106 +168,10 @@ export default function StudentSignup() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                    placeholder="Re-enter password"
                   />
                 </div>
               </div>
-
-              {/* Optional Details Accordion */}
-              <details className="group">
-                <summary className="text-xs font-medium text-gray-700 cursor-pointer hover:text-navy">
-                  Additional Information (Optional)
-                </summary>
-                <div className="mt-4 space-y-4">
-                  {/* Phone field */}
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-xs font-medium text-gray-700"
-                    >
-                      Phone
-                    </label>
-                    <div className="mt-1 relative rounded-lg">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiPhone className="h-4 w-4 text-gray-400" />
-                      </div>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="pl-10 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bio field */}
-                  <div>
-                    <label
-                      htmlFor="bio"
-                      className="block text-xs font-medium text-gray-700"
-                    >
-                      Bio
-                    </label>
-                    <textarea
-                      id="bio"
-                      name="bio"
-                      rows={3}
-                      value={formData.bio}
-                      onChange={handleChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                      placeholder="Tell us about yourself..."
-                    />
-                  </div>
-
-                  {/* Social Links */}
-                  <div>
-                    <label
-                      htmlFor="linkedinUrl"
-                      className="block text-xs font-medium text-gray-700"
-                    >
-                      LinkedIn Profile
-                    </label>
-                    <div className="mt-1 relative rounded-lg">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiLinkedin className="h-4 w-4 text-gray-400" />
-                      </div>
-                      <input
-                        id="linkedinUrl"
-                        name="linkedinUrl"
-                        type="url"
-                        value={formData.linkedinUrl}
-                        onChange={handleChange}
-                        className="pl-10 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                        placeholder="https://linkedin.com/in/username"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="websiteUrl"
-                      className="block text-xs font-medium text-gray-700"
-                    >
-                      Personal Website
-                    </label>
-                    <div className="mt-1 relative rounded-lg">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiLink className="h-4 w-4 text-gray-400" />
-                      </div>
-                      <input
-                        id="websiteUrl"
-                        name="websiteUrl"
-                        type="url"
-                        value={formData.websiteUrl}
-                        onChange={handleChange}
-                        className="pl-10 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                        placeholder="https://your-website.com"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </details>
 
               <div>
                 <button
@@ -305,7 +180,7 @@ export default function StudentSignup() {
                   className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-navy hover:bg-navy/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Creating Account..." : "Create Account"}
-                </button>{" "}
+                </button>
               </div>
               <div className="text-center mt-6">
                 <p className="text-sm text-gray-600">
@@ -324,7 +199,7 @@ export default function StudentSignup() {
       </div>
 
       {/* Hero Section - Right */}
-      <div className="w-[65%] h-screen">
+      <div className="hidden lg:block lg:w-[60%] xl:w-[65%] h-screen">
         <AuthHero />
       </div>
     </div>

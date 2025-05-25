@@ -3,36 +3,39 @@ import { useAuth } from "../../context/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ("admin" | "expert" | "student")[];
+  allowedRoles?: ("admin" | "staff" | "student")[];
 }
 
 export function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, userRole } = useAuth();
   const location = useLocation();
+  const { isAuthenticated, userRole, profileStatus } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  } // If authenticated but no role, something is wrong - redirect to login
+  if (!userRole) {
+    return <Navigate to="/login" replace />;
+  }
+  // If user with incomplete profile, redirect to profile setup
+  if (profileStatus && !profileStatus.isComplete) {
+    if (userRole === "staff" && location.pathname !== "/staff/profile-setup") {
+      return <Navigate to="/staff/profile-setup" replace />;
+    }
+    if (
+      userRole === "student" &&
+      location.pathname !== "/student/profile-setup"
+    ) {
+      return <Navigate to="/student/profile-setup" replace />;
+    }
   }
 
-  // If specific roles are required for this route
-  if (allowedRoles && allowedRoles.length > 0) {
-    // If user doesn't have a role yet or their role isn't in the allowed list
-    if (!userRole || !allowedRoles.includes(userRole)) {
-      // Redirect to the appropriate dashboard based on role
-      switch (userRole) {
-        case "admin":
-          return <Navigate to="/admin-dashboard" replace />;
-        case "expert":
-          return <Navigate to="/expert-dashboard" replace />;
-        case "student":
-          return <Navigate to="/student-dashboard" replace />;
-        default:
-          return <Navigate to="/login" replace />;
-      }
-    }
+  // If route requires specific roles and user's role isn't included
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    // Redirect to user's appropriate dashboard based on redirectUrl from auth response
+    return <Navigate to={`/${userRole}-dashboard`} replace />;
   }
 
   return <>{children}</>;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AuthHero from "../components/auth/AuthHero";
 
 export default function LoginPage() {
@@ -11,34 +11,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate("/admin-dashboard");
-      } else {
-        setError("Invalid credentials. Use admin@gmail.com/admin for demo.");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+      const testMe = await login({ email, password });
+      console.log("testMe", testMe);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "Invalid credentials. Please try again.",
+      );
+      // Prevent form from resetting on error
+      e.preventDefault();
+      return false;
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Hero Section - Left */}
-      <div className="w-[65%] h-screen">
+      <div className="hidden lg:block lg:w-[60%] xl:w-[65%] h-screen">
         <AuthHero />
       </div>
 
       {/* Login Form - Right */}
-      {/* <div className="w-[35%] bg-white flex flex-col shadow-2xl relative z-10"> */}
-      <div className="w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scroll-smooth">
+      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scroll-smooth">
         {/* Fixed Header */}
         <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white z-10 pb-6 border-b border-gray-50">
           <div className="w-full max-w-sm mx-auto space-y-1.5 text-center">
@@ -60,7 +60,7 @@ export default function LoginPage() {
                 Sign up as Student
               </Link>
               <Link
-                to="/signup/expert"
+                to="/signup/staff"
                 className="text-sm text-navy hover:text-blue-700 transition-colors duration-200"
               >
                 Sign up as Expert

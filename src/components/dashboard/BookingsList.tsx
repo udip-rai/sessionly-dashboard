@@ -1,7 +1,16 @@
-import { FiVideo, FiPlay, FiClock, FiDollarSign, FiX, FiCalendar, FiMail, FiGlobe } from 'react-icons/fi';
-import { format } from 'date-fns';
-import { Booking } from '../../types/bookings';
-import { useLocation } from 'react-router-dom';
+import {
+  FiVideo,
+  FiPlay,
+  FiClock,
+  FiDollarSign,
+  FiX,
+  FiCalendar,
+  FiMail,
+  FiGlobe,
+} from "react-icons/fi";
+import { format } from "date-fns";
+import { Booking } from "../../types/bookings";
+import { useLocation } from "react-router-dom";
 
 interface BookingsListProps {
   bookings: Booking[];
@@ -9,23 +18,23 @@ interface BookingsListProps {
 
 export function BookingsList({ bookings }: BookingsListProps) {
   const location = useLocation();
-  const isExpertDashboard = location.pathname.startsWith('/expert-dashboard');
+  const isStaffDashboard = location.pathname.startsWith("/expert-dashboard");
 
   const handleCancel = (bookingId: string) => {
     // To be implemented: Handle cancellation
-    console.log('Cancel booking:', bookingId);
+    console.log("Cancel booking:", bookingId);
   };
 
   const handleReschedule = (bookingId: string) => {
     // To be implemented: Handle reschedule
-    console.log('Reschedule booking:', bookingId);
+    console.log("Reschedule booking:", bookingId);
   };
 
   return (
     <div className="space-y-4">
       {bookings.map((booking) => (
-        <div 
-          key={booking.id} 
+        <div
+          key={booking.id}
           className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
         >
           <div className="flex justify-between items-start mb-4">
@@ -34,29 +43,34 @@ export function BookingsList({ bookings }: BookingsListProps) {
                 <h3 className="font-semibold text-gray-900">
                   {booking.studentDetails.name}
                 </h3>
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  booking.status === 'completed' 
-                    ? 'bg-gray-100 text-gray-600'
-                    : booking.status === 'cancelled'
-                    ? 'bg-red-100 text-red-600'
-                    : booking.status === 'rescheduling'
-                    ? 'bg-yellow-100 text-yellow-600'
-                    : 'bg-navy/10 text-navy'
-                }`}>
-                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                <span
+                  className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    booking.status === "completed"
+                      ? "bg-gray-100 text-gray-600"
+                      : booking.status === "cancelled"
+                      ? "bg-red-100 text-red-600"
+                      : booking.status === "rescheduling"
+                      ? "bg-yellow-100 text-yellow-600"
+                      : "bg-navy/10 text-navy"
+                  }`}
+                >
+                  {booking.status.charAt(0).toUpperCase() +
+                    booking.status.slice(1)}
                 </span>
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  booking.paymentStatus === 'completed'
-                    ? 'bg-green-100 text-green-600'
-                    : booking.paymentStatus === 'refunded'
-                    ? 'bg-orange-100 text-orange-600'
-                    : 'bg-yellow-100 text-yellow-600'
-                }`}>
+                <span
+                  className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    booking.paymentStatus === "completed"
+                      ? "bg-green-100 text-green-600"
+                      : booking.paymentStatus === "refunded"
+                      ? "bg-orange-100 text-orange-600"
+                      : "bg-yellow-100 text-yellow-600"
+                  }`}
+                >
                   Payment: {booking.paymentStatus}
                 </span>
               </div>
               <p className="text-sm text-gray-600 mb-3">{booking.topic}</p>
-              
+
               {/* Student Details */}
               <div className="space-y-2">
                 <div className="flex items-center text-sm text-gray-500">
@@ -78,7 +92,13 @@ export function BookingsList({ bookings }: BookingsListProps) {
               {booking.originalDateTime && (
                 <div className="flex items-center text-sm text-yellow-600">
                   <FiCalendar className="w-4 h-4 mr-1" />
-                  Rescheduled from: {format(new Date(`${booking.originalDateTime.date}T${booking.originalDateTime.time}`), 'PPp')}
+                  Rescheduled from:{" "}
+                  {format(
+                    new Date(
+                      `${booking.originalDateTime.date}T${booking.originalDateTime.time}`,
+                    ),
+                    "PPp",
+                  )}
                 </div>
               )}
             </div>
@@ -87,12 +107,15 @@ export function BookingsList({ bookings }: BookingsListProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center text-sm text-gray-500">
               <FiClock className="w-4 h-4 mr-2" />
-              {format(new Date(`${booking.date}T${booking.time}`), 'PPp')} · {booking.duration} mins
+              {format(
+                new Date(`${booking.date}T${booking.time}`),
+                "PPp",
+              )} · {booking.duration} mins
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Actions for completed sessions */}
-              {booking.status === 'completed' && booking.recordingLink && (
+              {booking.status === "completed" && booking.recordingLink && (
                 <a
                   href={booking.recordingLink}
                   target="_blank"
@@ -105,7 +128,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
               )}
 
               {/* Actions for upcoming sessions */}
-              {booking.status === 'upcoming' && (
+              {booking.status === "upcoming" && (
                 <>
                   <a
                     href={booking.meetingLink}
@@ -116,7 +139,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                     <FiVideo className="w-4 h-4 mr-2" />
                     Join Meeting
                   </a>
-                  {isExpertDashboard && (
+                  {isStaffDashboard && (
                     <>
                       <button
                         onClick={() => handleReschedule(booking.id)}

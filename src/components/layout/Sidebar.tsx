@@ -19,9 +19,8 @@ import { useAuth } from "../../context/AuthContext";
 
 export function Sidebar() {
   const location = useLocation();
-  const { logout } = useAuth();
   const currentPath = location.pathname;
-  const isExpertDashboard = currentPath.startsWith("/expert-dashboard");
+  const isStaffDashboard = currentPath.startsWith("/staff-dashboard");
   const isAdminDashboard = currentPath.startsWith("/admin-dashboard");
 
   const expertNavItems: NavItem[] = [
@@ -82,7 +81,7 @@ export function Sidebar() {
 
   // Only show policy items for student dashboard
   const policyItems =
-    isExpertDashboard || isAdminDashboard
+    isStaffDashboard || isAdminDashboard
       ? []
       : [
           {
@@ -104,7 +103,7 @@ export function Sidebar() {
 
   const navItems = isAdminDashboard
     ? adminNavItems
-    : isExpertDashboard
+    : isStaffDashboard
     ? expertNavItems
     : studentNavItems;
 
@@ -123,8 +122,8 @@ export function Sidebar() {
             <p className="text-[11px] text-gray-500">
               {isAdminDashboard
                 ? "Super Admin"
-                : isExpertDashboard
-                ? "Expert"
+                : isStaffDashboard
+                ? "staff"
                 : "Student"}
             </p>
           </div>

@@ -3,9 +3,9 @@ import { Logo } from "./Logo";
 
 export function Navbar() {
   const location = useLocation();
-  const isExpertDashboard = location.pathname.startsWith("/expert-dashboard");
+  const isStaffDashboard = location.pathname.startsWith("/expert-dashboard");
 
-  const navLinks = isExpertDashboard
+  const navLinks = isStaffDashboard
     ? [
         { href: "#", label: "About Sessionly" },
         { href: "#", label: "FAQs" },

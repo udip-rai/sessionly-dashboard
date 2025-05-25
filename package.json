@@ -10,18 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.77.0",
+    "@tanstack/react-query-devtools": "^5.77.0",
+    "@types/js-cookie": "^3.0.6",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.9.0",
     "chart.js": "^4.4.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "framer-motion": "^10.16.4",
+    "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-countup": "^6.4.2",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^4.11.0",
-    "react-router-dom": "^6.30.0"
+    "react-router-dom": "^6.30.0",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

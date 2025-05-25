@@ -16,7 +16,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  type: "student" | "expert";
+  type: "student" | "staff";
   status: "active" | "inactive" | "blocked";
   joinedDate: string;
   timezone: string;
@@ -42,7 +42,7 @@ const mockUsers: User[] = [
     name: "Dr. Sarah Johnson",
     email: "sarah.j@example.com",
     phone: "+1 234 567 8902",
-    type: "expert",
+    type: "staff",
     status: "active",
     joinedDate: "2024-11-20",
     timezone: "Europe/London",
@@ -123,7 +123,7 @@ export function UserManagement() {
           <p className="text-sm text-gray-600 mb-1">Active Experts</p>
           <h3 className="text-2xl font-semibold text-gray-900">
             {
-              users.filter((u) => u.type === "expert" && u.status === "active")
+              users.filter((u) => u.type === "staff" && u.status === "active")
                 .length
             }
           </h3>
@@ -161,9 +161,9 @@ export function UserManagement() {
               Students
             </button>
             <button
-              onClick={() => setFilter("expert")}
+              onClick={() => setFilter("staff")}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                filter === "expert"
+                filter === "staff"
                   ? "bg-navy text-white"
                   : "text-gray-600 hover:bg-gray-50"
               }`}
@@ -234,7 +234,7 @@ export function UserManagement() {
                     {user.timezone}
                   </div>
                 </div>
-                {user.type === "expert" && user.expertiseAreas && (
+                {user.type === "staff" && user.expertiseAreas && (
                   <div className="flex flex-wrap gap-2 mb-4">
                     {user.expertiseAreas.map((area, index) => (
                       <span

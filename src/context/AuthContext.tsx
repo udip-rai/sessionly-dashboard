@@ -1,86 +1,69 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { useExpertSignup, useStudentSignup, useLogin } from "../hooks/useAuth";
 
-interface SignupData {
-  username: string;
-  email: string;
-  phone: string;
-  bio: string;
-  linkedinUrl: string;
-  websiteUrl?: string;
-  otherUrls?: string[];
-  password: string;
-  userType: "student" | "expert";
-  expertiseAreas?: string[];
-  hourlyRate?: string;
-  profileImage?: File;
+export interface ProfileStatus {
+  isComplete: boolean;
+  missingFields: string[];
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (credentials: { email: string; password: string }) => Promise<any>;
   logout: () => void;
-  userRole: "admin" | "expert" | "student" | null;
-  signup: (data: SignupData) => Promise<boolean>;
+  userRole: "admin" | "staff" | "student" | null;
+  signup: (data: any) => Promise<boolean>;
+  profileStatus: ProfileStatus | null;
+  updateProfileStatus: (status: ProfileStatus) => void;
+  user: {
+    id: string;
+    userType: "student" | "staff" | "admin";
+    redirectUrl?: string;
+  } | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<
-    "admin" | "expert" | "student" | null
-  >(null);
   const navigate = useNavigate();
+  const { user, token, logout: storeLogout } = useAuthStore();
+  const expertSignup = useExpertSignup();
+  const studentSignup = useStudentSignup();
+  const loginMutation = useLogin();
+  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(
+    null,
+  );
 
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem("sessionly_token");
-    const savedRole = localStorage.getItem("sessionly_role");
-    if (token && savedRole) {
-      setIsAuthenticated(true);
-      setUserRole(savedRole as "admin" | "expert" | "student");
-    }
-  }, []);
+  const login = async (credentials: { email: string; password: string }) => {
+    const response = await loginMutation.mutateAsync(credentials);
 
-  const login = async (email: string, password: string) => {
-    // For demo purposes, using hardcoded credentials
-    if (email === "admin@gmail.com" && password === "admin") {
-      setIsAuthenticated(true);
-      setUserRole("admin");
-      localStorage.setItem("sessionly_token", "demo_token");
-      localStorage.setItem("sessionly_role", "admin");
-      return true;
+    // Store profile status from response
+    if (response.profileStatus) {
+      setProfileStatus(response.profileStatus);
+    } // Navigate based on profile completion and user type
+    if (response.profileStatus && !response.profileStatus.isComplete) {
+      if (response.userType === "staff") {
+        navigate("/staff/profile-setup");
+      } else if (response.userType === "student") {
+        navigate("/student/profile-setup");
+      }
+    } else {
+      navigate(response.redirectUrl || `/${response.userType}-dashboard`);
     }
-    return false;
+
+    return response;
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUserRole(null);
-    localStorage.removeItem("sessionly_token");
-    localStorage.removeItem("sessionly_role");
-    navigate("/login");
-  };
-
-  const signup = async (data: SignupData) => {
+  const signup = async (data: any) => {
     try {
-      // For demo purposes, simulate API call
-      console.log("Signup data:", data);
-
-      // In a real app, you would make an API call here
-      // For now, we'll simulate a successful signup
-      setIsAuthenticated(true);
-      setUserRole(data.userType);
-      localStorage.setItem("sessionly_token", "demo_token");
-      localStorage.setItem("sessionly_role", data.userType);
-
+      let response;
+      if (data.userType === "staff") {
+        response = await expertSignup.mutateAsync(data);
+      } else {
+        response = await studentSignup.mutateAsync(data);
+      }
+      navigate(response.redirectUrl || `/${response.userType}-dashboard`);
       return true;
     } catch (error) {
       console.error("Signup error:", error);
@@ -88,9 +71,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const logout = () => {
+    storeLogout();
+    setProfileStatus(null);
+    navigate("/login");
+  };
+
+  const updateProfileStatus = (status: ProfileStatus) => {
+    setProfileStatus(status);
+    if (status.isComplete && user) {
+      navigate(`/${user.userType}-dashboard`);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, userRole, signup }}
+      value={{
+        isAuthenticated: !!token,
+        login,
+        logout,
+        userRole: user?.userType || null,
+        signup,
+        profileStatus,
+        updateProfileStatus,
+        user,
+      }}
     >
       {children}
     </AuthContext.Provider>
