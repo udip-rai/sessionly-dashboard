@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
@@ -74,13 +74,13 @@ export default function ExpertSignup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100">
       {/* Form Section - Left */}
-      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto">
+      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white/80 backdrop-blur-xl flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scrollbar-thin">
         {/* Fixed Header */}
-        <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white z-10 pb-6 border-b border-gray-50">
+        <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white/90 backdrop-blur-xl z-10 pb-6 border-b border-gray-50">
           <div className="w-full max-w-sm mx-auto space-y-1.5 text-center">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-navy via-indigo-600 to-blue-600 bg-clip-text text-transparent">
               Create Expert Account
             </h2>
             <p className="text-sm text-gray-600">
@@ -91,8 +91,8 @@ export default function ExpertSignup() {
 
         {/* Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
-          <div className="w-full max-w-sm mx-auto space-y-8">
-            <div className="w-full">
+          <div className="w-full max-w-sm mx-auto space-y-6">
+            <div className="w-full flex justify-center">
               <GoogleLogin
                 onSuccess={async (
                   credentialResponse: GoogleCredentialResponse,
@@ -166,9 +166,8 @@ export default function ExpertSignup() {
               </div>
             </div>
 
-            {/* Rest of the form */}
             {error && (
-              <div className="p-2.5 text-xs text-red-600 bg-red-50 rounded-lg">
+              <div className="p-3 text-sm text-red-600 bg-red-50/80 backdrop-blur-sm rounded-xl border border-red-100">
                 {error}
               </div>
             )}
@@ -177,7 +176,7 @@ export default function ExpertSignup() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-800"
                 >
                   Email
                 </label>
@@ -190,7 +189,11 @@ export default function ExpertSignup() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
                   />
                 </div>
               </div>
@@ -198,7 +201,7 @@ export default function ExpertSignup() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-800"
                 >
                   Password
                 </label>
@@ -211,7 +214,11 @@ export default function ExpertSignup() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
                   />
                 </div>
               </div>
@@ -219,7 +226,7 @@ export default function ExpertSignup() {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-800"
                 >
                   Confirm Password
                 </label>
@@ -232,7 +239,11 @@ export default function ExpertSignup() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
                   />
                 </div>
               </div>
@@ -241,10 +252,28 @@ export default function ExpertSignup() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="w-full flex justify-center items-center px-4 py-3
+                  bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
+                  text-white text-sm font-medium rounded-xl
+                  transition-all duration-300 ease-in-out hover:scale-[1.02] 
+                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy
+                  disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl
+                  disabled:hover:scale-100"
                 >
                   {isSubmitting ? "Creating Account..." : "Create Account"}
                 </button>
+              </div>
+
+              <div className="mt-6 text-center">
+                <Link
+                  to="/login"
+                  className="text-sm text-gray-600 hover:text-navy transition-colors duration-200 flex items-center justify-center gap-2 group"
+                >
+                  Already have an account?{" "}
+                  <span className="font-semibold text-navy group-hover:text-blue-700">
+                    Sign in
+                  </span>
+                </Link>
               </div>
             </form>
           </div>

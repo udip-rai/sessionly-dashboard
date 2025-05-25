@@ -9,12 +9,8 @@ import { userService } from "../api/services/user.service";
 import AuthHero from "../components/auth/AuthHero";
 import {
   FormContainer,
-  FormInput,
-  FormLabel,
-  FormButton,
   FormError,
   FormDivider,
-  FormSection,
 } from "../components/auth/AuthForm";
 
 interface GoogleCredentialResponse {
@@ -48,25 +44,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100">
       {/* Hero Section - Left */}
       <div className="hidden lg:block lg:w-[60%] xl:w-[65%] h-screen">
         <AuthHero />
       </div>
 
       {/* Login Form - Right */}
-      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scroll-smooth">
+      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white/80 backdrop-blur-xl flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scrollbar-thin">
         {/* Fixed Header */}
-        <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white z-10 pb-6 border-b border-gray-50">
+        <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white/90 backdrop-blur-xl z-10 pb-6 border-b border-gray-50">
           <div className="w-full max-w-sm mx-auto space-y-1.5 text-center">
-            <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-navy via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+              Welcome Back
+            </h2>
             <p className="text-sm text-gray-600">
               Sign in to continue your journey
             </p>
           </div>
         </div>
 
-        {/* Scrollable Form Container */}
+        {/* Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
           <FormContainer>
             <div className="w-full mb-6 flex justify-center">
@@ -139,23 +137,40 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && <FormError>{error}</FormError>}
 
-              <FormSection>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <FormInput
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
-                />
-              </FormSection>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-800"
+                >
+                  Email
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
+                  />
+                </div>
+              </div>
 
-              <FormSection>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <div className="relative">
-                  <FormInput
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-800"
+                >
+                  Password
+                </label>
+                <div className="mt-1 relative">
+                  <input
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
@@ -163,6 +178,11 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
                   />
                   <button
                     type="button"
@@ -176,18 +196,28 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
-              </FormSection>
+              </div>
 
-              <FormButton type="submit">Sign in</FormButton>
+              <button
+                type="submit"
+                className="w-full flex justify-center items-center px-4 py-3
+                bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
+                text-white text-sm font-medium rounded-xl
+                transition-all duration-300 ease-in-out hover:scale-[1.02] 
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy
+                hover:shadow-xl"
+              >
+                Sign in
+              </button>
 
               <div className="mt-8 space-y-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 text-center">
                   Don't have an account yet?
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <Link
                     to="/signup/student"
-                    className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 group"
+                    className="flex items-center justify-center px-4 py-3 border border-gray-200/60 rounded-xl bg-white/80 hover:bg-white/90 hover:border-navy/30 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
                   >
                     <div className="text-center">
                       <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
@@ -200,7 +230,7 @@ export default function LoginPage() {
                   </Link>
                   <Link
                     to="/signup/staff"
-                    className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 hover:border-blue-300 transition-all duration-200 group"
+                    className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200/60 hover:border-navy/30 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
                   >
                     <div className="text-center">
                       <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
