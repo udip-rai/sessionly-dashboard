@@ -255,15 +255,36 @@ export default function StudentSignup() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex justify-center items-center px-4 py-3
+                  className="relative w-full flex justify-center items-center px-6 py-3.5 mt-6
                   bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
-                  text-white text-sm font-medium rounded-xl
-                  transition-all duration-300 ease-in-out hover:scale-[1.02] 
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy
-                  disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl
-                  disabled:hover:scale-100"
+                  text-white text-sm font-semibold rounded-xl shadow-lg
+                  transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl
+                  focus:outline-none focus:ring-4 focus:ring-navy/30 focus:ring-offset-2
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                  group overflow-hidden transform-gpu"
                 >
-                  {isSubmitting ? "Creating Account..." : "Create Account"}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-navy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isSubmitting
+                      ? "Creating Account..."
+                      : "Create Student Account"}
+                    {!isSubmitting && (
+                      <svg
+                        className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
                 </button>
               </div>
 

@@ -58,3 +58,22 @@ export const showToast = {
     });
   },
 };
+
+// Helper function specifically for JWT expiration handling
+export const handleJwtExpiration = (error: any) => {
+  const isAuthError = error?.response?.status === 401;
+  const isJwtExpired =
+    error?.response?.data?.error === "jwt expired" ||
+    error?.response?.data?.message === "Unauthorized User" ||
+    error?.response?.data?.message?.includes("expired");
+
+  if (isAuthError && isJwtExpired) {
+    showToast.warning("Your session has expired. Redirecting to login...");
+    return true;
+  } else if (isAuthError) {
+    showToast.error("Authentication failed. Please log in again.");
+    return true;
+  }
+
+  return false;
+};

@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../store/useAuthStore";
+import { showToast } from "../utils/toast";
 
 // Extract values and set defaults
 const baseURL = `${import.meta.env.VITE_PUBLIC_BASE_URL}/api/v2`;
@@ -20,6 +21,8 @@ export const BASE_API = axios.create({
 BASE_API.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = useAuthStore.getState().token;
+
+    console.log("token", token);
 
     // Add token to headers if it exists
     if (token) {
@@ -43,21 +46,57 @@ BASE_API.interceptors.request.use(
 BASE_API.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // Handle 401 Unauthorized errors
+    // Handle 401 Unauthorized errors (including JWT expiration)
     if (error.response?.status === 401) {
-      // Clear auth state using only the store
+      const errorData = error.response.data as any;
+      const isJwtExpired =
+        errorData?.error === "jwt expired" ||
+        errorData?.message === "Unauthorized User" ||
+        errorData?.message?.includes("expired");
+
+      // Clear auth state
       useAuthStore.getState().logout();
+
+      // Show appropriate message
+      if (isJwtExpired) {
+        console.warn("Session expired. Redirecting to login...");
+        showToast.warning("Your session has expired. Please log in again.");
+      } else {
+        showToast.error("Authentication failed. Please log in again.");
+      }
+
       // Only redirect if we're not already on the login page
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
       }
+
       return Promise.reject(error);
     }
 
     // Handle 403 Forbidden errors
     if (error.response?.status === 403) {
-      // Handle forbidden access
-      console.error("Access forbidden:", error.response.data);
+      const errorData = error.response.data as any;
+      const isJwtExpired =
+        errorData?.error === "jwt expired" ||
+        errorData?.message === "Unauthorized User" ||
+        errorData?.message?.includes("expired");
+
+      if (isJwtExpired) {
+        // Clear auth state
+        useAuthStore.getState().logout();
+
+        console.warn("Session expired (403). Redirecting to login...");
+        showToast.warning("Your session has expired. Please log in again.");
+
+        // Only redirect if we're not already on the login page
+        if (!window.location.pathname.includes("/login")) {
+          window.location.href = "/login";
+        }
+      } else {
+        // Handle other forbidden access
+        console.error("Access forbidden:", error.response.data);
+      }
+
       return Promise.reject(error);
     }
 

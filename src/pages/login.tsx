@@ -200,43 +200,62 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full flex justify-center items-center px-4 py-3
+                className="relative w-full flex justify-center items-center px-6 py-3.5 mt-8
                 bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
-                text-white text-sm font-medium rounded-xl
-                transition-all duration-300 ease-in-out hover:scale-[1.02] 
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy
-                hover:shadow-xl"
+                text-white text-sm font-semibold rounded-xl shadow-lg
+                transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl
+                focus:outline-none focus:ring-4 focus:ring-navy/30 focus:ring-offset-2
+                group overflow-hidden transform-gpu"
               >
-                Sign in
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-navy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative z-10 flex items-center gap-2">
+                  Sign in
+                  <svg
+                    className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </span>
+                <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
               </button>
 
               <div className="mt-8 space-y-4">
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-gray-600 text-center font-medium">
                   Don't have an account yet?
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <Link
                     to="/signup/student"
-                    className="flex items-center justify-center px-4 py-3 border border-gray-200/60 rounded-xl bg-white/80 hover:bg-white/90 hover:border-navy/30 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
+                    className="relative flex items-center justify-center px-4 py-3 border border-gray-200/60 rounded-xl bg-white/80 hover:bg-white/90 hover:border-navy/30 hover:shadow-lg transition-all duration-300 group backdrop-blur-sm overflow-hidden transform hover:scale-[1.02]"
                   >
-                    <div className="text-center">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="text-center relative z-10">
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy transition-colors duration-300">
                         Sign up as Student
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors duration-300">
                         Find your perfect mentor
                       </p>
                     </div>
                   </Link>
                   <Link
                     to="/signup/staff"
-                    className="flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200/60 hover:border-navy/30 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
+                    className="relative flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200/60 hover:border-navy/30 hover:shadow-lg transition-all duration-300 group backdrop-blur-sm overflow-hidden transform hover:scale-[1.02]"
                   >
-                    <div className="text-center">
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy">
+                    <div className="absolute inset-0 bg-gradient-to-r from-navy/10 to-indigo-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="text-center relative z-10">
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-navy transition-colors duration-300">
                         Sign up as Expert
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors duration-300">
                         Share your expertise
                       </p>
                     </div>

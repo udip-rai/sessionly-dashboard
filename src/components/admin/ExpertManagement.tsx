@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FiCheck,
   FiX,
@@ -12,6 +12,9 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { ExpertCategory } from "../../types/categories";
+import { useUserManagementStore } from "../../store/useUserManagementStore";
+import { Staff } from "../../api/services/admin.service";
+import { showToast } from "../../utils/toast";
 
 interface ExpertApplication {
   id: string;
@@ -25,71 +28,170 @@ interface ExpertApplication {
   appliedAt: string;
   rating?: number;
   totalSessions?: number;
+  bio?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  rate?: string;
 }
 
-const mockApplications: ExpertApplication[] = [
-  {
-    id: "EXP001",
-    name: "Dr. Sarah Johnson",
-    email: "sarah.j@example.com",
-    phone: "+1 234 567 8901",
-    categories: [
-      {
-        categoryId: "cat2",
-        categoryName: "Data Science",
-        subcategories: [
-          { id: "sub4", name: "Machine Learning" },
-          { id: "sub5", name: "Data Analytics" },
-        ],
-      },
-    ],
-    experience: 8,
-    timezone: "America/New_York",
-    status: "pending",
-    appliedAt: "2025-05-09T14:30:00",
-  },
-  {
-    id: "EXP002",
-    name: "John Smith",
-    email: "john.s@example.com",
-    phone: "+1 234 567 8902",
-    categories: [
-      {
-        categoryId: "cat1",
-        categoryName: "Software Development",
-        subcategories: [
-          { id: "sub1", name: "Web Development" },
-          { id: "sub2", name: "Mobile Development" },
-        ],
-      },
-    ],
-    experience: 12,
-    timezone: "Europe/London",
-    status: "approved",
-    appliedAt: "2025-05-08T10:15:00",
-    rating: 4.8,
-    totalSessions: 156,
-  },
-];
+// Transform staff data to expert application format
+const transformStaffToExpertApplication = (staff: Staff): ExpertApplication => {
+  // Transform expertise areas to categories format
+  const categories: ExpertCategory[] = [];
+  if (staff.expertiseAreas && staff.expertiseAreas.length > 0) {
+    // Group by category
+    const categoryMap = new Map<
+      string,
+      { name: string; subcategories: any[] }
+    >();
+
+    staff.expertiseAreas.forEach((area) => {
+      if (!categoryMap.has(area.category)) {
+        categoryMap.set(area.category, {
+          name: area.category, // We'll use ID as name for now
+          subcategories: [],
+        });
+      }
+      categoryMap.get(area.category)?.subcategories.push({
+        id: area.subCategory,
+        name: area.subCategory, // We'll use ID as name for now
+      });
+    });
+
+    categoryMap.forEach((value, key) => {
+      categories.push({
+        categoryId: key,
+        categoryName: value.name,
+        subcategories: value.subcategories,
+      });
+    });
+  }
+
+  return {
+    id: staff._id,
+    name: staff.username || staff.email.split("@")[0],
+    email: staff.email,
+    phone: staff.phone || "",
+    categories,
+    experience: 0, // Not available in staff data
+    timezone: staff.timezone || "",
+    status: staff.isApproved
+      ? "approved"
+      : staff.isActive === false
+      ? "rejected"
+      : "pending",
+    appliedAt: staff.createdAt || new Date().toISOString(),
+    bio: staff.bio,
+    linkedinUrl: staff.linkedinUrl,
+    websiteUrl: staff.websiteUrl,
+    rate: staff.rate,
+  };
+};
 
 export function ExpertManagement() {
-  const [applications, setApplications] =
-    useState<ExpertApplication[]>(mockApplications);
-  const [filter, setFilter] = useState("all");
+  const {
+    staff,
+    staffLoading,
+    staffError,
+    fetchStaff,
+    approveStaff,
+    rejectStaff,
+  } = useUserManagementStore();
 
-  const handleStatusChange = (
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetchStaff();
+  }, [fetchStaff]);
+
+  // Transform staff data to expert applications
+  const applications = staff.map(transformStaffToExpertApplication);
+
+  const handleStatusChange = async (
     id: string,
     newStatus: "approved" | "rejected",
   ) => {
-    setApplications((apps) =>
-      apps.map((app) => (app.id === id ? { ...app, status: newStatus } : app)),
-    );
+    try {
+      if (newStatus === "approved") {
+        await approveStaff(id);
+        showToast.success("Expert approved successfully!");
+      } else {
+        await rejectStaff(id, "Application rejected by admin");
+        showToast.success("Expert rejected successfully!");
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || `Failed to ${newStatus} expert`;
+      showToast.error(errorMessage);
+    }
   };
 
   const filteredApplications = applications.filter((app) => {
-    if (filter === "all") return true;
-    return app.status === filter;
+    // Filter by status
+    if (filter !== "all" && app.status !== filter) return false;
+
+    // Filter by search term
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        app.name.toLowerCase().includes(searchLower) ||
+        app.email.toLowerCase().includes(searchLower) ||
+        app.categories.some(
+          (cat) =>
+            cat.categoryName.toLowerCase().includes(searchLower) ||
+            cat.subcategories.some((sub) =>
+              sub.name.toLowerCase().includes(searchLower),
+            ),
+        )
+      );
+    }
+
+    return true;
   });
+
+  if (staffLoading) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Expert Applications
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Review and manage expert applications
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading expert applications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (staffError) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Expert Applications
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Review and manage expert applications
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+          <p className="text-red-600">{staffError}</p>
+          <button
+            onClick={fetchStaff}
+            className="mt-4 px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -153,6 +255,8 @@ export function ExpertManagement() {
               <input
                 type="text"
                 placeholder="Search applications..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
               />
             </div>

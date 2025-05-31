@@ -81,7 +81,7 @@ interface UserManagementState {
     status: "active" | "blocked",
   ) => Promise<void>;
   approveStaff: (staffId: string) => Promise<void>;
-  rejectStaff: (staffId: string) => Promise<void>;
+  rejectStaff: (staffId: string, reason?: string) => Promise<void>;
   calculateStats: () => void;
   calculateFilteredUsers: () => void;
   reset: () => void;
@@ -283,10 +283,9 @@ export const useUserManagementStore = create<UserManagementState>(
         throw error;
       }
     },
-
-    rejectStaff: async (staffId) => {
+    rejectStaff: async (staffId, reason) => {
       try {
-        await adminService.rejectStaff(staffId);
+        await adminService.rejectStaff(staffId, reason);
         const state = get();
         const updatedStaff = state.staff.map((staff) =>
           staff._id === staffId ? { ...staff, isActive: false } : staff,
@@ -326,9 +325,9 @@ export const useUserManagementStore = create<UserManagementState>(
           return false;
         if (filters.searchTerm) {
           return (
-            user.name.toLowerCase().includes(searchLower) ||
+            (user.name || "").toLowerCase().includes(searchLower) ||
             user.email.toLowerCase().includes(searchLower) ||
-            user.id.toLowerCase().includes(searchLower)
+            (user.id || "").toLowerCase().includes(searchLower)
           );
         }
         return true;

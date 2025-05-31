@@ -25,6 +25,39 @@
   background-color: #d1d5db;
 }
 
+/* Hide scrollbar completely for sidebar in collapsed state */
+.sidebar-no-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-no-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Enhanced scrollbar for main content */
+.main-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.main-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 4px;
+}
+
+.main-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
 /* Scrollbar styling for auth pages */
 .scrollbar-thin {
   scrollbar-width: thin;
@@ -60,8 +93,318 @@
   }
 }
 
+/* Popup Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Additional utility animations */
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Enhanced gradient backgrounds */
+.bg-gradient-enhanced {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+.bg-gradient-navy {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 font-sans;
   }
+
+  /* Smooth focus transitions */
+  *:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5);
+    border-radius: 0.375rem;
+    transition: box-shadow 0.15s ease-in-out;
+  }
+
+  /* Enhanced selection styling */
+  ::selection {
+    background-color: rgb(59 130 246 / 0.2);
+    color: rgb(30 58 138);
+  }
+
+  /* Smooth scrolling behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Enhanced sidebar icon styles */
+@media (min-width: 768px) and (max-width: 1279px) {
+  /* Collapsed sidebar state - enhance icons */
+  .sidebar-icon-enhanced {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    stroke-width: 2.5;
+  }
+
+  .sidebar-icon-enhanced:hover {
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+    stroke-width: 3;
+  }
+
+  /* Make active sidebar icons even more prominent */
+  .sidebar-icon-active {
+    filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.5));
+    stroke-width: 3;
+  }
+
+  /* Additional sidebar icon enhancements */
+  /* Enhanced shadow effects for icons in collapsed state */
+  .sidebar-icon-enhanced {
+    filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.1));
+  }
+
+  .sidebar-icon-enhanced:hover {
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.25));
+  }
+
+  /* Add subtle glow to active icons */
+  .sidebar-icon-active {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+  }
+}
+
+/* Utility animations */
+@keyframes iconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+  }
+}
+
+.icon-pulse-hover:hover {
+  animation: iconPulse 0.6s ease-in-out;
+}
+
+/* Advanced tooltip animations */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-5px) translateY(-50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(-50%) scale(1);
+  }
+}
+
+/* Amazon-style image zoom effect for expert profile pictures */
+.expert-image-container {
+  position: relative;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.expert-image-zoom {
+  transition: transform 0.3s ease-out;
+  transform-origin: center center;
+}
+
+.expert-image-container:hover .expert-image-zoom {
+  transform: scale(1.2);
+}
+
+/* Zoom overlay for better visual effect */
+.expert-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+.expert-image-container:hover .expert-image-overlay {
+  opacity: 1;
+}
+
+/* Enhanced zoom effect with smooth scaling */
+@keyframes imageZoomIn {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+
+.expert-image-zoom-hover:hover {
+  animation: imageZoomIn 0.3s ease-out forwards;
+}
+
+/* Animation delay utilities */
+.animation-delay-150 {
+  animation-delay: 150ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-450 {
+  animation-delay: 450ms;
+}
+
+/* Enhanced pulse animation for pending indicators */
+@keyframes pendingPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.animate-pending-pulse {
+  animation: pendingPulse 2s ease-in-out infinite;
+}
+
+/* Enhanced rate display animations */
+@keyframes rateShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.rate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: rateShimmer 3s ease-in-out infinite;
+}
+
+/* Improved modal backdrop */
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+.modal-backdrop {
+  animation: backdropFadeIn 0.3s ease-out;
+}
+
+/* Enhanced image zoom modal styles */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-slide-up {
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+/* Add subtle pulse effect on hover */
+@keyframes iconSubtlePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.md\:icon-pulse-hover:hover {
+  animation: iconSubtlePulse 0.6s ease-in-out;
 }

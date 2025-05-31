@@ -13,6 +13,8 @@ export const STAFF_APIS = {
 
 export const ADMIN_APIS = {
   get: "admin/get",
+  getAllStudents: "admin/students/all",
+  getAllStaff: "admin/staff/all",
 };
 
 export const LOGIN_APIS = {
