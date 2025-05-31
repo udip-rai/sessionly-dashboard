@@ -13,7 +13,6 @@ export const UserGrid: React.FC<UserGridProps> = ({
 }) => {
   return (
     <>
-      {" "}
       {/* Results Summary and Sorting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
@@ -26,7 +25,6 @@ export const UserGrid: React.FC<UserGridProps> = ({
             users
           </p>
         </div>
-
         {/* Enhanced Sorting Controls */}
         <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-200">
           <span className="text-sm font-medium text-gray-700">Sort by:</span>
@@ -66,10 +64,10 @@ export const UserGrid: React.FC<UserGridProps> = ({
               )}
             </button>
           </div>
-        </div>
+        </div>{" "}
       </div>
-      {/* Users Grid - Redesigned Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Users Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
         {users.map((user) => (
           <UserCard
             key={user.id || user._id}
@@ -78,6 +76,7 @@ export const UserGrid: React.FC<UserGridProps> = ({
           />
         ))}
       </div>
+
       {/* Empty State */}
       {users.length === 0 && (
         <div className="text-center py-12">

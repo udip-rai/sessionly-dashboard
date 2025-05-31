@@ -9,19 +9,20 @@ dayjs.extend(relativeTime);
 export const UserCard: React.FC<UserCardProps> = ({ user, onUserClick }) => {
   return (
     <div
-      className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible cursor-pointer group flex flex-col h-full relative"
+      className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-visible cursor-pointer group flex flex-col w-full h-full relative mx-auto"
       onClick={() => onUserClick(user)}
     >
+      {" "}
       {/* Pending Tag - Outside card container */}
       {user.type === "staff" && !user.isApproved && (
         <div className="absolute -top-3 -right-3 z-20">
-          <span className="inline-flex items-center px-3 py-1.5 bg-orange-500 text-white text-xs font-semibold rounded-full shadow-lg border-2 border-white">
+          <span className="inline-flex items-center px-3 py-1.5 bg-orange-500/75 text-white text-xs font-semibold rounded-full shadow-lg border-2 border-white backdrop-blur-sm">
             Pending
           </span>
         </div>
-      )}
-      {/* Photo Section - Increased Height */}
-      <div className="relative h-48 overflow-hidden rounded-t-xl">
+      )}{" "}
+      {/* Photo Section - Optimized Height */}
+      <div className="relative h-40 overflow-hidden rounded-t-xl">
         {user.profilePicture || user.image ? (
           <img
             src={user.profilePicture || user.image}
@@ -38,24 +39,22 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onUserClick }) => {
           >
             {(user.name || user.username)?.charAt(0).toUpperCase()}
           </div>
-        )}
-
+        )}{" "}
         {/* User Type Badge with Rate */}
-        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
           <span
-            className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm ${
+            className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold shadow-lg backdrop-blur-md border border-white/30 ${
               user.type === "staff"
-                ? "bg-blue-500/90 text-white"
-                : "bg-purple-500/90 text-white"
+                ? "bg-blue-500/75 text-white"
+                : "bg-purple-500/75 text-white"
             }`}
           >
             {user.type === "staff" ? "Expert" : "Student"}
-          </span>
-
-          {/* Rate beside Expert badge - Matching height */}
+          </span>{" "}
+          {/* Rate beside Expert badge - More transparent and elegant */}
           {user.type === "staff" && user.rate && (
-            <span className="inline-flex items-center px-3 py-1.5 bg-green-500/90 text-white rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
-              <FiDollarSign className="w-3 h-3 mr-1" />
+            <span className="inline-flex items-center px-2.5 py-1 bg-white/20 text-white rounded-lg text-xs font-medium shadow-sm backdrop-blur-md border border-white/30">
+              <FiDollarSign className="w-3 h-3 mr-0.5" />
               {typeof user.rate === "string"
                 ? user.rate.replace(/^\$|\$|\/hour$/g, "").replace(/\/h$/, "")
                 : user.rate}

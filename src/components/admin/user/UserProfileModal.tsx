@@ -21,15 +21,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onApprove,
   onReject,
   onImageZoom,
-}) => {  // Prevent body scroll when modal is open
+}) => {
+  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       // Store the current scroll position
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-      
+      const scrollBarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
       document.body.style.overflow = "hidden";
       document.body.style.paddingRight = `${scrollBarWidth}px`; // Prevent layout shift
-      
+
       // Also prevent scrolling on the html element
       document.documentElement.style.overflow = "hidden";
     } else {
@@ -70,7 +72,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         user.name || user.username || "",
       );
     }
-  };  const handleOverlayClick = (e: React.MouseEvent) => {
+  };
+  const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -499,7 +502,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <div className="inline-flex items-center px-4 py-2 rounded-lg bg-green-100 text-green-700 border border-green-200">
                       <FiCheck className="w-4 h-4 mr-2" />✓ Approved Expert
                     </div>
-                  </div>                )}
+                  </div>
+                )}
               </div>
             )}
           </div>
