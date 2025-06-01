@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FiUser, FiPhone, FiDollarSign, FiCheck } from "react-icons/fi";
-import { profileService } from "../../api/services/profile.service";
-import { useAuth } from "../../context/AuthContext";
-import { showToast } from "../../utils/toast";
-import { ExpertiseArea, CategoriesResponse } from "../../types/expertise";
+import { profileService } from "../../../api/services/profile.service";
+import { useAuth } from "../../../context/AuthContext";
+import { showToast } from "../../../utils/toast";
+import { ExpertiseArea, CategoriesResponse } from "../../../types/expertise";
 
 interface ProfileSetupProps {
   onComplete: () => void;
@@ -432,6 +432,7 @@ ProfileSetupProps) {
   };
 
   const totalSteps = 4;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 relative">
       <div
