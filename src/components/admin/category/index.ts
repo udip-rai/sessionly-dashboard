@@ -4,4 +4,4 @@ export * from './CategoryItem';
 export * from './SubcategoryItem';
 export * from './SearchFilters';
 export * from './useCategoryManagement';
-export * from './CategoryManagementContainer';
+export * from './CategoryManagementContainer'

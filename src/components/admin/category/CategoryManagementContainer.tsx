@@ -5,7 +5,7 @@ import { SearchFilters } from './SearchFilters';
 import { SubcategoryItem } from './SubcategoryItem';
 import { useCategoryManagement } from './useCategoryManagement';
 
-export const CategoryManagementContainer: React.FC = () => {
+export const CategoryManagementContainer = () => {
   const {
     searchTerm,
     editingItem,

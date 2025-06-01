@@ -74,14 +74,19 @@ export function StudentProfileManager() {
   const updateProfileMutation = useMutation({
     mutationFn: (updatedData: Partial<StudentData>) => {
       if (!user?.id) throw new Error("User ID not found");
+      
+      // Since the API expects non-optional fields, ensure we provide default values
       return studentService.updateStudentProfile(user.id, {
-        ...updatedData,
-        image: newImageFile || undefined,
-        otherUrls:
-          updatedData.otherUrls?.filter((url) => url.trim() !== "") || [],
+        username: updatedData.username || "", 
+        phone: updatedData.phone || "",
+        bio: updatedData.bio || "",
+        linkedinUrl: updatedData.linkedinUrl || "",
+        websiteUrl: updatedData.websiteUrl || "",
+        image: newImageFile, 
+        otherUrls: updatedData.otherUrls?.filter((url) => url.trim() !== "") || [],
       });
     },
-    onSuccess: (response, variables) => {
+    onSuccess: (_, variables) => { // Replace 'response' with '_' to avoid unused variable
       showToast.success("Profile updated successfully!");
       setStudentData((prev) => ({ ...prev, ...variables }));
       setEditingSections({

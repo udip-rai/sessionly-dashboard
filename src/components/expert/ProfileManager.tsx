@@ -21,6 +21,11 @@ import ProfileCompletionIndicator from "../ui/ProfileCompletionIndicator";
 import { ExpertiseArea, CategoriesResponse } from "../../types/expertise";
 
 interface ExpertData {
+  id?: string;
+  username?: string;
+  email?: string;
+  userType?: "student" | "staff" | "admin";
+  profileStatus?: { isComplete: boolean; missingFields: string[] };
   phone?: string;
   bio?: string;
   image?: string;
@@ -75,8 +80,13 @@ export function ExpertProfileManager() {
       try {
         const response = await userService.getCurrentUser(user.userType);
         const data = response.user;
-        setExpertData(data);
-        setFormData(data);
+        // Type conversion to ensure data conforms to ExpertData
+        const expertDataFromApi: ExpertData = {
+          ...data,
+          // Include any specific expert fields that might need conversion
+        };
+        setExpertData(expertDataFromApi);
+        setFormData(expertDataFromApi);
       } catch (error) {
         console.error("Error fetching expert data:", error);
         showToast.error("Failed to load profile data");
@@ -101,11 +111,16 @@ export function ExpertProfileManager() {
     mutationFn: (updatedData: Partial<ExpertData>) => {
       if (!user?.id) throw new Error("User ID not found");
       return profileService.updateStaffProfile(user.id, {
-        ...updatedData,
-        image: newImageFile || undefined,
+        phone: updatedData.phone || "", 
+        bio: updatedData.bio || "",
+        linkedinUrl: updatedData.linkedinUrl || "",
+        websiteUrl: updatedData.websiteUrl || "",
+        expertiseAreas: updatedData.expertiseAreas || [],
+        rate: updatedData.rate || "",
+        image: newImageFile || undefined, // Match the type in UpdateStaffProfileData interface
       });
     },
-    onSuccess: (response, variables) => {
+    onSuccess: (_, variables) => { // Use _ to ignore unused variable
       showToast.success("Profile updated successfully!");
       setExpertData((prev) => ({ ...prev, ...variables }));
       setEditingSections({
