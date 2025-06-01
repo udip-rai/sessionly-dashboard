@@ -130,7 +130,7 @@ export default function StudentSignup() {
                       response.profileStatus &&
                       !response.profileStatus.isComplete
                     ) {
-                      navigate("/student/profile-setup");
+                      navigate("/student-dashboard/profile-setup");
                     } else {
                       navigate(response.redirectUrl || "/student-dashboard");
                     }

@@ -9,6 +9,7 @@ import {
   FiX,
   FiCamera,
   FiSave,
+  FiMail,
 } from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
 import { userService } from "../../api/services/user.service";
@@ -19,6 +20,7 @@ import ProfileCompletionIndicator from "../ui/ProfileCompletionIndicator";
 
 interface StudentData {
   username?: string;
+  email?: string;
   phone?: string;
   bio?: string;
   image?: string;
@@ -403,10 +405,28 @@ export function StudentProfileManager() {
               Edit
             </button>
           )}
-        </div>
-
+        </div>{" "}
         {editingSections.contact ? (
           <div className="space-y-4">
+            {/* Email Field - Read Only */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <div className="flex items-center">
+                <FiMail className="h-5 w-5 text-gray-400 mr-3" />{" "}
+                <input
+                  type="email"
+                  value={studentData.email || ""}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  placeholder="Email not available"
+                  readOnly
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Email cannot be changed from this page
+              </p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number <span className="text-red-500">*</span>
@@ -445,15 +465,29 @@ export function StudentProfileManager() {
             </div>
           </div>
         ) : (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <div className="flex items-center">
-              <FiPhone className="h-5 w-5 text-gray-400 mr-3" />
-              <p className="text-gray-900">
-                {studentData.phone || "Not provided"}
-              </p>
+          <div className="space-y-4">
+            {/* Email Field - Read Only */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <div className="flex items-center">
+                <FiMail className="h-5 w-5 text-gray-400 mr-3" />{" "}
+                <p className="text-gray-900">
+                  {studentData.email || "Not provided"}
+                </p>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <div className="flex items-center">
+                <FiPhone className="h-5 w-5 text-gray-400 mr-3" />
+                <p className="text-gray-900">
+                  {studentData.phone || "Not provided"}
+                </p>
+              </div>
             </div>
           </div>
         )}

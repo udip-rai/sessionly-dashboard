@@ -1,0 +1,23 @@
+// Simple expertise areas constant for ProfileManager
+export const expertiseAreas = [
+  "JavaScript",
+  "React",
+  "Node.js",
+  "Python",
+  "Java",
+  "Web Development",
+  "Mobile Development",
+  "Data Science",
+  "Machine Learning",
+  "Cloud Computing",
+  "DevOps",
+  "System Design",
+  "Database Design",
+  "API Development",
+  "Frontend Development",
+  "Backend Development",
+  "Full Stack Development",
+  "UI/UX Design",
+  "Project Management",
+  "Software Architecture",
+];

@@ -15,7 +15,10 @@ export interface SubCategory {
 
 export interface ExpertiseArea {
   category: string; // category._id
+  categoryName?: string;
   subCategory: string; // subCategory._id
+  subCategoryName?: string;
+  _id?: string;
 }
 
 export interface CategoriesResponse {

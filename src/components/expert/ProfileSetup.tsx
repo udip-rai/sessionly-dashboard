@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FiUser, FiPhone, FiDollarSign, FiCheck } from "react-icons/fi";
-import { profileService } from "../../../api/services/profile.service";
-import { useAuth } from "../../../context/AuthContext";
-import { showToast } from "../../../utils/toast";
-import { ExpertiseArea, CategoriesResponse } from "../../../types/expertise";
+import { profileService } from "../../api/services/profile.service";
+import { useAuth } from "../../context/AuthContext";
+import { showToast } from "../../utils/toast";
+import { ExpertiseArea, CategoriesResponse } from "../../types/expertise";
 
 interface ProfileSetupProps {
   onComplete: () => void;

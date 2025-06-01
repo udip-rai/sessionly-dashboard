@@ -128,7 +128,7 @@ export default function ExpertSignup() {
                       response.profileStatus &&
                       !response.profileStatus.isComplete
                     ) {
-                      navigate("/staff/profile-setup");
+                      navigate("/staff-dashboard/profile-setup");
                     } else {
                       navigate(response.redirectUrl || "/expert-dashboard");
                     }

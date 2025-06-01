@@ -19,6 +19,25 @@ export default {
       },
       fontSize: {
         'logo': '32px',
+      },
+      animation: {
+        'fadeIn': 'fadeIn 0.5s ease-out forwards',
+        'slideInUp': 'slideInUp 0.3s ease-out',
+        'progress': 'progress 1s ease-out'
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        slideInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
+        },
+        progress: {
+          '0%': { width: '0%' },
+          '100%': { width: 'var(--progress-width)' }
+        }
       }
     },
   },

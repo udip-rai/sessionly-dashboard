@@ -12,7 +12,6 @@ import { Dashboard } from "./components/dashboard/Dashboard";
 import { ExpertDashboard } from "./components/dashboard/ExpertDashboard";
 import { Availability } from "./components/expert/Availability";
 import { Payments } from "./components/expert/Payments";
-import { Profile } from "./components/expert/Profile";
 import LoginPage from "./pages/login";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -28,6 +27,8 @@ import ExpertSignup from "./pages/expert-signup";
 import StudentSignup from "./pages/student-signup";
 import ProfileSetup from "./components/expert/ProfileSetup";
 import StudentProfileSetup from "./components/student/ProfileSetup";
+import ExpertProfileManager from "./components/expert/ProfileManager";
+import TestProfilePage from "./pages/test-profile";
 
 function App() {
   const { isAuthenticated, userRole, profileStatus, updateProfileStatus } =
@@ -35,6 +36,9 @@ function App() {
 
   return (
     <Routes>
+      {/* Temporary Test Route */}
+      <Route path="/test-profile" element={<TestProfilePage />} />
+
       {/* Public Routes */}
       <Route
         path="/login"
@@ -48,40 +52,6 @@ function App() {
       />
       <Route path="/signup/student" element={<StudentSignup />} />
       <Route path="/signup/staff" element={<ExpertSignup />} />
-
-      {/* Staff Profile Setup */}
-      <Route
-        path="/staff/profile-setup"
-        element={
-          <ProtectedRoute allowedRoles={["staff"]}>
-            <ProfileSetup
-              onComplete={() => {
-                updateProfileStatus({ isComplete: true, missingFields: [] });
-              }}
-              profileStatus={
-                profileStatus || { isComplete: false, missingFields: [] }
-              }
-            />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Student Profile Setup */}
-      <Route
-        path="/student/profile-setup"
-        element={
-          <ProtectedRoute allowedRoles={["student"]}>
-            <StudentProfileSetup
-              onComplete={() => {
-                updateProfileStatus({ isComplete: true, missingFields: [] });
-              }}
-              profileStatus={
-                profileStatus || { isComplete: false, missingFields: [] }
-              }
-            />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Protected Admin Routes */}
       <Route
@@ -196,13 +166,32 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      {/* Staff Profile */}
       <Route
         path="/staff-dashboard/profile"
         element={
           <ProtectedRoute allowedRoles={["staff"]}>
             <Layout>
-              <Profile />
+              <ExpertProfileManager />
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Staff Profile Setup */}
+      <Route
+        path="/staff-dashboard/profile-setup"
+        element={
+          <ProtectedRoute allowedRoles={["staff"]}>
+            <ProfileSetup
+              onComplete={() => {
+                updateProfileStatus({ isComplete: true, missingFields: [] });
+              }}
+              profileStatus={
+                profileStatus || { isComplete: false, missingFields: [] }
+              }
+            />
           </ProtectedRoute>
         }
       />
@@ -215,6 +204,23 @@ function App() {
             <Layout>
               <Dashboard />
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Student Profile Setup */}
+      <Route
+        path="/student-dashboard/profile-setup"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentProfileSetup
+              onComplete={() => {
+                updateProfileStatus({ isComplete: true, missingFields: [] });
+              }}
+              profileStatus={
+                profileStatus || { isComplete: false, missingFields: [] }
+              }
+            />
           </ProtectedRoute>
         }
       />

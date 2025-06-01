@@ -106,8 +106,8 @@ export default function LoginPage() {
                     ) {
                       navigate(
                         response.userType === "staff"
-                          ? "/staff/profile-setup"
-                          : "/student/profile-setup",
+                          ? "/staff-dashboard/profile-setup"
+                          : "/student-dashboard/profile-setup",
                       );
                     } else {
                       navigate(

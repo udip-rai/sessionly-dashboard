@@ -9,8 +9,9 @@ import { PaymentManagement } from "../components/admin/PaymentManagement";
 import { ExpertDashboard } from "../components/dashboard/ExpertDashboard";
 import { Availability } from "../components/expert/Availability";
 import { Payments } from "../components/expert/Payments";
-import { Profile } from "../components/expert/Profile";
+import ExpertProfileManager from "../components/expert/ProfileManager";
 import { Dashboard } from "../components/dashboard/Dashboard";
+import StudentProfileManager from "../components/student/ProfileManager";
 import { RouteConfig, ROUTE_PATHS } from "../types/routes";
 
 export const adminRoutes: RouteConfig[] = [
@@ -96,7 +97,7 @@ export const staffRoutes: RouteConfig[] = [
   },
   {
     path: ROUTE_PATHS.STAFF_PROFILE,
-    component: Profile,
+    component: ExpertProfileManager,
     title: "Profile Management",
     description: "Update your expert profile",
     allowedRoles: ["staff"],
@@ -109,6 +110,13 @@ export const studentRoutes: RouteConfig[] = [
     component: Dashboard,
     title: "Student Dashboard",
     description: "Your learning dashboard",
+    allowedRoles: ["student"],
+  },
+  {
+    path: ROUTE_PATHS.STUDENT_PROFILE,
+    component: StudentProfileManager,
+    title: "Profile Management",
+    description: "Update your student profile",
     allowedRoles: ["student"],
   },
 ];

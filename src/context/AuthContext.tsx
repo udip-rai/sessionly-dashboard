@@ -44,9 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } // Navigate based on profile completion and user type
     if (response.profileStatus && !response.profileStatus.isComplete) {
       if (response.userType === "staff") {
-        navigate("/staff/profile-setup");
+        navigate("/staff-dashboard/profile-setup");
       } else if (response.userType === "student") {
-        navigate("/student/profile-setup");
+        navigate("/student-dashboard/profile-setup");
       }
     } else {
       navigate(response.redirectUrl || `/${response.userType}-dashboard`);
