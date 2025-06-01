@@ -17,6 +17,18 @@ export const ADMIN_APIS = {
   getAllStaff: "admin/staff/all",
 };
 
+export const CATEGORY_APIS = {
+  getAll: "categories",
+  create: "categories",
+  update: (categoryId: string) => `categories/${categoryId}`,
+  delete: (categoryId: string) => `categories/${categoryId}`,
+  createSubcategory: (categoryId: string) => `categories/${categoryId}/subcategories`,
+  updateSubcategory: (categoryId: string, subcategoryId: string) => 
+    `categories/${categoryId}/subcategories/${subcategoryId}`,
+  deleteSubcategory: (categoryId: string, subcategoryId: string) => 
+    `categories/${categoryId}/subcategories/${subcategoryId}`,
+};
+
 export const LOGIN_APIS = {
   login: "login",
   logout: "logout",

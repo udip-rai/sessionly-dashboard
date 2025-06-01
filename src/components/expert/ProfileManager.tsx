@@ -41,6 +41,7 @@ interface SocialUrl {
 }
 
 interface ExpertData {
+<<<<<<< HEAD
   firstName: string;
   lastName: string;
   email: string;
@@ -54,6 +55,37 @@ interface ExpertData {
   expertiseAreas: ExpertiseArea[];
   cv: string | null;
   certificates: Array<{
+=======
+  id?: string;
+  username?: string;
+  email?: string;
+  userType?: "student" | "staff" | "admin";
+  profileStatus?: { isComplete: boolean; missingFields: string[] };
+  phone?: string;
+  bio?: string;
+  image?: string;
+  rate?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  expertiseAreas?: ExpertiseArea[];
+}
+
+interface EditingSections {
+  basicInfo: boolean;
+  contact: boolean;
+  socialLinks: boolean;
+  profilePicture: boolean;
+  professionalInfo: boolean;
+  expertiseAreas: boolean;
+}
+
+interface APICategory {
+  _id: string;
+  name: string;
+  description: string;
+  subCategories: {
+    _id: string;
+>>>>>>> dev
     name: string;
     file: string | null;
     issueDate: string;
@@ -144,6 +176,7 @@ export const ExpertProfileManager: React.FC = () => {
 
         // Fetch user data
         const response = await userService.getCurrentUser(user.userType);
+<<<<<<< HEAD
         const userData = response.user;
 
         // Sample data (in real app, get from API)
@@ -188,6 +221,16 @@ export const ExpertProfileManager: React.FC = () => {
 
         setExpertData(sampleData);
         setFormData(sampleData);
+=======
+        const data = response.user;
+        // Type conversion to ensure data conforms to ExpertData
+        const expertDataFromApi: ExpertData = {
+          ...data,
+          // Include any specific expert fields that might need conversion
+        };
+        setExpertData(expertDataFromApi);
+        setFormData(expertDataFromApi);
+>>>>>>> dev
       } catch (error) {
         console.error("Error fetching data:", error);
         showToast.error("Failed to load profile data");
@@ -199,6 +242,7 @@ export const ExpertProfileManager: React.FC = () => {
     fetchData();
   }, [user]);
 
+<<<<<<< HEAD
   // Handle input changes
   const handleInputChange = (
     field: keyof ExpertData,
@@ -208,6 +252,52 @@ export const ExpertProfileManager: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+=======
+  // Fetch expertise categories
+  const { data: categoriesResponse } = useQuery<CategoriesResponse>({
+    queryKey: ["expertiseAreas"],
+    queryFn: profileService.getExpertiseAreas,
+  });
+
+  const categories = categoriesResponse?.data;
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: (updatedData: Partial<ExpertData>) => {
+      if (!user?.id) throw new Error("User ID not found");
+      return profileService.updateStaffProfile(user.id, {
+        phone: updatedData.phone || "", 
+        bio: updatedData.bio || "",
+        linkedinUrl: updatedData.linkedinUrl || "",
+        websiteUrl: updatedData.websiteUrl || "",
+        expertiseAreas: updatedData.expertiseAreas || [],
+        rate: updatedData.rate || "",
+        image: newImageFile || undefined, // Match the type in UpdateStaffProfileData interface
+      });
+    },
+    onSuccess: (_, variables) => { // Use _ to ignore unused variable
+      showToast.success("Profile updated successfully!");
+      setExpertData((prev) => ({ ...prev, ...variables }));
+      setEditingSections({
+        basicInfo: false,
+        contact: false,
+        socialLinks: false,
+        profilePicture: false,
+        professionalInfo: false,
+        expertiseAreas: false,
+      });
+      setNewImageFile(null);
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || "Failed to update profile";
+      showToast.error(errorMessage);
+    },
+  });
+
+  const handleEdit = (section: keyof EditingSections) => {
+    setEditingSections((prev) => ({ ...prev, [section]: true }));
+>>>>>>> dev
   };
 
   // Handle inline editing
