@@ -9,7 +9,6 @@ import {
   FiFileText,
   FiPlus,
   FiEye,
-  FiLoader,
 } from "react-icons/fi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService } from "../../../api/services/profile.service";

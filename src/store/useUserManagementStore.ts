@@ -297,12 +297,11 @@ export const useUserManagementStore = create<UserManagementState>(
     rejectStaff: async (staffId, reason) => {
       try {
         await adminService.rejectStaff(staffId, reason);
-        const state = get();
-        const updatedStaff = state.staff.map((staff) =>
-          staff._id === staffId ? { ...staff, isActive: false } : staff,
-        );
-        set({ staff: updatedStaff });
+        // After rejection, fetch fresh staff data
+        await get().fetchStaff();
+        // Update combined users and stats
         get().updateCombinedUsers();
+        get().calculateStats();
       } catch (error: any) {
         console.error("Error rejecting staff:", error);
         handleJwtExpiration(error);

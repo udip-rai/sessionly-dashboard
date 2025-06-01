@@ -161,6 +161,8 @@ export function UserManagement() {
     try {
       await rejectStaff(rejectDialog.staffId, reason);
       setRejectDialog({ isOpen: false, staffId: "", staffName: "" });
+      // Force refresh the user list after rejection
+      await forceRefresh();
     } catch (error: any) {
       console.error("Failed to reject staff:", error);
     }

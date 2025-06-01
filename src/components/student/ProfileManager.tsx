@@ -19,19 +19,12 @@ import { showToast } from "../../utils/toast";
 import { checkStudentProfileCompletion } from "../../utils/profileCompletion";
 import { SimpleProfileCompletion } from "../ui/SimpleProfileCompletion";
 import { useLocation } from "react-router-dom";
-
-interface StudentData {
-  username?: string;
-  email?: string;
-  phone?: string;
-  bio?: string;
-  image?: string;
-  linkedinUrl?: string;
-  websiteUrl?: string;
-  otherUrls?: string[];
-}
+import { InlineEditField } from "./profile/InlineEditField";
+import { StudentData } from "./profile/_types";
 
 export function StudentProfileManager() {
+  // Editing state
+  const [editingField, setEditingField] = useState<string | null>(null);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -52,7 +45,7 @@ export function StudentProfileManager() {
   const [activeTab, setActiveTab] = useState<string>("basic");
 
   // Original student data from server (for reset functionality)
-  const [studentData, setStudentData] = useState<StudentData>({
+  const [studentData, setStudentData] = useState<StudentData | any>({
     username: "",
     email: "",
     phone: "",
@@ -101,7 +94,7 @@ export function StudentProfileManager() {
         const response = await userService.getCurrentUser(user.userType);
         const data = response.user;
         setStudentData(data);
-        setFormData(data);
+        setFormData(data as any);
       } catch (error) {
         console.error("Error fetching student data:", error);
         showToast.error("Failed to load profile data");
@@ -114,25 +107,10 @@ export function StudentProfileManager() {
   }, [user]);
 
   /**
-   * Validates the form data and returns an array of error messages
+   * Validates the form data - No validations required for student profile
    */
   const validateForm = (): string[] => {
-    const errors: string[] = [];
-
-    // Required field validations
-    if (!formData.username?.trim()) {
-      errors.push("Username is required");
-    }
-
-    if (!formData.phone?.trim()) {
-      errors.push("Phone number is required");
-    }
-
-    if (!formData.bio?.trim() || formData.bio.length < 50) {
-      errors.push("Bio must be at least 50 characters");
-    }
-
-    return errors;
+    return [];
   };
 
   /**
@@ -207,16 +185,20 @@ export function StudentProfileManager() {
     try {
       if (!user?.id) throw new Error("User ID not found");
 
-      // Prepare update data for API call
-      await studentService.updateStudentProfile(user.id, {
-        username: formData.username || "",
-        phone: formData.phone || "",
-        bio: formData.bio || "",
-        linkedinUrl: formData.linkedinUrl || "",
-        websiteUrl: formData.websiteUrl || "",
+      // Prepare update data for API call - matching backend schema
+      const updateData: any = {
+        username: formData.username,
+        phone: formData.phone,
+        bio: formData.bio,
+        linkedinUrl: formData.linkedinUrl,
+        websiteUrl: formData.websiteUrl,
         image: newImageFile,
         otherUrls: formData.otherUrls?.filter((url) => url.trim() !== "") || [],
-      });
+        emailVerified: true,
+        userType: "student",
+      };
+
+      await studentService.updateStudentProfile(user.id, updateData);
 
       // Update local state with saved data
       setStudentData(formData);
@@ -266,33 +248,63 @@ export function StudentProfileManager() {
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out ${
+        className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
           disabled
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-md hover:scale-105"
+            : "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:from-blue-100 hover:to-indigo-100 hover:shadow-lg hover:scale-105 border border-blue-200"
         }`}
       >
         {direction === "prev" ? (
           <>
-            <FiArrowLeft className="w-4 h-4 mr-2" />
+            <FiArrowLeft
+              className={`w-4 h-4 mr-2 transition-transform duration-300 ${
+                !disabled ? "group-hover:-translate-x-1" : ""
+              }`}
+            />
             Previous
           </>
         ) : (
           <>
             Next
-            <FiArrowRight className="w-4 h-4 ml-2" />
+            <FiArrowRight
+              className={`w-4 h-4 ml-2 transition-transform duration-300 ${
+                !disabled ? "group-hover:translate-x-1" : ""
+              }`}
+            />
           </>
         )}
       </button>
     );
 
     const TabNavigation = () => (
-      <div className="flex justify-between mt-8 border-t border-gray-100 pt-4">
+      <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 bg-gradient-to-r from-gray-50/50 to-white rounded-lg p-4">
         <TabNavButton
           direction="prev"
           onClick={() => setActiveTab(tabs[currentTabIndex - 1].id)}
           disabled={isFirstTab}
         />
+
+        {/* Progress indicator */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-500 font-medium">
+            {currentTabIndex + 1} of {tabs.length}
+          </span>
+          <div className="flex space-x-1">
+            {tabs.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentTabIndex
+                    ? "bg-blue-600 w-8"
+                    : index < currentTabIndex
+                    ? "bg-green-400"
+                    : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
         <TabNavButton
           direction="next"
           onClick={() => setActiveTab(tabs[currentTabIndex + 1].id)}
@@ -305,6 +317,17 @@ export function StudentProfileManager() {
       case "basic":
         return (
           <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiUser className="w-5 h-5 mr-2 text-blue-600" />
+                Basic Information
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Update your personal details and profile picture
+              </p>
+            </div>
+
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="col-span-1">
@@ -358,32 +381,31 @@ export function StudentProfileManager() {
                       Basic Information
                     </h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Username <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
+                      <div className="space-y-4">
+                        <InlineEditField
+                          field="username"
                           value={formData.username || ""}
-                          onChange={(e) =>
-                            handleChange("username", e.target.value)
+                          placeholder="Username"
+                          editingField={editingField}
+                          setEditingField={setEditingField}
+                          onUpdate={handleChange}
+                          onCancel={(field) =>
+                            handleChange(field, studentData[field] || "")
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                          placeholder="Enter your username"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Bio <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
+                        <InlineEditField
+                          field="bio"
                           value={formData.bio || ""}
-                          onChange={(e) => handleChange("bio", e.target.value)}
-                          rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                          placeholder="Tell us about yourself, your interests, and your goals..."
+                          placeholder="Bio"
+                          multiline
+                          editingField={editingField}
+                          setEditingField={setEditingField}
+                          onUpdate={handleChange}
+                          onCancel={(field) =>
+                            handleChange(field, studentData[field] || "")
+                          }
                         />
-                        <div className="flex justify-between items-center mt-1">
+                        {/* <div className="flex justify-between items-center mt-1">
                           <span
                             className={`text-xs ${
                               (formData.bio?.length || 0) < 50
@@ -394,7 +416,7 @@ export function StudentProfileManager() {
                             {formData.bio?.length || 0}/500{" "}
                             {(formData.bio?.length || 0) < 50 && "(min 50)"}
                           </span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
@@ -408,10 +430,18 @@ export function StudentProfileManager() {
       case "contact":
         return (
           <div className="animate-fadeIn">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiPhone className="w-5 h-5 mr-2 text-green-600" />
                 Contact Information
               </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Manage your email and phone information
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
               <div className="space-y-6">
                 {/* Email Field - Read Only */}
                 <div>
@@ -435,19 +465,19 @@ export function StudentProfileManager() {
 
                 {/* Phone Number */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center">
-                    <FiPhone className="h-5 w-5 text-gray-400 mr-3" />
-                    <input
-                      type="tel"
-                      value={formData.phone || ""}
-                      onChange={(e) => handleChange("phone", e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
+                  <InlineEditField
+                    field="phone"
+                    value={formData.phone || ""}
+                    placeholder="Phone Number"
+                    type="tel"
+                    icon={FiPhone}
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    onUpdate={handleChange}
+                    onCancel={(field) =>
+                      handleChange(field, studentData[field] || "")
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -458,47 +488,51 @@ export function StudentProfileManager() {
       case "social":
         return (
           <div className="animate-fadeIn">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Social Links
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border-l-4 border-indigo-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiLink className="w-5 h-5 mr-2 text-indigo-600" />
+                Social Links & Online Presence
               </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Add your LinkedIn, website, and other professional links
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
               <div className="space-y-4">
                 {/* LinkedIn URL */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    LinkedIn URL
-                  </label>
-                  <div className="flex items-center">
-                    <FiLink className="h-5 w-5 text-gray-400 mr-3" />
-                    <input
-                      type="url"
-                      value={formData.linkedinUrl || ""}
-                      onChange={(e) =>
-                        handleChange("linkedinUrl", e.target.value)
-                      }
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                      placeholder="https://linkedin.com/in/username"
-                    />
-                  </div>
+                  <InlineEditField
+                    field="linkedinUrl"
+                    value={formData.linkedinUrl || ""}
+                    placeholder="LinkedIn URL"
+                    type="url"
+                    icon={FiLink}
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    onUpdate={handleChange}
+                    onCancel={(field) =>
+                      handleChange(field, studentData[field] || "")
+                    }
+                  />
                 </div>
 
                 {/* Website URL */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Website URL
-                  </label>
-                  <div className="flex items-center">
-                    <FiLink className="h-5 w-5 text-gray-400 mr-3" />
-                    <input
-                      type="url"
-                      value={formData.websiteUrl || ""}
-                      onChange={(e) =>
-                        handleChange("websiteUrl", e.target.value)
-                      }
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                      placeholder="https://yourwebsite.com"
-                    />
-                  </div>
+                  <InlineEditField
+                    field="websiteUrl"
+                    value={formData.websiteUrl || ""}
+                    placeholder="Website URL"
+                    type="url"
+                    icon={FiLink}
+                    editingField={editingField}
+                    setEditingField={setEditingField}
+                    onUpdate={handleChange}
+                    onCancel={(field) =>
+                      handleChange(field, studentData[field] || "")
+                    }
+                  />
                 </div>
 
                 {/* Other Links */}
@@ -549,63 +583,82 @@ export function StudentProfileManager() {
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 lg:px-0">
       {/* ===== HEADER WITH SAVE/RESET ACTIONS ===== */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 flex items-center">
-                <FiUser className="w-6 h-6 mr-3 text-blue-600" />
-                Student Profile Management
-              </h1>
-              <p className="text-gray-600 mt-1 text-xs sm:text-sm">
-                Manage your personal profile and contact information
-              </p>
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-lg overflow-hidden backdrop-blur-sm border border-blue-100">
+        <div className="bg-white/70 backdrop-blur-md border-b border-blue-100/50">
+          <div className="flex flex-col gap-4 sm:gap-6 px-6 py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+                  <FiUser className="w-7 h-7 mr-3 text-blue-600" />
+                  Student Profile Management
+                </h1>
+                <p className="text-gray-600 mt-2 text-sm">
+                  Manage your personal profile and contact information with
+                  modern tools
+                </p>
+              </div>
+
+              {/* Enhanced profile completion indicator */}
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 shadow-sm border border-blue-100">
+                <SimpleProfileCompletion
+                  status={checkStudentProfileCompletion(formData)}
+                />
+              </div>
             </div>
 
-            {/* Simplified profile completion indicator */}
-            <SimpleProfileCompletion
-              status={checkStudentProfileCompletion(formData)}
-            />
-          </div>
+            {/* Enhanced action buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t border-blue-100/50 pt-4">
+              {/* Reset button with enhanced styling */}
+              <button
+                onClick={handleReset}
+                disabled={!isDataChanged}
+                className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  isDataChanged
+                    ? "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 shadow-md hover:shadow-lg transform hover:scale-105"
+                    : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <FiRefreshCw
+                  className={`mr-2 w-4 h-4 transition-transform duration-300 ${
+                    isDataChanged ? "group-hover:rotate-180" : ""
+                  }`}
+                />
+                Reset Changes
+              </button>
 
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border-t border-gray-100 pt-4">
-            {/* Reset button */}
-            <button
-              onClick={handleReset}
-              disabled={!isDataChanged}
-              className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                isDataChanged
-                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  : "bg-gray-50 text-gray-400 cursor-not-allowed"
-              }`}
-            >
-              <FiRefreshCw className="mr-2 w-4 h-4" />
-              Reset Changes
-            </button>
-
-            {/* Save button */}
-            <button
-              onClick={handleSaveAll}
-              disabled={isSaving || !isDataChanged}
-              className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                isDataChanged && !isSaving
-                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              <FiSave className="mr-2 w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Changes"}
-            </button>
+              {/* Save button with enhanced styling */}
+              <button
+                onClick={handleSaveAll}
+                disabled={isSaving || !isDataChanged}
+                className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  isDataChanged && !isSaving
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <FiSave
+                  className={`mr-2 w-4 h-4 transition-transform duration-300 ${
+                    isSaving ? "animate-pulse" : "group-hover:scale-110"
+                  }`}
+                />
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* ===== TABBED NAVIGATION ===== */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Tab headers - Added overflow handling for mobile */}
-        <div className="border-b border-gray-200 overflow-x-auto hide-scrollbar">
-          <nav className="flex space-x-0 min-w-max" aria-label="Tabs">
+        {/* Tab headers - Enhanced scrollable navigation */}
+        <div className="border-b border-gray-200">
+          <nav
+            className="flex space-x-0 overflow-x-auto scroll-smooth"
+            aria-label="Tabs"
+            style={{
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -614,15 +667,15 @@ export function StudentProfileManager() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group relative overflow-hidden bg-white p-4 text-center hover:bg-gray-50 focus:z-10 transition-colors duration-200 min-w-[150px] ${
+                  className={`group relative flex-shrink-0 overflow-hidden bg-white p-4 text-center hover:bg-gray-50/80 focus:z-10 transition-all duration-300 w-[150px] backdrop-blur-sm ${
                     isActive
-                      ? "text-blue-600 border-b-2 border-blue-600"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-gradient-to-b from-blue-50/50 to-white"
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   <div className="flex flex-col items-center space-y-1">
                     <Icon
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${
                         isActive
                           ? "text-blue-600"
                           : "text-gray-400 group-hover:text-gray-500"
@@ -630,9 +683,6 @@ export function StudentProfileManager() {
                     />
                     <span className="text-sm font-medium line-clamp-1">
                       {tab.label}
-                    </span>
-                    <span className="hidden sm:block text-xs text-gray-400">
-                      {tab.description}
                     </span>
                   </div>
                 </button>
