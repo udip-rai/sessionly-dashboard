@@ -7,7 +7,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   onFilterChange,
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-8">
+    <div className="bg-white rounded-2xl shadow-sm border border-blue-300 p-4 sm:p-6 mb-8">
       <div className="flex flex-col gap-4 sm:gap-6">
         {/* Filter Tabs - Full width on mobile, compact on larger screens */}
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
@@ -21,6 +21,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
           >
             All Users
           </button>
+
           <button
             onClick={() => onFilterChange("type", "student")}
             className={`px-3 py-2 sm:px-6 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
@@ -31,6 +32,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
           >
             Students
           </button>
+
           <button
             onClick={() => onFilterChange("type", "staff")}
             className={`px-3 py-2 sm:px-6 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${

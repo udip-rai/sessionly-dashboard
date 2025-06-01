@@ -6,15 +6,22 @@ export interface User {
   username?: string;
   email: string;
   phone?: string;
-  type: "student" | "staff";
-  userType?: "student" | "staff"; // Alternative field name
+  userType: "student" | "staff"; // Alternative field name
   status: "active" | "inactive" | "blocked";
   joinedDate?: string;
   createdAt?: string;
   timezone?: string;
   totalSessions?: number;
   rating?: number;
-  expertiseAreas?: any[];
+  expertiseAreas?:
+    | {
+        category?: string;
+        categoryName?: string;
+        subCategory?: string;
+        subCategoryName?: string;
+        _id?: string;
+      }[]
+    | string[];
   profilePicture?: string;
   image?: string;
   bio?: string;

@@ -78,6 +78,38 @@ export function UserManagement() {
 
   const displayUsers = sortedUsers;
 
+  // Handle stats box click for navigation
+  const handleStatBoxClick = (
+    boxType:
+      | "totalUsers"
+      | "pendingApprovals"
+      | "activeStaff"
+      | "totalStudents",
+  ) => {
+    switch (boxType) {
+      case "totalUsers":
+        // Navigate to All Users view
+        handleFilterChange("type", "all");
+        handleFilterChange("status", "all");
+        break;
+      case "pendingApprovals":
+        // Navigate to Experts Pending view
+        handleFilterChange("type", "staff");
+        handleFilterChange("status", "inactive");
+        break;
+      case "activeStaff":
+        // Navigate to Active Experts view
+        handleFilterChange("type", "staff");
+        handleFilterChange("status", "active");
+        break;
+      case "totalStudents":
+        // Navigate to Students view
+        handleFilterChange("type", "student");
+        handleFilterChange("status", "all");
+        break;
+    }
+  };
+
   // Fetch data on component mount
   useEffect(() => {
     const loadData = async () => {
@@ -215,7 +247,7 @@ export function UserManagement() {
       </div>
 
       {/* Stats Grid */}
-      <UserStatsGrid stats={stats} />
+      <UserStatsGrid stats={stats} onBoxClick={handleStatBoxClick} />
 
       {/* Filters */}
       <UserFilters filters={filters} onFilterChange={handleFilterChange} />

@@ -19,6 +19,8 @@ export interface Student {
   advisoryTopics?: string[];
   createdAt?: string;
   updatedAt?: string;
+  totalSessions?: number;
+  rating?: number;
   password?: string;
   __v?: number;
 }

@@ -81,10 +81,12 @@ const transformStaffToExpertApplication = (staff: Staff): ExpertApplication => {
       ? "rejected"
       : "pending",
     appliedAt: staff.createdAt || new Date().toISOString(),
-    bio: staff.bio,
-    linkedinUrl: staff.linkedinUrl,
-    websiteUrl: staff.websiteUrl,
-    rate: staff.rate,
+    rating: 0, // Default value for rating
+    totalSessions: 0, // Default value for totalSessions
+    bio: staff.bio || "",
+    linkedinUrl: staff.linkedinUrl || "",
+    websiteUrl: staff.websiteUrl || "",
+    rate: staff.rate || "",
   };
 };
 

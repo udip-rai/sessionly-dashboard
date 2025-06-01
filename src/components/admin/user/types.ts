@@ -13,6 +13,13 @@ export interface UserStatsGridProps {
     activeStaff: number;
     pendingApprovals: number;
   };
+  onBoxClick?: (
+    boxType:
+      | "totalUsers"
+      | "pendingApprovals"
+      | "activeStaff"
+      | "totalStudents",
+  ) => void;
 }
 
 export interface UserFiltersProps {

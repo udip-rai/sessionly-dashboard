@@ -8,18 +8,25 @@ const transformStudentToUser = (student: Student): User => {
   console.log("🔄 Transforming student:", student);
   return {
     id: student._id,
-    name: student.username || student.email.split("@")[0],
+    _id: student._id,
+    name: student.username || student.email?.split("@")[0],
+    username: student.username,
     email: student.email,
     phone: student.phone || "",
-    type: "student",
+    userType: "student",
     status: student.isActive === false ? "blocked" : "active",
     joinedDate: student.createdAt || "",
+    createdAt: student.createdAt || "",
     timezone: student.timezone || "",
+    totalSessions: student.totalSessions || 0,
+    rating: student.rating || 0,
     profilePicture: student.image || "",
+    image: student.image || "",
     bio: student.bio || "",
     linkedinUrl: student.linkedinUrl || "",
     websiteUrl: student.websiteUrl || "",
     otherUrls: student.otherUrls || [],
+    emailVerified: student.emailVerified || false,
   };
 };
 
@@ -27,10 +34,12 @@ const transformStaffToUser = (staff: Staff): User => {
   console.log("🔄 Transforming staff:", staff);
   return {
     id: staff._id,
-    name: staff.username || staff.email.split("@")[0],
+    _id: staff._id,
+    name: staff.username || staff.email?.split("@")[0],
+    username: staff.username,
     email: staff.email,
     phone: staff.phone || "",
-    type: "staff",
+    userType: "staff",
     status:
       staff.isActive === false
         ? "blocked"
@@ -38,21 +47,25 @@ const transformStaffToUser = (staff: Staff): User => {
         ? "active"
         : "inactive",
     joinedDate: staff.createdAt || "",
+    createdAt: staff.createdAt || "",
     timezone: staff.timezone || "",
-    expertiseAreas: staff.expertiseAreas?.length
-      ? [
-          `${staff.expertiseAreas.length} area${
-            staff.expertiseAreas.length !== 1 ? "s" : ""
-          }`,
-        ]
-      : ["No expertise areas"],
+    expertiseAreas: staff.expertiseAreas || [],
     profilePicture: staff.image || "",
+    image: staff.image || "",
     bio: staff.bio || "",
     linkedinUrl: staff.linkedinUrl || "",
     websiteUrl: staff.websiteUrl || "",
     otherUrls: staff.otherUrls || [],
     rate: staff.rate || "",
     isApproved: staff.isApproved,
+    approvedAt:
+      typeof staff.approvedAt === "string" ? staff.approvedAt : undefined,
+    approvedBy:
+      typeof staff.approvedBy === "string" ? staff.approvedBy : undefined,
+    emailVerified: staff.emailVerified || false,
+    cv: staff.cv || "",
+    certificates: staff.certificates || [],
+    advisoryTopics: staff.advisoryTopics || [],
   };
 };
 
@@ -304,12 +317,13 @@ export const useUserManagementStore = create<UserManagementState>(
       const users = get().users;
       const stats: UserStats = {
         totalUsers: users.length,
-        totalStudents: users.filter((u) => u.type === "student").length,
+        totalStudents: users.filter((u) => u.userType === "student").length,
         activeStaff: users.filter(
-          (u) => u.type === "staff" && u.status === "active",
+          (u) => u.userType === "staff" && u.status === "active",
         ).length,
         pendingApprovals: users.filter(
-          (u) => u.type === "staff" && !u.isApproved && u.status !== "blocked",
+          (u) =>
+            u.userType === "staff" && !u.isApproved && u.status !== "blocked",
         ).length,
       };
       set({ stats });
@@ -320,7 +334,8 @@ export const useUserManagementStore = create<UserManagementState>(
       const searchLower = filters.searchTerm.toLowerCase();
 
       const filtered = users.filter((user) => {
-        if (filters.type !== "all" && user.type !== filters.type) return false;
+        if (filters.type !== "all" && user.userType !== filters.type)
+          return false;
         if (filters.status !== "all" && user.status !== filters.status)
           return false;
         if (filters.searchTerm) {
