@@ -28,13 +28,6 @@ import StudentSignup from "./pages/student-signup";
 import ProfileSetup from "./components/expert/ProfileSetup";
 import StudentProfileSetup from "./components/student/ProfileSetup";
 import ExpertProfileManager from "./components/expert/ProfileManager";
-import { StudentProfileManager } from "./components/student/ProfileManager";
-import BrowseExperts from "./components/student/BrowseExperts";
-import TestProfilePage from "./pages/test-profile";
-import NotFoundPage from "./components/ui/NotFoundPage";
-
-// Import the unified router
-import UnifiedRouter from "./components/routes/UnifiedRouter";
 
 function App() {
   const { isAuthenticated, userRole, profileStatus, updateProfileStatus } =
@@ -42,12 +35,6 @@ function App() {
 
   return (
     <Routes>
-      {/* Unified Router - handles fallback routes */}
-      <Route path="*" element={<UnifiedRouter />} />
-
-      {/* Temporary Test Route */}
-      <Route path="/test-profile" element={<TestProfilePage />} />
-
       {/* Public Routes */}
       <Route
         path="/login"
@@ -217,21 +204,6 @@ function App() {
         }
       />
 
-      {/* Student Profile - Direct route to ensure it works */}
-      <Route
-        path="/student-dashboard/profile"
-        element={
-          <ProtectedRoute allowedRoles={["student"]}>
-            <Layout>
-              <div className="w-full">
-                {/* Import StudentProfileManager directly */}
-                <StudentProfileManager />
-              </div>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
       {/* Student Profile Setup */}
       <Route
         path="/student-dashboard/profile-setup"
@@ -249,31 +221,8 @@ function App() {
         }
       />
 
-      {/* Browse Experts */}
-      <Route
-        path="/student-dashboard/browse-experts"
-        element={
-          <ProtectedRoute allowedRoles={["student"]}>
-            <Layout>
-              <div className="w-full">
-                <BrowseExperts />
-              </div>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Default route handling - first try UnifiedRouter, then NotFoundPage for authenticated users, or login for unauthenticated */}
-      <Route
-        path="*"
-        element={
-          isAuthenticated && userRole ? (
-            <NotFoundPage />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
+      {/* Catch all route */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
