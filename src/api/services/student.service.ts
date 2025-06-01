@@ -51,7 +51,7 @@ export const studentService = {
   updateStudentProfile: async (
     studentId: string,
     data: UpdateStudentProfileData,
-  ): Promise<UpdateProfileResponse> => {
+  ): Promise<any> => {
     // Filter out empty/null/undefined values before processing
     const filteredData = filterEmptyValues(data);
 

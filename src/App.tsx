@@ -27,6 +27,7 @@ import ExpertSignup from "./pages/expert-signup";
 import StudentSignup from "./pages/student-signup";
 import ProfileSetup from "./components/expert/ProfileSetup";
 import StudentProfileSetup from "./components/student/ProfileSetup";
+import { StudentProfileManager } from "./components/student/ProfileManager";
 import ExpertProfileManager from "./components/expert/ProfileManager";
 
 function App() {
@@ -199,6 +200,18 @@ function App() {
           <ProtectedRoute allowedRoles={["student"]}>
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Student Profile Management */}
+      <Route
+        path="/student-dashboard/profile"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <Layout>
+              <StudentProfileManager />
             </Layout>
           </ProtectedRoute>
         }

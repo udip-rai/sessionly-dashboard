@@ -4,6 +4,7 @@ import {
   FiFileText,
   FiTarget,
   FiLink,
+  FiMessageSquare,
 } from "react-icons/fi";
 
 export const EXPERT_TABS = [
@@ -30,6 +31,12 @@ export const EXPERT_TABS = [
     label: "Expertise",
     icon: FiTarget,
     description: "Areas of expertise and skills",
+  },
+  {
+    id: "advisory",
+    label: "Advisory Topics",
+    icon: FiMessageSquare,
+    description: "Topics you can provide advice on",
   },
   {
     id: "social",

@@ -27,6 +27,7 @@ export interface ExpertProfileData {
   linkedinUrl?: string;
   websiteUrl?: string;
   expertiseAreas?: any[];
+  advisoryTopics?: string[];
 }
 
 // Required fields for student profile
@@ -40,7 +41,12 @@ const STUDENT_OPTIONAL_FIELDS = [
 
 // Required fields for expert profile
 const EXPERT_REQUIRED_FIELDS = ["bio", "phone", "rate", "expertiseAreas"];
-const EXPERT_OPTIONAL_FIELDS = ["image", "linkedinUrl", "websiteUrl"];
+const EXPERT_OPTIONAL_FIELDS = [
+  "image",
+  "linkedinUrl",
+  "websiteUrl",
+  "advisoryTopics",
+];
 
 // Field display names for better UX
 const FIELD_DISPLAY_NAMES: Record<string, string> = {
@@ -53,6 +59,7 @@ const FIELD_DISPLAY_NAMES: Record<string, string> = {
   otherUrls: "Other Links",
   rate: "Hourly Rate",
   expertiseAreas: "Areas of Expertise",
+  advisoryTopics: "Advisory Topics",
 };
 
 // Minimum character requirements
@@ -166,6 +173,9 @@ export function checkExpertProfileCompletion(
         isComplete = Boolean(value && String(value).trim());
         break;
       case "expertiseAreas":
+        isComplete = Boolean(Array.isArray(value) && value.length > 0);
+        break;
+      case "advisoryTopics":
         isComplete = Boolean(Array.isArray(value) && value.length > 0);
         break;
     }

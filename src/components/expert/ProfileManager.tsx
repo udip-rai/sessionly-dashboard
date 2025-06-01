@@ -15,6 +15,7 @@ import {
   FiFileText,
   FiTarget,
   FiLink,
+  FiMessageSquare,
 } from "react-icons/fi";
 import { SimpleProfileCompletion } from "../ui/SimpleProfileCompletion";
 import {
@@ -25,6 +26,7 @@ import {
   CVUpload,
   CertificatesSection,
   ExpertiseAreas,
+  AdvisoryTopics,
   SocialLinks,
 } from "./profile";
 import { EXPERT_TABS, INITIAL_EXPERT_DATA } from "./profile/_constants";
@@ -273,11 +275,35 @@ export const ExpertProfileManager: React.FC = () => {
           </div>
         </div>
 
-        <TabNavButton
-          direction="next"
-          onClick={() => setActiveTab(EXPERT_TABS[currentTabIndex + 1].id)}
-          disabled={isLastTab}
-        />
+        {isLastTab || activeTab === "social" ? (
+          <button
+            onClick={handleSaveAll}
+            disabled={isSaving || !isDataChanged}
+            className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+              isDataChanged && !isSaving
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {isSaving ? (
+              <>
+                <div className="mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <FiSave className="mr-2 w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                Save Profile
+              </>
+            )}
+          </button>
+        ) : (
+          <TabNavButton
+            direction="next"
+            onClick={() => setActiveTab(EXPERT_TABS[currentTabIndex + 1].id)}
+            disabled={isLastTab}
+          />
+        )}
       </div>
     );
 
@@ -391,6 +417,27 @@ export const ExpertProfileManager: React.FC = () => {
                   setFormData={setFormData}
                   categories={categories}
                 />
+              </div>
+              <TabNavigation />
+            </div>
+          );
+
+        case "advisory":
+          return (
+            <div className="animate-fadeIn">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl border-l-4 border-teal-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiMessageSquare className="w-5 h-5 mr-2 text-teal-600" />
+                  Advisory Topics
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Specify the topics you can provide guidance and advice on
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <AdvisoryTopics formData={formData} setFormData={setFormData} />
               </div>
               <TabNavigation />
             </div>

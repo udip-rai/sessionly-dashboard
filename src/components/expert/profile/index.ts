@@ -5,6 +5,7 @@ export { ProfessionalInfo } from "./ProfessionalInfo";
 export { CVUpload } from "./CVUpload";
 export { CertificatesSection } from "./CertificatesSection";
 export { ExpertiseAreas } from "./ExpertiseAreas";
+export { AdvisoryTopics } from "./AdvisoryTopics";
 export { SocialLinks } from "./SocialLinks";
 export { InlineEditField } from "./InlineEditField";
 

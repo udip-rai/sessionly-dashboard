@@ -165,7 +165,7 @@ export const profileService = {
           }
         }
 
-        formData.append("certificates", JSON.stringify(certificateData));
+        formData.append("certificateDetails", JSON.stringify(certificateData));
       }
     }
 
@@ -203,40 +203,19 @@ export const profileService = {
   ) => {
     const formData = new FormData();
 
-    // Add certificate files using array notation (matches Postman format)
+    // Add certificate files
     certificates.forEach((file) => {
       formData.append("certificates", file);
     });
 
-    // Add description field (matches Postman format)
-    // For now, we'll use the first certificate's description or a combined description
-    if (certificateDetails.length > 0) {
-      const combinedDescription = certificateDetails
-        .map(
-          (cert, index) =>
-            `Certificate ${index + 1}: ${cert.name} - ${
-              cert.description
-            } (Issued: ${cert.issueDate})`,
-        )
-        .join("; ");
-      formData.append("description", combinedDescription);
-    }
+    // Add certificate details as a JSON string
+    formData.append("certificateDetails", JSON.stringify(certificateDetails));
 
     console.log("[uploadCertificates] Uploading:", {
       certificateCount: certificates.length,
       certificateDetails,
       formDataKeys: Array.from(formData.keys()),
     });
-
-    // Log FormData contents for debugging
-    console.log("[uploadCertificates] FormData contents:");
-    for (const [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
-      } else {
-        console.log(`  ${key}: ${value}`);
-      }
-    }
 
     const response = await api.patch<UpdateProfileResponse>(
       STAFF_APIS.updateProfile(staffId),

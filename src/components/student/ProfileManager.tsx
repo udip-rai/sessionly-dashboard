@@ -3,14 +3,12 @@ import {
   FiUser,
   FiPhone,
   FiLink,
-  FiX,
   FiCamera,
   FiSave,
   FiMail,
   FiRefreshCw,
   FiArrowLeft,
   FiArrowRight,
-  FiPlus,
 } from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
 import { userService } from "../../api/services/user.service";
@@ -20,6 +18,7 @@ import { checkStudentProfileCompletion } from "../../utils/profileCompletion";
 import { SimpleProfileCompletion } from "../ui/SimpleProfileCompletion";
 import { useLocation } from "react-router-dom";
 import { InlineEditField } from "./profile/InlineEditField";
+import { SocialLinks } from "./profile/SocialLinks";
 import { StudentData } from "./profile/_types";
 
 export function StudentProfileManager() {
@@ -54,6 +53,7 @@ export function StudentProfileManager() {
     linkedinUrl: "",
     websiteUrl: "",
     otherUrls: [],
+    userType: "student",
   });
 
   // Form data that can be modified by user
@@ -92,12 +92,33 @@ export function StudentProfileManager() {
       setIsLoading(true);
       try {
         const response = await userService.getCurrentUser(user.userType);
-        const data = response.user;
-        setStudentData(data);
-        setFormData(data as any);
+        const userData = response.user;
+        console.log("[StudentProfileManager] Fetched data:", userData);
+
+        // Normalize data - ensure all fields have valid defaults
+        const normalizedData: StudentData = {
+          _id: userData.id || "",
+          username: userData.username || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          bio: userData.bio || "",
+          image: userData.image || "",
+          linkedinUrl: userData.linkedinUrl || "",
+          websiteUrl: userData.websiteUrl || "",
+          otherUrls: Array.isArray(userData.otherUrls)
+            ? userData.otherUrls
+            : [],
+          userType: "student",
+          emailVerified: userData.emailVerified || false,
+        };
+
+        setStudentData(normalizedData);
+        setFormData(normalizedData);
       } catch (error) {
         console.error("Error fetching student data:", error);
-        showToast.error("Failed to load profile data");
+        showToast.error(
+          "Failed to load profile data. Please try refreshing the page.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -131,37 +152,6 @@ export function StudentProfileManager() {
   };
 
   /**
-   * Handles adding a new URL to otherUrls
-   */
-  const addOtherUrl = () => {
-    setFormData((prev) => ({
-      ...prev,
-      otherUrls: [...(prev.otherUrls || []), ""],
-    }));
-  };
-
-  /**
-   * Handles updating a URL in otherUrls
-   */
-  const updateOtherUrl = (index: number, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      otherUrls:
-        prev.otherUrls?.map((url, i) => (i === index ? value : url)) || [],
-    }));
-  };
-
-  /**
-   * Handles removing a URL from otherUrls
-   */
-  const removeOtherUrl = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      otherUrls: prev.otherUrls?.filter((_, i) => i !== index) || [],
-    }));
-  };
-
-  /**
    * Resets all form changes back to the original data
    */
   const handleReset = () => {
@@ -187,15 +177,13 @@ export function StudentProfileManager() {
 
       // Prepare update data for API call - matching backend schema
       const updateData: any = {
-        username: formData.username,
-        phone: formData.phone,
-        bio: formData.bio,
-        linkedinUrl: formData.linkedinUrl,
-        websiteUrl: formData.websiteUrl,
+        username: formData.username || "",
+        phone: formData.phone || "",
+        bio: formData.bio || "",
+        linkedinUrl: formData.linkedinUrl || "",
+        websiteUrl: formData.websiteUrl || "",
         image: newImageFile,
         otherUrls: formData.otherUrls?.filter((url) => url.trim() !== "") || [],
-        emailVerified: true,
-        userType: "student",
       };
 
       await studentService.updateStudentProfile(user.id, updateData);
@@ -206,11 +194,31 @@ export function StudentProfileManager() {
 
       // Show success message
       showToast.success("Profile updated successfully!");
+
+      // If we're on the last tab and just saved, optionally redirect or show additional feedback
+      if (tabs.findIndex((tab) => tab.id === activeTab) === tabs.length - 1) {
+        console.log("[StudentProfileManager] Completed final step save");
+        // Optional: Set a "complete" state or redirect after short delay
+      }
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      const errorMessage =
-        error?.response?.data?.message || "Failed to update profile";
+      // Enhanced error message extraction logic
+      let errorMessage = "Failed to update profile";
+
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
       showToast.error(errorMessage);
+
+      // Log details for debugging
+      console.log("[StudentProfileManager] Profile update error details:", {
+        statusCode: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data,
+      });
     } finally {
       setIsSaving(false);
     }
@@ -223,9 +231,7 @@ export function StudentProfileManager() {
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
-  }
-
-  // Check if user has made any changes to the form
+  } // Check if user has made any changes to the form
   const isDataChanged =
     JSON.stringify(studentData) !== JSON.stringify(formData) ||
     newImageFile !== null;
@@ -305,11 +311,35 @@ export function StudentProfileManager() {
           </div>
         </div>
 
-        <TabNavButton
-          direction="next"
-          onClick={() => setActiveTab(tabs[currentTabIndex + 1].id)}
-          disabled={isLastTab}
-        />
+        {isLastTab || activeTab === "social" ? (
+          <button
+            onClick={handleSaveAll}
+            disabled={isSaving || !isDataChanged}
+            className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+              isDataChanged && !isSaving
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {isSaving ? (
+              <>
+                <div className="mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <FiSave className="mr-2 w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                Save Profile
+              </>
+            )}
+          </button>
+        ) : (
+          <TabNavButton
+            direction="next"
+            onClick={() => setActiveTab(tabs[currentTabIndex + 1].id)}
+            disabled={false}
+          />
+        )}
       </div>
     );
 
@@ -405,6 +435,7 @@ export function StudentProfileManager() {
                             handleChange(field, studentData[field] || "")
                           }
                         />
+
                         {/* <div className="flex justify-between items-center mt-1">
                           <span
                             className={`text-xs ${
@@ -500,76 +531,13 @@ export function StudentProfileManager() {
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="space-y-4">
-                {/* LinkedIn URL */}
-                <div>
-                  <InlineEditField
-                    field="linkedinUrl"
-                    value={formData.linkedinUrl || ""}
-                    placeholder="LinkedIn URL"
-                    type="url"
-                    icon={FiLink}
-                    editingField={editingField}
-                    setEditingField={setEditingField}
-                    onUpdate={handleChange}
-                    onCancel={(field) =>
-                      handleChange(field, studentData[field] || "")
-                    }
-                  />
-                </div>
-
-                {/* Website URL */}
-                <div>
-                  <InlineEditField
-                    field="websiteUrl"
-                    value={formData.websiteUrl || ""}
-                    placeholder="Website URL"
-                    type="url"
-                    icon={FiLink}
-                    editingField={editingField}
-                    setEditingField={setEditingField}
-                    onUpdate={handleChange}
-                    onCancel={(field) =>
-                      handleChange(field, studentData[field] || "")
-                    }
-                  />
-                </div>
-
-                {/* Other Links */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Other Links
-                  </label>
-                  <div className="space-y-3">
-                    {(formData.otherUrls || []).map((url, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <FiLink className="h-5 w-5 text-gray-400" />
-                        <input
-                          type="url"
-                          value={url}
-                          onChange={(e) =>
-                            updateOtherUrl(index, e.target.value)
-                          }
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                          placeholder="https://other-link.com"
-                        />
-                        <button
-                          onClick={() => removeOtherUrl(index)}
-                          className="text-red-500 hover:text-red-700 p-2"
-                        >
-                          <FiX className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={addOtherUrl}
-                      className="text-blue-600 hover:text-blue-700 font-medium flex items-center"
-                    >
-                      <FiPlus className="h-4 w-4 mr-1" /> Add another link
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <SocialLinks
+                formData={formData}
+                setFormData={setFormData}
+                editingField={editingField}
+                setEditingField={setEditingField}
+                originalData={studentData}
+              />
             </div>
             <TabNavigation />
           </div>
@@ -601,7 +569,18 @@ export function StudentProfileManager() {
               {/* Enhanced profile completion indicator */}
               <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 shadow-sm border border-blue-100">
                 <SimpleProfileCompletion
-                  status={checkStudentProfileCompletion(formData)}
+                  status={(() => {
+                    const status = checkStudentProfileCompletion(formData);
+                    console.log("[Profile Completion Debug]");
+                    console.log("Form Data:", formData);
+                    console.log("Completion Status:", status);
+                    console.log("Completed Fields:", status.completedFields);
+                    console.log("Missing Fields:", status.missingFields);
+                    console.log("Critical Missing:", status.criticalMissing);
+                    console.log("Optional Missing:", status.optionalMissing);
+                    console.log("Percentage:", status.completionPercentage);
+                    return status;
+                  })()}
                 />
               </div>
             </div>
@@ -692,7 +671,21 @@ export function StudentProfileManager() {
         </div>
 
         {/* Tab content - Added responsive padding */}
-        <div className="p-4 sm:p-6">{renderTabContent()}</div>
+        <div className="p-4 sm:p-6">
+          {isSaving ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-500 font-medium">
+                Saving your profile...
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Please wait while we update your information
+              </p>
+            </div>
+          ) : (
+            renderTabContent()
+          )}
+        </div>
       </div>
 
       {/* Debug panel - only visible in development with trigger */}

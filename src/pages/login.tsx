@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
@@ -74,11 +75,22 @@ export default function LoginPage() {
         {/* Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
           <FormContainer>
-            <div className="w-full mb-6 flex justify-center">
+            <div className="w-full mb-6 flex justify-center relative">
+              {isGoogleLoading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <div className="w-5 h-5 border-2 border-navy/30 border-t-navy rounded-full animate-spin" />
+                    <span className="text-sm font-medium">
+                      Signing in with Google...
+                    </span>
+                  </div>
+                </div>
+              )}
               <GoogleLogin
                 onSuccess={async (
                   credentialResponse: GoogleCredentialResponse,
                 ) => {
+                  setIsGoogleLoading(true);
                   try {
                     if (!credentialResponse.credential) {
                       throw new Error("No credentials received from Google");
@@ -125,10 +137,13 @@ export default function LoginPage() {
                   } catch (error) {
                     setError("Failed to login with Google. Please try again.");
                     console.error("Error during Google login:", error);
+                  } finally {
+                    setIsGoogleLoading(false);
                   }
                 }}
                 onError={() => {
                   setError("Failed to login with Google. Please try again.");
+                  setIsGoogleLoading(false);
                 }}
                 useOneTap
                 theme="outline"

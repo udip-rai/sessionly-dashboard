@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FiUser, FiPhone, FiDollarSign, FiCheck } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import {
+  FiUser,
+  FiPhone,
+  FiDollarSign,
+  FiCheck,
+  FiSkipForward,
+} from "react-icons/fi";
 import { profileService } from "../../api/services/profile.service";
 import { useAuth } from "../../context/AuthContext";
 import { showToast } from "../../utils/toast";
@@ -63,6 +70,7 @@ export default function ProfileSetup({
 ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] =
     useState<ProfileSetupData>(INITIAL_EXPERT_DATA);
   const [_, setError] = useState("");
@@ -186,45 +194,44 @@ ProfileSetupProps) {
     }
   };
 
+  const handleSkip = () => {
+    // Navigate directly to the expert dashboard
+    navigate("/expert-dashboard");
+    showToast.info(
+      "Profile setup skipped. You can complete it later from your dashboard.",
+    );
+  };
+
   const renderExpertiseStep = () => (
-    <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900">
-        Areas of Expertise
-      </h3>
-      <p className="text-sm text-gray-600">
-        Choose the areas you specialize in. You can select multiple categories
-        and subcategories.
-      </p>
+    <div className="space-y-8">
+      {categories?.map((category: APICategory) => (
+        <div
+          key={category._id}
+          className="bg-white/80 backdrop-blur-xl rounded-lg border border-white/40 p-4 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md"
+        >
+          {" "}
+          <h4 className="text-base font-semibold text-navy mb-2 flex items-center justify-between">
+            {category.name}
+            <span className="text-sm text-gray-600 font-normal">
+              {category.description}
+            </span>
+          </h4>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {category.subCategories.map((subCategory) => {
+              const isSelected = formData.expertiseAreas.some(
+                (area) =>
+                  area.category === category._id &&
+                  area.subCategory === subCategory._id,
+              );
 
-      <div className="space-y-8">
-        {categories?.map((category: APICategory) => (
-          <div
-            key={category._id}
-            className="bg-white/80 backdrop-blur-xl rounded-lg border border-white/40 p-4 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md"
-          >
-            {" "}
-            <h4 className="text-base font-semibold text-navy mb-2 flex items-center justify-between">
-              {category.name}
-              <span className="text-sm text-gray-600 font-normal">
-                {category.description}
-              </span>
-            </h4>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {category.subCategories.map((subCategory) => {
-                const isSelected = formData.expertiseAreas.some(
-                  (area) =>
-                    area.category === category._id &&
-                    area.subCategory === subCategory._id,
-                );
-
-                return (
-                  <button
-                    key={subCategory._id}
-                    type="button"
-                    onClick={() =>
-                      handleExpertiseChange(category._id, subCategory._id)
-                    }
-                    className={`
+              return (
+                <button
+                  key={subCategory._id}
+                  type="button"
+                  onClick={() =>
+                    handleExpertiseChange(category._id, subCategory._id)
+                  }
+                  className={`
                       flex items-center justify-between p-4 rounded-xl text-left
                       ${
                         isSelected
@@ -233,25 +240,24 @@ ProfileSetupProps) {
                       }
                       border transition-all duration-300 ease-in-out hover:scale-105
                     `}
-                  >
-                    <div>
-                      <div className="font-medium text-sm">
-                        {subCategory.name}
-                      </div>
-                      <div className="text-xs mt-1 ${isSelected ? 'text-gray-200' : 'text-gray-500'}">
-                        {subCategory.description}
-                      </div>
+                >
+                  <div>
+                    <div className="font-medium text-sm">
+                      {subCategory.name}
                     </div>
-                    {isSelected && (
-                      <FiCheck className="h-5 w-5 flex-shrink-0 text-white" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                    <div className="text-xs mt-1 ${isSelected ? 'text-gray-200' : 'text-gray-500'}">
+                      {subCategory.description}
+                    </div>
+                  </div>
+                  {isSelected && (
+                    <FiCheck className="h-5 w-5 flex-shrink-0 text-white" />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
       {formData.expertiseAreas.length === 0 && (
         <div className="text-sm text-amber-200 bg-amber-500/10 backdrop-blur-sm border border-amber-200/20 p-4 rounded-lg">
@@ -265,63 +271,72 @@ ProfileSetupProps) {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            {" "}
-            <h3 className="text-xl font-semibold text-navy">
-              Basic Information
-            </h3>
-            <div className="space-y-4">
-              {/* Phone field */}
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  Phone Number
-                </label>
-                <div className="mt-1 relative rounded-lg">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiPhone className="h-5 w-5 text-gray-400" />
-                  </div>{" "}
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiUser className="w-5 h-5 mr-2 text-blue-600" />
+                Basic Information
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Set up your contact information and professional bio
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-4">
+                {/* Phone field */}
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Phone Number
+                  </label>
+                  <div className="relative rounded-lg">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiPhone className="h-5 w-5 text-gray-400" />
+                    </div>{" "}
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                      transition-all duration-300 ease-in-out bg-white/80
+                      focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                      hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                      placeholder:text-gray-400"
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+                </div>
+
+                {/* Bio field */}
+                <div>
+                  <label
+                    htmlFor="bio"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Professional Bio
+                  </label>{" "}
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={4}
                     required
-                    value={formData.phone}
+                    value={formData.bio}
                     onChange={handleChange}
-                    className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
                     transition-all duration-300 ease-in-out bg-white/80
                     focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
                     hover:border-navy/30 hover:shadow-md hover:bg-white/90
                     placeholder:text-gray-400"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="Tell us about your professional experience and expertise..."
                   />
                 </div>
-              </div>
-
-              {/* Bio field */}
-              <div>
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Professional Bio
-                </label>{" "}
-                <textarea
-                  id="bio"
-                  name="bio"
-                  rows={4}
-                  required
-                  value={formData.bio}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                  transition-all duration-300 ease-in-out bg-white/80
-                  focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                  hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                  placeholder:text-gray-400"
-                  placeholder="Tell us about your professional experience and expertise..."
-                />
               </div>
             </div>
           </div>
@@ -329,40 +344,57 @@ ProfileSetupProps) {
 
       case 2:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-900">
-              Profile Picture
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Upload Photo
-                </label>
-                <div className="mt-2 flex items-center gap-4">
-                  <div className="h-24 w-24 rounded-full bg-white/80 border border-gray-200/60 flex items-center justify-center shadow-sm">
-                    {formData.image ? (
-                      <img
-                        src={
-                          typeof formData.image === "string"
-                            ? formData.image
-                            : URL.createObjectURL(formData.image)
-                        }
-                        alt="Profile preview"
-                        className="h-24 w-24 rounded-full object-cover"
-                      />
-                    ) : (
-                      <FiUser className="h-12 w-12 text-gray-400" />
-                    )}
-                  </div>
-                  <label className="cursor-pointer bg-white/90 px-4 py-2 border border-gray-200/60 rounded-md shadow-sm text-sm font-medium text-navy hover:bg-white hover:border-navy/30 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all duration-300">
-                    <span>Upload a file</span>
-                    <input
-                      type="file"
-                      className="sr-only"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiUser className="w-5 h-5 mr-2 text-green-600" />
+                Profile Picture
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Upload a professional photo for your profile
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-3">
+                    Profile Picture
                   </label>
+                  <div className="flex items-center gap-6">
+                    <div className="h-24 w-24 rounded-full bg-gray-200 overflow-hidden border-4 border-white shadow-lg">
+                      {formData.image ? (
+                        <img
+                          src={
+                            typeof formData.image === "string"
+                              ? formData.image
+                              : URL.createObjectURL(formData.image)
+                          }
+                          alt="Profile preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center">
+                          <FiUser className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="cursor-pointer bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 px-4 py-2 border border-blue-200 rounded-lg shadow-sm text-sm font-medium text-blue-600 hover:shadow-md transition-all duration-300">
+                        <span>Upload a file</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Upload a professional photo of yourself
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -370,42 +402,74 @@ ProfileSetupProps) {
         );
 
       case 3:
-        return renderExpertiseStep();
+        return (
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-l-4 border-indigo-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiUser className="w-5 h-5 mr-2 text-indigo-600" />
+                Areas of Expertise
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Choose the areas you specialize in. You can select multiple
+                categories and subcategories.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              {renderExpertiseStep()}
+            </div>
+          </div>
+        );
 
       case 4:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-900">
-              Set Your Rate
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="rate"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Hourly Rate (USD)
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiDollarSign className="h-5 w-5 text-gray-400" />
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-l-4 border-purple-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiDollarSign className="w-5 h-5 mr-2 text-purple-600" />
+                Set Your Rate
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Define your hourly rate for mentoring sessions
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="rate"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Hourly Rate (USD)
+                  </label>
+                  <div className="relative rounded-lg shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiDollarSign className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="number"
+                      name="rate"
+                      id="rate"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.rate}
+                      onChange={handleChange}
+                      className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                      transition-all duration-300 ease-in-out bg-white/80
+                      focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                      hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                      placeholder:text-gray-400"
+                      placeholder="0.00"
+                    />
                   </div>
-                  <input
-                    type="number"
-                    name="rate"
-                    id="rate"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.rate}
-                    onChange={handleChange}
-                    className="pl-10 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                    hover:border-blue-200 hover:shadow-md
-                    placeholder:text-gray-400"
-                    placeholder="0.00"
-                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set a competitive rate based on your expertise and
+                    experience
+                  </p>
                 </div>
               </div>
             </div>
@@ -429,6 +493,20 @@ ProfileSetupProps) {
         }}
       ></div>
       <div className="max-w-3xl mx-auto relative">
+        {/* Skip button at the top */}
+        <div className="flex justify-end mb-4">
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="px-6 py-3 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 
+            transition-all duration-300 ease-in-out hover:scale-105 rounded-xl border border-gray-300 
+            hover:border-gray-400 hover:shadow-lg backdrop-blur-sm flex items-center gap-2 font-medium"
+          >
+            <FiSkipForward className="w-5 h-5" />
+            Skip for now
+          </button>
+        </div>
+
         <div className="text-center mb-8 animate-fadeIn">
           <h2 className="text-4xl font-bold bg-gradient-to-r from-navy via-indigo-600 to-blue-600 bg-clip-text text-transparent">
             Complete Your Profile
@@ -436,6 +514,12 @@ ProfileSetupProps) {
           <p className="mt-3 text-sm text-gray-600">
             Let's set up your profile so you can start mentoring
           </p>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-700">
+              💡 You can skip this setup and complete your profile later from
+              your dashboard
+            </p>
+          </div>
         </div>
 
         <ProgressSteps currentStep={currentStep} totalSteps={totalSteps} />

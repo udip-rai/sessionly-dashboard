@@ -6,6 +6,13 @@ interface UserResponse {
     id: string;
     username?: string;
     email: string;
+    phone?: string;
+    bio?: string;
+    image?: string;
+    linkedinUrl?: string;
+    websiteUrl?: string;
+    otherUrls?: string[];
+    emailVerified?: boolean;
     userType: "student" | "staff" | "admin";
     profileStatus?: {
       isComplete: boolean;

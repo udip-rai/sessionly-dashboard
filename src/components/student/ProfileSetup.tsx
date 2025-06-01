@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { FiUser, FiPhone, FiLink, FiGithub } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import {
+  FiUser,
+  FiPhone,
+  FiLink,
+  FiGithub,
+  FiSkipForward,
+} from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
 import { useAuth } from "../../context/AuthContext";
 import { showToast } from "../../utils/toast";
@@ -64,6 +71,7 @@ export default function StudentProfileSetup({
 }: ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     phone: "",
@@ -213,59 +221,77 @@ export default function StudentProfileSetup({
     }
   };
 
+  const handleSkip = () => {
+    // Navigate directly to the student dashboard
+    navigate("/student-dashboard");
+    showToast.info(
+      "Profile setup skipped. You can complete it later from your dashboard.",
+    );
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-navy">
-              Basic Information
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  Username
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                  transition-all duration-300 ease-in-out bg-white/80
-                  focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                  hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                  placeholder:text-gray-400"
-                  placeholder="Choose a username"
-                />
-              </div>
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiUser className="w-5 h-5 mr-2 text-blue-600" />
+                Basic Information
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Set up your username and tell us about yourself
+              </p>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  rows={4}
-                  required
-                  value={formData.bio}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                  transition-all duration-300 ease-in-out bg-white/80
-                  focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                  hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                  placeholder:text-gray-400"
-                  placeholder="Tell us about yourself and your interests..."
-                />
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Username
+                  </label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
+                    placeholder="Choose a username"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="bio"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={4}
+                    required
+                    value={formData.bio}
+                    onChange={handleChange}
+                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                    transition-all duration-300 ease-in-out bg-white/80
+                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                    placeholder:text-gray-400"
+                    placeholder="Tell us about yourself and your interests..."
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -273,64 +299,83 @@ export default function StudentProfileSetup({
 
       case 2:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-navy">
-              Profile Picture & Contact
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-800">
-                  Upload Photo
-                </label>
-                <div className="mt-2 flex items-center gap-4">
-                  <div className="h-24 w-24 rounded-full bg-white/80 border border-gray-200/60 flex items-center justify-center shadow-sm">
-                    {formData.image ? (
-                      <img
-                        src={URL.createObjectURL(formData.image)}
-                        alt="Profile preview"
-                        className="h-24 w-24 rounded-full object-cover"
-                      />
-                    ) : (
-                      <FiUser className="h-12 w-12 text-gray-400" />
-                    )}
-                  </div>
-                  <label className="cursor-pointer bg-white/90 px-4 py-2 border border-gray-200/60 rounded-md shadow-sm text-sm font-medium text-navy hover:bg-white hover:border-navy/30 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all duration-300">
-                    <span>Upload a file</span>
-                    <input
-                      type="file"
-                      className="sr-only"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                </div>
-              </div>
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiPhone className="w-5 h-5 mr-2 text-green-600" />
+                Profile Picture & Contact
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Upload your photo and add contact information
+              </p>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  Phone Number
-                </label>
-                <div className="mt-1 relative rounded-lg">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiPhone className="h-5 w-5 text-gray-400" />
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-6">
+                {/* Profile Picture Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-3">
+                    Profile Picture
+                  </label>
+                  <div className="flex items-center gap-6">
+                    <div className="h-24 w-24 rounded-full bg-gray-200 overflow-hidden border-4 border-white shadow-lg">
+                      {formData.image ? (
+                        <img
+                          src={URL.createObjectURL(formData.image)}
+                          alt="Profile preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center">
+                          <FiUser className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="cursor-pointer bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 px-4 py-2 border border-blue-200 rounded-lg shadow-sm text-sm font-medium text-blue-600 hover:shadow-md transition-all duration-300">
+                        <span>Upload a file</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Upload a clear photo of yourself
+                      </p>
+                    </div>
                   </div>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
-                    placeholder="+1 (555) 000-0000"
-                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Phone Number
+                  </label>
+                  <div className="relative rounded-lg">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiPhone className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                      transition-all duration-300 ease-in-out bg-white/80
+                      focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                      hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                      placeholder:text-gray-400"
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -339,107 +384,122 @@ export default function StudentProfileSetup({
 
       case 3:
         return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-navy">
-              Social & Professional Links
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="linkedinUrl"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  LinkedIn Profile
-                </label>
-                <div className="mt-1 relative rounded-lg">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiLink className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="linkedinUrl"
-                    name="linkedinUrl"
-                    type="url"
-                    value={formData.linkedinUrl}
-                    onChange={handleChange}
-                    className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
-                    placeholder="https://linkedin.com/in/yourprofile"
-                  />
-                </div>
-              </div>
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border-l-4 border-indigo-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiLink className="w-5 h-5 mr-2 text-indigo-600" />
+                Social & Professional Links
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Add your LinkedIn, website, and other professional links
+              </p>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="websiteUrl"
-                  className="block text-sm font-medium text-gray-800"
-                >
-                  Personal Website
-                </label>
-                <div className="mt-1 relative rounded-lg">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiLink className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="websiteUrl"
-                    name="websiteUrl"
-                    type="url"
-                    value={formData.websiteUrl}
-                    onChange={handleChange}
-                    className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
-                    placeholder="https://your-website.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-800">
-                  Other Links (GitHub, Portfolio, etc.)
-                </label>
-                {formData.otherUrls.map((url, index) => (
-                  <div key={index} className="flex gap-2">
-                    <div className="flex-1 relative rounded-lg">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiGithub className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="url"
-                        value={url}
-                        onChange={(e) =>
-                          handleOtherUrlChange(index, e.target.value)
-                        }
-                        className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                        transition-all duration-300 ease-in-out bg-white/80
-                        focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                        hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                        placeholder:text-gray-400"
-                        placeholder="https://github.com/yourusername"
-                      />
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="space-y-4">
+                {/* LinkedIn URL */}
+                <div>
+                  <label
+                    htmlFor="linkedinUrl"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    LinkedIn Profile
+                  </label>
+                  <div className="relative rounded-lg">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiLink className="h-5 w-5 text-gray-400" />
                     </div>
-                    {index > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => removeOtherUrl(index)}
-                        className="px-3 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                      >
-                        Remove
-                      </button>
-                    )}
+                    <input
+                      id="linkedinUrl"
+                      name="linkedinUrl"
+                      type="url"
+                      value={formData.linkedinUrl}
+                      onChange={handleChange}
+                      className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                      transition-all duration-300 ease-in-out bg-white/80
+                      focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                      hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                      placeholder:text-gray-400"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                    />
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addOtherUrl}
-                  className="text-sm text-navy hover:text-navy/80 font-medium transition-colors duration-200"
-                >
-                  + Add another link
-                </button>
+                </div>
+
+                {/* Website URL */}
+                <div>
+                  <label
+                    htmlFor="websiteUrl"
+                    className="block text-sm font-medium text-gray-800 mb-1"
+                  >
+                    Personal Website
+                  </label>
+                  <div className="relative rounded-lg">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiLink className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="websiteUrl"
+                      name="websiteUrl"
+                      type="url"
+                      value={formData.websiteUrl}
+                      onChange={handleChange}
+                      className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                      transition-all duration-300 ease-in-out bg-white/80
+                      focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                      hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                      placeholder:text-gray-400"
+                      placeholder="https://your-website.com"
+                    />
+                  </div>
+                </div>
+
+                {/* Other Links */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-800 mb-3">
+                    Other Links (GitHub, Portfolio, etc.)
+                  </label>
+                  <div className="space-y-3">
+                    {formData.otherUrls.map((url, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="relative flex-1 rounded-lg">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <FiGithub className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <input
+                            type="url"
+                            value={url}
+                            onChange={(e) =>
+                              handleOtherUrlChange(index, e.target.value)
+                            }
+                            className="pl-10 block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
+                            transition-all duration-300 ease-in-out bg-white/80
+                            focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
+                            hover:border-navy/30 hover:shadow-md hover:bg-white/90
+                            placeholder:text-gray-400"
+                            placeholder="https://github.com/yourusername"
+                          />
+                        </div>
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => removeOtherUrl(index)}
+                            className="px-3 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addOtherUrl}
+                      className="text-sm text-navy hover:text-navy/80 font-medium transition-colors duration-200"
+                    >
+                      + Add another link
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -462,6 +522,20 @@ export default function StudentProfileSetup({
         }}
       ></div>
       <div className="max-w-3xl mx-auto relative">
+        {/* Skip button at the top */}
+        <div className="flex justify-end mb-4">
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="px-6 py-3 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 
+            transition-all duration-300 ease-in-out hover:scale-105 rounded-xl border border-gray-300 
+            hover:border-gray-400 hover:shadow-lg backdrop-blur-sm flex items-center gap-2 font-medium"
+          >
+            <FiSkipForward className="w-5 h-5" />
+            Skip for now
+          </button>
+        </div>
+
         <div className="text-center mb-8 animate-fadeIn">
           <h2 className="text-4xl font-bold bg-gradient-to-r from-navy via-indigo-600 to-blue-600 bg-clip-text text-transparent">
             Complete Your Profile
@@ -469,6 +543,12 @@ export default function StudentProfileSetup({
           <p className="mt-3 text-sm text-gray-600">
             Let's set up your profile to get started
           </p>
+          <div className="mt-4 p-3 bg-blue-50/80 border border-blue-200 rounded-lg backdrop-blur-sm">
+            <p className="text-xs text-blue-700">
+              💡 You can skip this setup and complete your profile later from
+              your dashboard
+            </p>
+          </div>
         </div>
 
         <ProgressSteps currentStep={currentStep} totalSteps={totalSteps} />
@@ -496,7 +576,7 @@ export default function StudentProfileSetup({
                 }
               }
             `}</style>
-            <div className="flex justify-between pt-8 border-t border-gray-100">
+            <div className="flex justify-between items-center pt-8 border-t border-gray-100">
               <button
                 type="button"
                 onClick={handleBack}
@@ -508,14 +588,23 @@ export default function StudentProfileSetup({
               >
                 Back
               </button>
+
               <button
                 type="button"
                 onClick={handleNext}
+                disabled={updateProfileMutation.isPending}
                 className="px-8 py-2.5 bg-gradient-to-r from-navy via-indigo-600 to-blue-500 text-white text-sm font-medium 
                 rounded-lg transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:from-navy hover:to-indigo-500
-                active:scale-95 transform shadow-md"
+                active:scale-95 transform shadow-md disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
               >
-                {currentStep === totalSteps ? "Complete Setup" : "Next"}
+                {updateProfileMutation.isPending && (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                )}
+                {updateProfileMutation.isPending
+                  ? "Saving..."
+                  : currentStep === totalSteps
+                  ? "Complete Setup"
+                  : "Next"}
               </button>
             </div>
           </form>

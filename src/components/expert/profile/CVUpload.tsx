@@ -61,6 +61,10 @@ export const CVUpload: React.FC<ProfileSectionProps> = ({
 
   return (
     <div className="space-y-4">
+      <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+        <FiFile className="w-5 h-5 mr-2 text-orange-600" />
+        Your Resume
+      </h4>
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-orange-400 transition-colors relative bg-gradient-to-br from-orange-50/30 to-amber-50/30">
         {formData.cv &&
         typeof formData.cv === "string" &&

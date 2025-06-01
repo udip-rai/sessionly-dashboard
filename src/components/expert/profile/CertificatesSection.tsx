@@ -361,11 +361,7 @@ export const CertificatesSection: React.FC<ProfileSectionProps> = ({
                             </span>
                           )}
                         </div>
-                        {(cert.fileUrl || cert.file) && (
-                          <div className="mt-1 text-xs text-purple-600">
-                            Click the "View" button to open the certificate PDF
-                          </div>
-                        )}
+                        {/* Removed instructional text about viewing PDF */}
                       </div>
                     </div>
 

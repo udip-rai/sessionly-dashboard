@@ -7,6 +7,7 @@ import { googleAuthService } from "../api/services/google-auth.service";
 import { userService } from "../api/services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
 import { FormButton } from "../components/auth/AuthForm";
+import { Spinner } from "../components/ui/Spinner";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -23,6 +24,7 @@ export default function ExpertSignup() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const isSubmitting = expertSignupMutation.isPending;
 
   const validateForm = () => {
@@ -88,11 +90,23 @@ export default function ExpertSignup() {
         {/* Form Container */}
         <div className="flex-1 px-8 md:px-10 py-8">
           <div className="w-full max-w-sm mx-auto space-y-6">
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center relative">
+              {/* Loading overlay */}
+              {isGoogleLoading && (
+                <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-lg">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Spinner size="md" />
+                    <span className="text-sm text-gray-600">
+                      Signing in with Google...
+                    </span>
+                  </div>
+                </div>
+              )}
               <GoogleLogin
                 onSuccess={async (
                   credentialResponse: GoogleCredentialResponse,
                 ) => {
+                  setIsGoogleLoading(true);
                   try {
                     if (!credentialResponse.credential) {
                       throw new Error("No credentials received from Google");
@@ -136,9 +150,12 @@ export default function ExpertSignup() {
 
                     setError(errorMessage);
                     console.error("Error during Google signup:", error);
+                  } finally {
+                    setIsGoogleLoading(false);
                   }
                 }}
                 onError={() => {
+                  setIsGoogleLoading(false);
                   setError("Failed to sign up with Google. Please try again.");
                   console.error("Google OAuth Sign-in failed");
                 }}
