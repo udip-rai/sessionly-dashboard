@@ -405,8 +405,13 @@ export const useCategoryManagement = () => {
       if (sortBy === 'name') {
         return modifier * a.name.localeCompare(b.name);
       } else {
-        return modifier * ((b.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0)) - 
-                          (a.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0)));
+        // Use the category expertCount if available, otherwise calculate from subcategories
+        const aExpertCount = typeof a.expertCount === 'number' ? a.expertCount : 
+                             a.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0);
+        const bExpertCount = typeof b.expertCount === 'number' ? b.expertCount : 
+                             b.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0);
+        
+        return modifier * (bExpertCount - aExpertCount);
       }
     });
   }, [categories, searchTerm, sortBy, sortOrder, filterEmptySubcategories]);
