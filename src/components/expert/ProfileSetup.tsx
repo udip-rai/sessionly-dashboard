@@ -4,29 +4,13 @@ import { FiUser, FiPhone, FiDollarSign, FiCheck } from "react-icons/fi";
 import { profileService } from "../../api/services/profile.service";
 import { useAuth } from "../../context/AuthContext";
 import { showToast } from "../../utils/toast";
-import { ExpertiseArea, CategoriesResponse } from "../../types/expertise";
+import { CategoriesResponse } from "../../types/expertise";
+import { ExpertData, ProfileSetupProps, StepProps } from "./profile/_types";
+import { INITIAL_EXPERT_DATA } from "./profile/_constants";
 
-interface ProfileSetupProps {
-  onComplete: () => void;
-  profileStatus: {
-    isComplete: boolean;
-    missingFields: string[];
-  };
-}
-
-interface FormData {
-  phone: string;
-  bio: string;
-  image: File | null;
-  rate: string;
-  linkedinUrl: string;
-  websiteUrl: string;
-  expertiseAreas: ExpertiseArea[];
-}
-
-interface StepProps {
-  currentStep: number;
-  totalSteps: number;
+// Extended type for ProfileSetup that allows File objects for image uploads
+interface ProfileSetupData extends Omit<ExpertData, "image"> {
+  image: File | string;
 }
 
 const ProgressSteps = ({ currentStep, totalSteps }: StepProps) => (
@@ -79,15 +63,8 @@ export default function ProfileSetup({
 ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
-  const [formData, setFormData] = useState<FormData>({
-    phone: "",
-    bio: "",
-    image: null,
-    rate: "",
-    linkedinUrl: "",
-    websiteUrl: "",
-    expertiseAreas: [],
-  });
+  const [formData, setFormData] =
+    useState<ProfileSetupData>(INITIAL_EXPERT_DATA);
   const [_, setError] = useState("");
   const { data: categoriesResponse } = useQuery<CategoriesResponse>({
     queryKey: ["expertiseAreas"],
@@ -100,6 +77,7 @@ ProfileSetupProps) {
     mutationFn: () => {
       if (!user?.id) throw new Error("User ID not found");
       return profileService.updateStaffProfile(user.id, {
+        username: formData.username,
         phone: formData.phone,
         bio: formData.bio,
         image: formData.image,
@@ -107,6 +85,10 @@ ProfileSetupProps) {
         linkedinUrl: formData.linkedinUrl,
         websiteUrl: formData.websiteUrl,
         expertiseAreas: formData.expertiseAreas,
+        otherUrls: [], // Default empty array for ProfileSetup
+        advisoryTopics: [], // Default empty array for ProfileSetup
+        cv: null as any, // Default null for ProfileSetup
+        certificates: [] as any, // Default empty array for ProfileSetup
       });
     },
     onSuccess: () => {
@@ -360,7 +342,11 @@ ProfileSetupProps) {
                   <div className="h-24 w-24 rounded-full bg-white/80 border border-gray-200/60 flex items-center justify-center shadow-sm">
                     {formData.image ? (
                       <img
-                        src={URL.createObjectURL(formData.image)}
+                        src={
+                          typeof formData.image === "string"
+                            ? formData.image
+                            : URL.createObjectURL(formData.image)
+                        }
                         alt="Profile preview"
                         className="h-24 w-24 rounded-full object-cover"
                       />

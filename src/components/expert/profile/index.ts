@@ -9,5 +9,5 @@ export { SocialLinks } from "./SocialLinks";
 export { InlineEditField } from "./InlineEditField";
 
 // Export types and helpers
-export type { ExpertData, Certificate, ProfileSectionProps } from "./types";
+export type { ExpertData, Certificate, ProfileSectionProps } from "./_types";
 export { getPlatformIcon, getPlatformColor } from "./helpers";

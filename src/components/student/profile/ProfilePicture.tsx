@@ -1,7 +1,7 @@
 import React from "react";
 import { FiUser, FiCamera } from "react-icons/fi";
 
-interface ProfilePictureProps {
+interface imageProps {
   formData: {
     image?: string;
   };
@@ -10,7 +10,7 @@ interface ProfilePictureProps {
   setNewImageFile: React.Dispatch<React.SetStateAction<File | null>>;
 }
 
-export const ProfilePicture: React.FC<ProfilePictureProps> = ({
+export const image: React.FC<imageProps> = ({
   formData,
   newImageFile,
   setNewImageFile,
@@ -66,4 +66,4 @@ export const ProfilePicture: React.FC<ProfilePictureProps> = ({
   );
 };
 
-export default ProfilePicture;
+export default image;

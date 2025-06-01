@@ -141,10 +141,10 @@ export const DesktopModal = ({
                   <div className="absolute inset-0 transition-transform duration-700 transform-style-preserve-3d group-hover:rotate-y-180">
                     {/* Front Side */}
                     <div className="absolute inset-0 w-full h-full backface-hidden">
-                      {user.profilePicture || user.image ? (
+                      {user.image || user.image ? (
                         <div className="expert-image-container w-full h-full">
                           <img
-                            src={user.profilePicture || user.image}
+                            src={user.image || user.image}
                             alt={user.name || user.username}
                             className="w-full h-full object-cover cursor-pointer expert-image-zoom"
                             onClick={handleImageClick}

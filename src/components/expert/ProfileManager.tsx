@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { categoryService } from "../../api/services/category.service";
 import { profileService } from "../../api/services/profile.service";
@@ -8,15 +9,14 @@ import {
   FiUser,
   FiSave,
   FiRefreshCw,
+  FiArrowLeft,
+  FiArrowRight,
   FiBriefcase,
   FiFileText,
   FiTarget,
   FiLink,
-  FiArrowLeft,
-  FiArrowRight,
 } from "react-icons/fi";
 import { SimpleProfileCompletion } from "../ui/SimpleProfileCompletion";
-import { Category } from "../../types/expertise";
 import {
   ExpertData,
   ProfilePicture,
@@ -27,42 +27,78 @@ import {
   ExpertiseAreas,
   SocialLinks,
 } from "./profile";
+import { INITIAL_EXPERT_DATA } from "./profile/_constants";
 
 export const ExpertProfileManager: React.FC = () => {
   const { user } = useAuth();
-
-  // Loading and saving states
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   // UI state for tabs
   const [activeTab, setActiveTab] = useState<string>("basic");
 
-  // Data states
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Currently editing field (for inline editing)
+  const [editingField, setEditingField] = useState<string | null>(null);
 
-  // Original expert data from server (for reset functionality)
-  const [expertData, setExpertData] = useState<ExpertData>({
-    username: "",
-    email: "",
-    phone: "",
-    bio: "",
-    rate: "",
-    profilePicture: "",
-    linkedinUrl: "",
-    websiteUrl: "",
-    otherUrls: [],
-    advisoryTopics: [],
-    expertiseAreas: [],
-    cv: null,
-    certificates: [],
+  // React Query for categories data
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => {
+      if (user?.userType === "admin") {
+        return categoryService.getAllCategories();
+      } else {
+        return categoryService.getCategoriesForExperts();
+      }
+    },
+    enabled: !!user,
+    select: (response) => {
+      // Add timestamps if missing
+      return response.data.map((cat) => ({
+        ...cat,
+        createdAt: cat.createdAt || new Date().toISOString(),
+        updatedAt: cat.updatedAt || new Date().toISOString(),
+      }));
+    },
   });
+
+  // React Query for staff profile data
+  const { data: expertData = INITIAL_EXPERT_DATA, isLoading: profileLoading } =
+    useQuery({
+      queryKey: ["staffProfile"],
+      queryFn: () => profileService.getStaffProfile(),
+      enabled: !!user,
+      select: (response) => response.data,
+    });
 
   // Form data that can be modified by user
   const [formData, setFormData] = useState<ExpertData>(expertData);
 
-  // Currently editing field (for inline editing)
-  const [editingField, setEditingField] = useState<string | null>(null);
+  // Update form data when expert data changes (after loading)
+  React.useEffect(() => {
+    if (expertData && expertData !== INITIAL_EXPERT_DATA) {
+      setFormData(expertData);
+    }
+  }, [expertData]);
+
+  // Mutation for updating profile
+  const updateProfileMutation = useMutation({
+    mutationFn: (updateData: any) => {
+      if (!user?.id) throw new Error("User ID not found");
+      return profileService.updateStaffProfile(user.id, updateData);
+    },
+    onSuccess: () => {
+      showToast.success("Profile updated successfully!");
+      // Invalidate and refetch the profile data
+      queryClient.invalidateQueries({ queryKey: ["staffProfile"] });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || "Failed to update profile";
+      showToast.error(errorMessage);
+    },
+  });
+
+  const isLoading = categoriesLoading || profileLoading;
+  const isSaving = updateProfileMutation.isPending;
 
   // Tab configuration
   const tabs = [
@@ -99,66 +135,29 @@ export const ExpertProfileManager: React.FC = () => {
   ];
 
   /**
-   * Fetches categories and expert profile data on component mount
-   */
-  useEffect(() => {
-    const fetchData = async () => {
-      // Skip if no user is authenticated
-      if (!user) return;
-
-      try {
-        // Fetch categories for expertise areas
-        const categoriesResponse = await categoryService.getAllCategories();
-        const categoriesWithTimestamps = categoriesResponse.data.map((cat) => ({
-          ...cat,
-          createdAt: cat.createdAt || new Date().toISOString(),
-          updatedAt: cat.updatedAt || new Date().toISOString(),
-        }));
-        setCategories(categoriesWithTimestamps);
-
-        // Fetch current user's expert profile
-        const profileResponse = await profileService.getStaffProfile();
-        const expertProfile = profileResponse.data;
-
-        // Update both original data and form data
-        setExpertData(expertProfile);
-        setFormData(expertProfile);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        showToast.error("Failed to load profile data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user]);
-
-  /**
    * Validates the form data and returns an array of error messages
-   * @returns Array of validation error messages
    */
   const validateForm = (): string[] => {
     const errors: string[] = [];
 
     // Required field validations
-    if (!formData.username.trim()) {
+    if (!formData.username?.trim()) {
       errors.push("Username is required");
     }
 
-    if (!formData.phone.trim()) {
+    if (!formData.phone?.trim()) {
       errors.push("Phone number is required");
     }
 
-    if (!formData.bio.trim()) {
+    if (!formData.bio?.trim()) {
       errors.push("Bio is required");
     }
 
-    if (!formData.rate.trim()) {
+    if (!formData.rate?.trim()) {
       errors.push("Hourly rate is required");
     }
 
-    if (formData.expertiseAreas.length === 0) {
+    if (formData.expertiseAreas?.length === 0) {
       errors.push("At least one expertise area is required");
     }
 
@@ -183,34 +182,40 @@ export const ExpertProfileManager: React.FC = () => {
       return;
     }
 
-    setIsSaving(true);
+    // Debug logging for file uploads
+    console.log("[ProfileManager] handleSaveAll - Processing form data:", {
+      hasImage: !!formData.image,
+      imageType: typeof formData.image,
+      hasCv: !!formData.cv,
+      cvType: typeof formData.cv,
+      certificates: formData.certificates?.length || 0,
+    });
 
-    try {
-      // Prepare update data for API call
-      const updateData = {
-        phone: formData.phone,
-        bio: formData.bio,
-        linkedinUrl: formData.linkedinUrl,
-        websiteUrl: formData.websiteUrl,
-        expertiseAreas: formData.expertiseAreas,
-        rate: formData.rate,
-        image: null, // TODO: Handle profile image updates
-      };
+    console.log("formData", formData);
 
-      // Update profile via API
-      await profileService.updateStaffProfile(user?.id || "", updateData);
+    // Prepare update data with all required fields
+    const updateData = {
+      username: formData.username || "",
+      phone: formData.phone || "",
+      bio: formData.bio || "",
+      linkedinUrl: formData.linkedinUrl || "",
+      websiteUrl: formData.websiteUrl || "",
+      otherUrls: formData.otherUrls || [],
+      expertiseAreas: formData.expertiseAreas || [],
+      advisoryTopics: formData.advisoryTopics || [],
+      rate: formData.rate || "",
+      image: formData.image || null,
+      cv: formData.cv || null,
+      certificates: formData.certificates || [],
+    };
 
-      // Update local state with saved data
-      setExpertData(formData);
+    console.log(
+      "[ProfileManager] handleSaveAll - Update data prepared:",
+      updateData,
+    );
 
-      // Show success message
-      showToast.success("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      showToast.error("Failed to update profile");
-    } finally {
-      setIsSaving(false);
-    }
+    // Execute the mutation
+    updateProfileMutation.mutate(updateData);
   };
 
   // Show loading spinner while fetching data
@@ -243,33 +248,63 @@ export const ExpertProfileManager: React.FC = () => {
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out ${
+        className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
           disabled
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-md hover:scale-105"
+            : "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:from-blue-100 hover:to-indigo-100 hover:shadow-lg hover:scale-105 border border-blue-200"
         }`}
       >
         {direction === "prev" ? (
           <>
-            <FiArrowLeft className="w-4 h-4 mr-2" />
+            <FiArrowLeft
+              className={`w-4 h-4 mr-2 transition-transform duration-300 ${
+                !disabled ? "group-hover:-translate-x-1" : ""
+              }`}
+            />
             Previous
           </>
         ) : (
           <>
             Next
-            <FiArrowRight className="w-4 h-4 ml-2" />
+            <FiArrowRight
+              className={`w-4 h-4 ml-2 transition-transform duration-300 ${
+                !disabled ? "group-hover:translate-x-1" : ""
+              }`}
+            />
           </>
         )}
       </button>
     );
 
     const TabNavigation = () => (
-      <div className="flex justify-between mt-8 border-t border-gray-100 pt-4">
+      <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 bg-gradient-to-r from-gray-50/50 to-white rounded-lg p-4">
         <TabNavButton
           direction="prev"
           onClick={() => setActiveTab(tabs[currentTabIndex - 1].id)}
           disabled={isFirstTab}
         />
+
+        {/* Progress indicator */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-500 font-medium">
+            {currentTabIndex + 1} of {tabs.length}
+          </span>
+          <div className="flex space-x-1">
+            {tabs.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentTabIndex
+                    ? "bg-blue-600 w-8"
+                    : index < currentTabIndex
+                    ? "bg-green-400"
+                    : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
         <TabNavButton
           direction="next"
           onClick={() => setActiveTab(tabs[currentTabIndex + 1].id)}
@@ -283,7 +318,18 @@ export const ExpertProfileManager: React.FC = () => {
         case "basic":
           return (
             <div className="animate-fadeIn">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiUser className="w-5 h-5 mr-2 text-blue-600" />
+                  Basic Information
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Update your personal details and profile picture
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="col-span-1 lg:col-span-1">
                   <ProfilePicture
                     formData={formData}
@@ -307,6 +353,17 @@ export const ExpertProfileManager: React.FC = () => {
         case "professional":
           return (
             <div className="animate-fadeIn">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiBriefcase className="w-5 h-5 mr-2 text-green-600" />
+                  Professional Information
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage your bio, hourly rate, and professional details
+                </p>
+              </div>
+
               <div className="space-y-6">
                 <ProfessionalInfo
                   formData={formData}
@@ -323,6 +380,17 @@ export const ExpertProfileManager: React.FC = () => {
         case "documents":
           return (
             <div className="animate-fadeIn">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl border-l-4 border-purple-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiFileText className="w-5 h-5 mr-2 text-purple-600" />
+                  Documents & Certificates
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Upload your CV and professional certificates
+                </p>
+              </div>
+
               <div className="space-y-6">
                 <CVUpload formData={formData} setFormData={setFormData} />
                 <CertificatesSection
@@ -337,6 +405,18 @@ export const ExpertProfileManager: React.FC = () => {
         case "expertise":
           return (
             <div className="animate-fadeIn">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-l-4 border-orange-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiTarget className="w-5 h-5 mr-2 text-orange-600" />
+                  Areas of Expertise
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Select your expertise areas and skills to help students find
+                  you
+                </p>
+              </div>
+
               <div className="space-y-6">
                 <ExpertiseAreas
                   formData={formData}
@@ -351,6 +431,17 @@ export const ExpertProfileManager: React.FC = () => {
         case "social":
           return (
             <div className="animate-fadeIn">
+              {/* Section Header */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border-l-4 border-indigo-500">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FiLink className="w-5 h-5 mr-2 text-indigo-600" />
+                  Social Links & Online Presence
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Add your LinkedIn, website, and other professional links
+                </p>
+              </div>
+
               <div className="space-y-6">
                 <SocialLinks
                   formData={formData}
@@ -375,54 +466,67 @@ export const ExpertProfileManager: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6 lg:px-0">
       {/* ===== HEADER WITH SAVE/RESET ACTIONS ===== */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 flex items-center">
-                <FiUser className="w-6 h-6 mr-3 text-blue-600" />
-                Expert Profile Management
-              </h1>
-              <p className="text-gray-600 mt-1 text-xs sm:text-sm">
-                Manage your professional profile and expertise areas
-              </p>
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-xl shadow-lg overflow-hidden backdrop-blur-sm border border-blue-100">
+        <div className="bg-white/70 backdrop-blur-md border-b border-blue-100/50">
+          <div className="flex flex-col gap-4 sm:gap-6 px-6 py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+                  <FiUser className="w-7 h-7 mr-3 text-blue-600" />
+                  Expert Profile Management
+                </h1>
+                <p className="text-gray-600 mt-2 text-sm">
+                  Manage your professional profile and expertise areas with
+                  modern tools
+                </p>
+              </div>
+
+              {/* Enhanced profile completion indicator */}
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 shadow-sm border border-blue-100">
+                <SimpleProfileCompletion
+                  status={checkExpertProfileCompletion(formData)}
+                />
+              </div>
             </div>
 
-            {/* Simplified profile completion indicator */}
-            <SimpleProfileCompletion
-              status={checkExpertProfileCompletion(formData)}
-            />
-          </div>
+            {/* Enhanced action buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t border-blue-100/50 pt-4">
+              {/* Reset button with enhanced styling */}
+              <button
+                onClick={handleReset}
+                disabled={!isDataChanged}
+                className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  isDataChanged
+                    ? "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 shadow-md hover:shadow-lg transform hover:scale-105"
+                    : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <FiRefreshCw
+                  className={`mr-2 w-4 h-4 transition-transform duration-300 ${
+                    isDataChanged ? "group-hover:rotate-180" : ""
+                  }`}
+                />
+                Reset Changes
+              </button>
 
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border-t border-gray-100 pt-4">
-            {/* Reset button */}
-            <button
-              onClick={handleReset}
-              disabled={!isDataChanged}
-              className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                isDataChanged
-                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  : "bg-gray-50 text-gray-400 cursor-not-allowed"
-              }`}
-            >
-              <FiRefreshCw className="mr-2 w-4 h-4" />
-              Reset Changes
-            </button>
-
-            {/* Save button */}
-            <button
-              onClick={handleSaveAll}
-              disabled={isSaving || !isDataChanged}
-              className={`flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                isDataChanged && !isSaving
-                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-            >
-              <FiSave className="mr-2 w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Changes"}
-            </button>
+              {/* Save button with enhanced styling */}
+              <button
+                onClick={handleSaveAll}
+                disabled={isSaving || !isDataChanged}
+                className={`group flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  isDataChanged && !isSaving
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                <FiSave
+                  className={`mr-2 w-4 h-4 transition-transform duration-300 ${
+                    isSaving ? "animate-pulse" : "group-hover:scale-110"
+                  }`}
+                />
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -456,9 +560,6 @@ export const ExpertProfileManager: React.FC = () => {
                     />
                     <span className="text-sm font-medium line-clamp-1">
                       {tab.label}
-                    </span>
-                    <span className="hidden sm:block text-xs text-gray-400">
-                      {tab.description}
                     </span>
                   </div>
                 </button>

@@ -24,9 +24,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onUserClick }) => {
       {/* Photo Section - Optimized Height */}
       <div className="relative h-40 overflow-hidden rounded-t-xl">
         {" "}
-        {user.profilePicture || user.image ? (
+        {user.image || user.image ? (
           <img
-            src={user.profilePicture || user.image}
+            src={user.image || user.image}
             alt={user.name || user.username}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />

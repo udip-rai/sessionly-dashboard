@@ -1,6 +1,6 @@
 import React from "react";
 import { FiUser, FiMail, FiPhone } from "react-icons/fi";
-import { ProfileSectionProps, ExpertData } from "./types";
+import { ProfileSectionProps, ExpertData } from "./_types";
 import { InlineEditField } from "./InlineEditField";
 
 interface BasicInformationProps extends ProfileSectionProps {
@@ -10,7 +10,7 @@ interface BasicInformationProps extends ProfileSectionProps {
 export const BasicInformation: React.FC<BasicInformationProps> = ({
   formData,
   setFormData,
-  editingField = null,
+  editingField,
   setEditingField,
   originalData,
 }) => {
@@ -20,6 +20,7 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
       [field]: value,
     }));
   };
+
   const handleCancel = (field: keyof ExpertData) => {
     setFormData((prev) => ({
       ...prev,
@@ -27,25 +28,20 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
     }));
   };
 
-  if (!setEditingField) {
-    return null;
-  }
-
   return (
     <div className="grid grid-cols-1 gap-6">
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InlineEditField
           field="username"
-          value={formData.username}
+          value={formData.username || ""}
           placeholder="Username"
           icon={FiUser}
-          editingField={editingField}
-          setEditingField={setEditingField}
+          editingField={editingField || null}
+          setEditingField={setEditingField || (() => {})}
           onUpdate={handleInputChange}
           onCancel={handleCancel}
         />
       </div>
-
       {/* Email field spans full width */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -65,8 +61,8 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
         placeholder="Phone Number"
         type="tel"
         icon={FiPhone}
-        editingField={editingField}
-        setEditingField={setEditingField}
+        editingField={editingField || null}
+        setEditingField={setEditingField || (() => {})}
         onUpdate={handleInputChange}
         onCancel={handleCancel}
       />

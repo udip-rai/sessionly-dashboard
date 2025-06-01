@@ -1,6 +1,6 @@
 import React from "react";
 import { FiEdit2, FiCheck, FiX } from "react-icons/fi";
-import { ExpertData } from "./types";
+import { ExpertData } from "./_types";
 
 interface InlineEditFieldProps {
   field: keyof ExpertData;

@@ -1,9 +1,5 @@
 // Helper functions for social media platforms
-import {
-  FiLinkedin,
-  FiGlobe,
-  FiFacebook,
-} from "react-icons/fi";
+import { FiLinkedin, FiGlobe, FiFacebook } from "react-icons/fi";
 import {
   FaWhatsapp,
   FaInstagram,

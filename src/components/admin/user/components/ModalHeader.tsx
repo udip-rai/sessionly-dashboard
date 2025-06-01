@@ -54,7 +54,7 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({ user, onClose }) => {
             )}{" "}
           </div>
 
-          {/* User Name with Verified Badge */}
+          {/* Username with Verified Badge */}
           <h2 className="text-3xl font-bold text-gray-900 leading-tight flex items-center">
             {user.name || user.username}
             {user.emailVerified && (

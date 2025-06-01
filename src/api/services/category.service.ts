@@ -7,7 +7,7 @@ export interface SubCategory {
   _id: string;
   name: string;
   description: string;
-  expertCount: number;  // Now required as API always returns it
+  expertCount: number; // Now required as API always returns it
   createdAt?: string;
   updatedAt?: string;
 }
@@ -17,7 +17,7 @@ export interface Category {
   name: string;
   description: string;
   subCategories: SubCategory[];
-  expertCount?: number;  // Added for main categories
+  expertCount?: number; // Added for main categories
   createdAt?: string;
   updatedAt?: string;
 }
@@ -51,9 +51,20 @@ export interface CreateSubCategoryRequest {
 }
 
 export const categoryService = {
+  // Get all categories with expert counts (admin only)
   async getAllCategories(): Promise<CategoriesResponse> {
     try {
       const response = await BASE_API.get(CATEGORY_APIS.getAll);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get categories without expert counts (for non-admin users)
+  async getCategoriesForExperts(): Promise<CategoriesResponse> {
+    try {
+      const response = await BASE_API.get("categories");
       return response.data;
     } catch (error) {
       throw error;
@@ -71,12 +82,12 @@ export const categoryService = {
 
   async updateCategory(
     categoryId: string,
-    data: Partial<CreateCategoryRequest>
+    data: Partial<CreateCategoryRequest>,
   ): Promise<CategoryResponse> {
     try {
       const response = await BASE_API.put(
         CATEGORY_APIS.update(categoryId),
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -84,7 +95,9 @@ export const categoryService = {
     }
   },
 
-  async deleteCategory(categoryId: string): Promise<{ success: boolean; message: string }> {
+  async deleteCategory(
+    categoryId: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await BASE_API.delete(CATEGORY_APIS.delete(categoryId));
       return response.data;
@@ -95,12 +108,12 @@ export const categoryService = {
 
   async createSubCategory(
     categoryId: string,
-    data: CreateSubCategoryRequest
+    data: CreateSubCategoryRequest,
   ): Promise<CategoryResponse> {
     try {
       const response = await BASE_API.post(
         CATEGORY_APIS.createSubcategory(categoryId),
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -111,12 +124,12 @@ export const categoryService = {
   async updateSubCategory(
     categoryId: string,
     subCategoryId: string,
-    data: Partial<CreateSubCategoryRequest>
+    data: Partial<CreateSubCategoryRequest>,
   ): Promise<CategoryResponse> {
     try {
       const response = await BASE_API.put(
         CATEGORY_APIS.updateSubcategory(categoryId, subCategoryId),
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -126,11 +139,11 @@ export const categoryService = {
 
   async deleteSubCategory(
     categoryId: string,
-    subCategoryId: string
+    subCategoryId: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await BASE_API.delete(
-        CATEGORY_APIS.deleteSubcategory(categoryId, subCategoryId)
+        CATEGORY_APIS.deleteSubcategory(categoryId, subCategoryId),
       );
       return response.data;
     } catch (error) {

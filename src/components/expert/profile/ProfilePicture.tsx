@@ -1,6 +1,6 @@
 import React from "react";
 import { FiUser, FiCamera } from "react-icons/fi";
-import { ProfileSectionProps } from "./types";
+import { ProfileSectionProps } from "./_types";
 
 export const ProfilePicture: React.FC<ProfileSectionProps> = ({
   formData,
@@ -9,12 +9,24 @@ export const ProfilePicture: React.FC<ProfileSectionProps> = ({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Debug logging
+      console.log("[ProfilePicture] File selected:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
+        console.log(
+          "[ProfilePicture] Base64 result:",
+          result.substring(0, 100) + "...",
+        );
+
         setFormData((prev) => ({
           ...prev,
-          profilePicture: result,
+          image: result,
         }));
       };
       reader.readAsDataURL(file);
@@ -24,11 +36,18 @@ export const ProfilePicture: React.FC<ProfileSectionProps> = ({
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-32 h-32 mb-4">
-        {formData.profilePicture ? (
+        {formData.image &&
+        typeof formData.image === "string" &&
+        formData.image.trim() !== "" ? (
           <img
-            src={formData.profilePicture}
+            src={formData.image}
             alt="Profile"
             className="w-full h-full rounded-full object-cover border-4 border-blue-200"
+            onError={(e) => {
+              console.log("[ProfilePicture] Image load error:", formData.image);
+              // Fallback to default avatar on error
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
           />
         ) : (
           <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">

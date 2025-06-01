@@ -8,20 +8,33 @@ export interface Certificate {
   description: string;
 }
 
+export interface ProfileSetupProps {
+  onComplete: () => void;
+  profileStatus: {
+    isComplete: boolean;
+    missingFields: string[];
+  };
+}
+
+export interface StepProps {
+  currentStep: number;
+  totalSteps: number;
+}
+
 export interface ExpertData {
   username: string;
   email: string;
   phone: string;
   bio: string;
   rate: string;
-  profilePicture: string;
+  image: string;
   linkedinUrl: string;
   websiteUrl: string;
   otherUrls: string[];
-  advisoryTopics: string[];
   expertiseAreas: ExpertiseArea[];
   cv: string | null;
   certificates: Certificate[];
+  advisoryTopics: string[];
 }
 
 export interface ProfileSectionProps {

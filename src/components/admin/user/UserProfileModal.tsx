@@ -65,9 +65,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   const handleImageClick = () => {
-    if (onImageZoom && (user.profilePicture || user.image)) {
+    if (onImageZoom && (user.image || user.image)) {
       onImageZoom(
-        user.profilePicture || user.image || "",
+        user.image || user.image || "",
         user.name || user.username || "",
       );
     }
@@ -156,7 +156,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   )}
                 </div>
 
-                {/* User Name */}
+                {/* Username */}
                 <h2 className="text-3xl font-bold text-gray-900 leading-tight">
                   {user.name || user.username}
                 </h2>

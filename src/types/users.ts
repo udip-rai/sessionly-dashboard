@@ -22,7 +22,6 @@ export interface User {
         _id?: string;
       }[]
     | string[];
-  profilePicture?: string;
   image?: string;
   bio?: string;
   linkedinUrl?: string;
