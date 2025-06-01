@@ -18,7 +18,7 @@ export const ADMIN_APIS = {
 };
 
 export const CATEGORY_APIS = {
-  getAll: "categories",
+  getAll: "categories/with-counts",
   create: "categories",
   update: (categoryId: string) => `categories/${categoryId}`,
   delete: (categoryId: string) => `categories/${categoryId}`,

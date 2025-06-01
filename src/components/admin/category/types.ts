@@ -19,12 +19,20 @@ export interface LoadingState {
 
 // Map API response to component state
 export const mapApiToState = (categories: Category[]): CategoryState[] => {
-  return categories.map(cat => ({
-    ...cat,
-    subCategories: cat.subCategories.map(sub => ({
-      ...sub,
-      expertCount: sub.expertCount || 0
-    })),
-    isExpanded: false // Default to collapsed state
-  }));
+  return categories.map(cat => {
+    // Calculate total experts from subcategories if category doesn't have expertCount
+    const totalExperts = cat.expertCount !== undefined 
+      ? cat.expertCount 
+      : cat.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0);
+    
+    return {
+      ...cat,
+      expertCount: totalExperts,
+      subCategories: cat.subCategories.map(sub => ({
+        ...sub,
+        expertCount: sub.expertCount || 0
+      })),
+      isExpanded: false // Default to collapsed state
+    };
+  });
 };

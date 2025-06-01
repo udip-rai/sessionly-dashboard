@@ -114,6 +114,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
                   New (Unsaved)
                 </span>
               )}
+              {/* Show subcategory count */}
               {category.subCategories.length > 0 ? (
                 <span className="text-xs text-navy bg-navy/10 px-2 py-1 rounded-full flex items-center">
                   <span className="w-1.5 h-1.5 bg-navy rounded-full mr-1"></span>
@@ -122,6 +123,17 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
               ) : (
                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                   No subcategories
+                </span>
+              )}
+              
+              {/* Show total experts in this category */}
+              {(typeof category.expertCount === 'number' || category.subCategories.some(sub => typeof sub.expertCount === 'number')) && (
+                <span className="ml-2 text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full flex items-center">
+                  <span className="w-1.5 h-1.5 bg-green-700 rounded-full mr-1"></span>
+                  {typeof category.expertCount === 'number' 
+                    ? `${category.expertCount} experts`
+                    : `${category.subCategories.reduce((sum, sub) => sum + (sub.expertCount || 0), 0)} experts`
+                  }
                 </span>
               )}
             </div>

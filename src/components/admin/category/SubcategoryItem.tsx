@@ -104,11 +104,9 @@ export const SubcategoryItem: React.FC<SubcategoryItemProps> = ({
           )}
         </div>
         <p className="text-sm text-gray-600 mt-1">{subcategory.description}</p>
-        {subcategory.expertCount !== undefined && (
-          <span className="inline-block mt-2 text-xs bg-navy/10 text-navy px-2 py-1 rounded-full">
-            {subcategory.expertCount} experts
-          </span>
-        )}
+        <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+          {subcategory.expertCount} expert{subcategory.expertCount !== 1 ? 's' : ''}
+        </span>
       </div>
       <div className="flex items-center gap-1">
         <button

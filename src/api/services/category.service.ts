@@ -7,7 +7,7 @@ export interface SubCategory {
   _id: string;
   name: string;
   description: string;
-  expertCount?: number;
+  expertCount: number;  // Now required as API always returns it
   createdAt?: string;
   updatedAt?: string;
 }
@@ -17,6 +17,7 @@ export interface Category {
   name: string;
   description: string;
   subCategories: SubCategory[];
+  expertCount?: number;  // Added for main categories
   createdAt?: string;
   updatedAt?: string;
 }
