@@ -6,11 +6,13 @@ import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { useAuthStore } from "../store/useAuthStore";
 import { userService } from "../api/services/user.service";
+import { useLogin } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import {
   FormContainer,
   FormError,
   FormDivider,
+  FormButton,
 } from "../components/auth/AuthForm";
 
 interface GoogleCredentialResponse {
@@ -22,24 +24,30 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
+  const loginMutation = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await login({ email, password });
+      const response = await loginMutation.mutateAsync({ email, password });
+
+      // Navigate based on response
+      if (response.profileStatus && !response.profileStatus.isComplete) {
+        navigate(
+          response.userType === "staff"
+            ? "/staff-dashboard/profile-setup"
+            : "/student-dashboard/profile-setup",
+        );
+      } else {
+        navigate(response.redirectUrl || `/${response.userType}-dashboard`);
+      }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          "Invalid credentials. Please try again.",
-      );
-      e.preventDefault();
-      return false;
+      setError(err?.message || "Invalid credentials. Please try again.");
     }
   };
 
@@ -198,8 +206,10 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <button
+              <FormButton
                 type="submit"
+                isLoading={loginMutation.isPending}
+                loadingText="Signing in..."
                 className="relative w-full flex justify-center items-center px-6 py-3.5 mt-8
                 bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
                 text-white text-sm font-semibold rounded-xl shadow-lg
@@ -225,7 +235,7 @@ export default function LoginPage() {
                   </svg>
                 </span>
                 <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
-              </button>
+              </FormButton>
 
               <div className="mt-8 space-y-4">
                 <p className="text-sm text-gray-600 text-center font-medium">

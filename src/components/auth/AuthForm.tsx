@@ -5,6 +5,7 @@ import {
   LabelHTMLAttributes,
 } from "react";
 import { twMerge } from "tailwind-merge";
+import { FiLoader } from "react-icons/fi";
 
 interface AuthFormProps extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -53,10 +54,27 @@ export const FormLabel = ({
   />
 );
 
+export const LoadingSpinner = ({
+  size = "w-4 h-4",
+  className = "",
+}: {
+  size?: string;
+  className?: string;
+}) => <FiLoader className={twMerge("animate-spin", size, className)} />;
+
+interface FormButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  isLoading?: boolean;
+  loadingText?: string;
+}
+
 export const FormButton = ({
   className,
+  isLoading = false,
+  loadingText = "Loading...",
+  children,
+  disabled,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) => (
+}: FormButtonProps) => (
   <button
     className={twMerge(
       "w-full flex justify-center items-center px-4 py-3",
@@ -68,8 +86,18 @@ export const FormButton = ({
       "disabled:opacity-50 disabled:cursor-not-allowed",
       className,
     )}
+    disabled={disabled || isLoading}
     {...props}
-  />
+  >
+    {isLoading ? (
+      <span className="flex items-center gap-2">
+        <LoadingSpinner />
+        {loadingText}
+      </span>
+    ) : (
+      children
+    )}
+  </button>
 );
 
 export const FormError = ({

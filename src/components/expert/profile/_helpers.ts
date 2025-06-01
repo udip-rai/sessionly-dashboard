@@ -97,8 +97,19 @@ export const validateForm = (formData: ExpertData): string[] => {
   // If certificates are provided, validate each one's format
   if (Array.isArray(formData.certificates)) {
     formData.certificates.forEach((cert, index) => {
-      if (cert.file && !cert.file.startsWith("data:application/pdf")) {
-        errors.push(`Certificate ${index + 1} must be in PDF format.`);
+      if (cert.file) {
+        // Handle both string (base64) and File types
+        if (
+          typeof cert.file === "string" &&
+          !cert.file.startsWith("data:application/pdf")
+        ) {
+          errors.push(`Certificate ${index + 1} must be in PDF format.`);
+        } else if (
+          cert.file instanceof File &&
+          cert.file.type !== "application/pdf"
+        ) {
+          errors.push(`Certificate ${index + 1} must be in PDF format.`);
+        }
       }
     });
   }

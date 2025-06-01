@@ -190,4 +190,101 @@ export const profileService = {
     );
     return response;
   },
+
+  // Certificate-specific API methods
+  uploadCertificates: async (
+    staffId: string,
+    certificates: File[],
+    certificateDetails: Array<{
+      name: string;
+      description: string;
+      issueDate: string;
+    }>,
+  ) => {
+    const formData = new FormData();
+
+    // Add certificate files using array notation (matches Postman format)
+    certificates.forEach((file) => {
+      formData.append("certificates", file);
+    });
+
+    // Add description field (matches Postman format)
+    // For now, we'll use the first certificate's description or a combined description
+    if (certificateDetails.length > 0) {
+      const combinedDescription = certificateDetails
+        .map(
+          (cert, index) =>
+            `Certificate ${index + 1}: ${cert.name} - ${
+              cert.description
+            } (Issued: ${cert.issueDate})`,
+        )
+        .join("; ");
+      formData.append("description", combinedDescription);
+    }
+
+    console.log("[uploadCertificates] Uploading:", {
+      certificateCount: certificates.length,
+      certificateDetails,
+      formDataKeys: Array.from(formData.keys()),
+    });
+
+    // Log FormData contents for debugging
+    console.log("[uploadCertificates] FormData contents:");
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+
+    const response = await api.patch<UpdateProfileResponse>(
+      STAFF_APIS.updateProfile(staffId),
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  },
+
+  updateCertificateDetails: async (
+    staffId: string,
+    certificateUpdates: Array<{
+      index: number;
+      name: string;
+      description: string;
+      issueDate: string;
+    }>,
+  ) => {
+    const formData = new FormData();
+    formData.append("certificateUpdates", JSON.stringify(certificateUpdates));
+
+    console.log("[updateCertificateDetails] Updating:", certificateUpdates);
+
+    const response = await api.patch<UpdateProfileResponse>(
+      STAFF_APIS.updateProfile(staffId),
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  },
+
+  deleteCertificate: async (staffId: string, certificateIndex: number) => {
+    console.log("[deleteCertificate] Deleting certificate:", {
+      staffId,
+      certificateIndex,
+    });
+
+    const response = await api.delete(
+      STAFF_APIS.deleteCertificate(staffId, certificateIndex),
+    );
+    return response;
+  },
 };

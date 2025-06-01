@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useExpertSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { userService } from "../api/services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
+import { FormButton } from "../components/auth/AuthForm";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -13,16 +14,16 @@ interface GoogleCredentialResponse {
 
 export default function ExpertSignup() {
   const navigate = useNavigate();
-  const { signup } = useAuth();
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
+  const expertSignupMutation = useExpertSignup();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = expertSignupMutation.isPending;
 
   const validateForm = () => {
     if (!formData.email.trim()) return "Email is required";
@@ -42,25 +43,20 @@ export default function ExpertSignup() {
       return;
     }
 
-    setIsSubmitting(true);
     setError("");
 
     try {
       const { confirmPassword, ...signupData } = formData;
-      const success = await signup({
+      const response = await expertSignupMutation.mutateAsync({
         ...signupData,
         userType: "staff" as const,
       });
 
-      if (success) {
+      if (response) {
         navigate("/expert-dashboard");
-      } else {
-        setError("Failed to create account. Please try again.");
       }
-    } catch (err) {
-      setError("An error occurred during registration");
-    } finally {
-      setIsSubmitting(false);
+    } catch (err: any) {
+      setError(err?.message || "An error occurred during registration");
     }
   };
 
@@ -249,9 +245,10 @@ export default function ExpertSignup() {
               </div>
 
               <div>
-                <button
+                <FormButton
                   type="submit"
-                  disabled={isSubmitting}
+                  isLoading={isSubmitting}
+                  loadingText="Creating Account..."
                   className="relative w-full flex justify-center items-center px-6 py-3.5 mt-6
                   bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
                   text-white text-sm font-semibold rounded-xl shadow-lg
@@ -262,27 +259,23 @@ export default function ExpertSignup() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-navy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative z-10 flex items-center gap-2">
-                    {isSubmitting
-                      ? "Creating Account..."
-                      : "Create Expert Account"}
-                    {!isSubmitting && (
-                      <svg
-                        className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    )}
+                    Create Expert Account
+                    <svg
+                      className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
                   </span>
                   <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
-                </button>
+                </FormButton>
               </div>
 
               <div className="mt-6 text-center">

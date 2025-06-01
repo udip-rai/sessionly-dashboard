@@ -9,6 +9,8 @@ export const STAFF_APIS = {
   updateProfile: (staffId: string) => `staff/update/${staffId}`,
   getAllExpertiseAreas: "categories",
   get: "staff/get",
+  deleteCertificate: (staffId: string, certificateIndex: number) =>
+    `staff/certificates/${staffId}/${certificateIndex}`,
 };
 
 export const ADMIN_APIS = {
@@ -22,10 +24,11 @@ export const CATEGORY_APIS = {
   create: "categories",
   update: (categoryId: string) => `categories/${categoryId}`,
   delete: (categoryId: string) => `categories/${categoryId}`,
-  createSubcategory: (categoryId: string) => `categories/${categoryId}/subcategories`,
-  updateSubcategory: (categoryId: string, subcategoryId: string) => 
+  createSubcategory: (categoryId: string) =>
+    `categories/${categoryId}/subcategories`,
+  updateSubcategory: (categoryId: string, subcategoryId: string) =>
     `categories/${categoryId}/subcategories/${subcategoryId}`,
-  deleteSubcategory: (categoryId: string, subcategoryId: string) => 
+  deleteSubcategory: (categoryId: string, subcategoryId: string) =>
     `categories/${categoryId}/subcategories/${subcategoryId}`,
 };
 

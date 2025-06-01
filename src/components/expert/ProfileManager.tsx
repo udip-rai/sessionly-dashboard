@@ -27,7 +27,7 @@ import {
   ExpertiseAreas,
   SocialLinks,
 } from "./profile";
-import { INITIAL_EXPERT_DATA } from "./profile/_constants";
+import { EXPERT_TABS, INITIAL_EXPERT_DATA } from "./profile/_constants";
 
 export const ExpertProfileManager: React.FC = () => {
   const { user } = useAuth();
@@ -100,40 +100,6 @@ export const ExpertProfileManager: React.FC = () => {
   const isLoading = categoriesLoading || profileLoading;
   const isSaving = updateProfileMutation.isPending;
 
-  // Tab configuration
-  const tabs = [
-    {
-      id: "basic",
-      label: "Basic Info",
-      icon: FiUser,
-      description: "Personal details and profile picture",
-    },
-    {
-      id: "professional",
-      label: "Professional",
-      icon: FiBriefcase,
-      description: "Bio, rate, and work information",
-    },
-    {
-      id: "documents",
-      label: "Documents",
-      icon: FiFileText,
-      description: "CV and certificates",
-    },
-    {
-      id: "expertise",
-      label: "Expertise",
-      icon: FiTarget,
-      description: "Areas of expertise and skills",
-    },
-    {
-      id: "social",
-      label: "Social Links",
-      icon: FiLink,
-      description: "LinkedIn, website, and other URLs",
-    },
-  ];
-
   /**
    * Validates the form data and returns an array of error messages
    */
@@ -193,7 +159,7 @@ export const ExpertProfileManager: React.FC = () => {
 
     console.log("formData", formData);
 
-    // Prepare update data with all required fields
+    // Prepare update data with all required fields (excluding certificates - handled separately)
     const updateData = {
       username: formData.username || "",
       phone: formData.phone || "",
@@ -206,7 +172,7 @@ export const ExpertProfileManager: React.FC = () => {
       rate: formData.rate || "",
       image: formData.image || null,
       cv: formData.cv || null,
-      certificates: formData.certificates || [],
+      // certificates: formData.certificates || [], // Certificates managed separately via dedicated APIs
     };
 
     console.log(
@@ -232,9 +198,11 @@ export const ExpertProfileManager: React.FC = () => {
 
   // Render tab content based on active tab
   const renderTabContent = () => {
-    const currentTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+    const currentTabIndex = EXPERT_TABS.findIndex(
+      (tab) => tab.id === activeTab,
+    );
     const isFirstTab = currentTabIndex === 0;
-    const isLastTab = currentTabIndex === tabs.length - 1;
+    const isLastTab = currentTabIndex === EXPERT_TABS.length - 1;
 
     const TabNavButton = ({
       direction,
@@ -280,17 +248,17 @@ export const ExpertProfileManager: React.FC = () => {
       <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 bg-gradient-to-r from-gray-50/50 to-white rounded-lg p-4">
         <TabNavButton
           direction="prev"
-          onClick={() => setActiveTab(tabs[currentTabIndex - 1].id)}
+          onClick={() => setActiveTab(EXPERT_TABS[currentTabIndex - 1].id)}
           disabled={isFirstTab}
         />
 
         {/* Progress indicator */}
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500 font-medium">
-            {currentTabIndex + 1} of {tabs.length}
+            {currentTabIndex + 1} of {EXPERT_TABS.length}
           </span>
           <div className="flex space-x-1">
-            {tabs.map((_, index) => (
+            {EXPERT_TABS.map((_, index) => (
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
@@ -307,7 +275,7 @@ export const ExpertProfileManager: React.FC = () => {
 
         <TabNavButton
           direction="next"
-          onClick={() => setActiveTab(tabs[currentTabIndex + 1].id)}
+          onClick={() => setActiveTab(EXPERT_TABS[currentTabIndex + 1].id)}
           disabled={isLastTab}
         />
       </div>
@@ -533,10 +501,16 @@ export const ExpertProfileManager: React.FC = () => {
 
       {/* ===== TABBED NAVIGATION ===== */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Tab headers - Added overflow handling for mobile */}
-        <div className="border-b border-gray-200 overflow-x-auto hide-scrollbar">
-          <nav className="flex space-x-0 min-w-max" aria-label="Tabs">
-            {tabs.map((tab) => {
+        {/* Tab headers - Enhanced scrollable navigation */}
+        <div className="border-b border-gray-200">
+          <nav
+            className="flex space-x-0 overflow-x-auto px-4 scroll-smooth"
+            aria-label="Tabs"
+            style={{
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {EXPERT_TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
 
@@ -544,7 +518,7 @@ export const ExpertProfileManager: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group relative overflow-hidden bg-white p-4 text-center hover:bg-gray-50 focus:z-10 transition-colors duration-200 min-w-[150px] ${
+                  className={`group relative flex-shrink-0 overflow-hidden bg-white p-4 text-center hover:bg-gray-50 focus:z-10 transition-colors duration-200 w-[150px] ${
                     isActive
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-500 hover:text-gray-700"

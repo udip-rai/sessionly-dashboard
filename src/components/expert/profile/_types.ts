@@ -3,9 +3,17 @@ import { ExpertiseArea } from "../../../types/expertise";
 
 export interface Certificate {
   name: string;
-  file: string | null;
+  file?: File | string | null;
   issueDate: string;
   description: string;
+  _id?: string;
+  fileUrl?: string;
+}
+
+export interface CertificateFormData {
+  name: string;
+  description: string;
+  issueDate: string;
 }
 
 export interface ProfileSetupProps {

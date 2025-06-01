@@ -85,21 +85,47 @@ export const ExpertiseAreas: React.FC<ExpertiseAreasProps> = ({
           <strong>Selected:</strong> {formData.expertiseAreas.length} areas
         </p>
         {formData.expertiseAreas.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {formData.expertiseAreas.map((area, index) => {
-              const category = categories.find((c) => c._id === area.category);
-              const subCategory = category?.subCategories.find(
-                (sc) => sc._id === area.subCategory,
-              );
-              return (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
-                >
-                  {category?.name} → {subCategory?.name}
-                </span>
-              );
-            })}
+          <div className="mt-4 space-y-4">
+            {/* Group expertise areas by category */}
+            {categories
+              .filter((category) =>
+                formData.expertiseAreas.some(
+                  (area) => area.category === category._id,
+                ),
+              )
+              .map((category) => {
+                // Get all selected subcategories for this category
+                const selectedSubcategories = formData.expertiseAreas
+                  .filter((area) => area.category === category._id)
+                  .map((area) => {
+                    const subCategory = category.subCategories.find(
+                      (sc) => sc._id === area.subCategory,
+                    );
+                    return subCategory;
+                  })
+                  .filter(Boolean);
+
+                return (
+                  <div
+                    key={category._id}
+                    className="border border-indigo-100 rounded-lg p-3 bg-white"
+                  >
+                    <h4 className="text-sm font-medium text-indigo-800 mb-2">
+                      {category.name}
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedSubcategories.map((subCategory, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                        >
+                          {subCategory?.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>

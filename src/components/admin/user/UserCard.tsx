@@ -76,7 +76,7 @@ export const UserCard: React.FC<UserCardProps> = ({ user, onUserClick }) => {
         {/* Date Joined - Always at bottom */}
         <div className="text-center">
           <div
-            className="text-[10px] text-gray-500 font-normal"
+            className="text-xs text-gray-500 font-normal"
             title={`Joined on ${new Date(
               user.createdAt || user.joinedDate || Date.now(),
             ).toLocaleDateString("en-US", {
