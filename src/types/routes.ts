@@ -44,6 +44,7 @@ export const ROUTE_PATHS = {
   STUDENT_DASHBOARD: "/student-dashboard",
   STUDENT_PROFILE: "/student-dashboard/profile",
   STUDENT_PROFILE_SETUP: "/student-dashboard/profile-setup",
+  BROWSE_EXPERTS: "/student-dashboard/browse-experts",
 } as const;
 
 export type RoutePath = (typeof ROUTE_PATHS)[keyof typeof ROUTE_PATHS];

@@ -14,7 +14,6 @@ import {
   FiLink,
   FiArrowLeft,
   FiArrowRight,
-  FiCheck,
 } from "react-icons/fi";
 import { SimpleProfileCompletion } from "../ui/SimpleProfileCompletion";
 import { Category } from "../../types/expertise";

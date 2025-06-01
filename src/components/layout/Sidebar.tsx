@@ -20,6 +20,24 @@ import { useEffect, useState } from "react";
 import { userService } from "../../api/services/user.service";
 import { AnimatedCloseButton } from "../ui/AnimatedCloseButton";
 
+// Navigation helper component with multiple navigation options
+const NavLink = ({
+  to,
+  children,
+  className,
+}: {
+  to: string;
+  children: React.ReactNode;
+  className: string;
+}) => {
+  // Use Link component for all navigation (most reliable method)
+  return (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
+  );
+};
+
 export function Sidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
@@ -82,7 +100,12 @@ export function Sidebar() {
 
   const studentNavItems: NavItem[] = [
     { name: "Your Bookings", icon: FiCalendar, path: "/student-dashboard" },
-    { name: "Browse Experts", icon: FiUsers, path: "/browse-experts" },
+    {
+      name: "Browse Experts",
+      icon: FiUsers,
+      path: "/student-dashboard/browse-experts",
+    },
+    { name: "Your Profile", icon: FiUser, path: "/student-dashboard/profile" },
   ];
 
   const adminNavItems: NavItem[] = [
@@ -250,11 +273,11 @@ export function Sidebar() {
             {navItems.map((item) => {
               const isActive = currentPath === item.path;
               const content = (
-                <Link
+                <NavLink
                   to={item.path}
                   className={`
-                    group flex items-center md:justify-center xl:justify-start gap-3 px-4 md:px-3 xl:px-4 py-3 md:py-2.5 xl:py-3 
-                    text-sm md:text-xs xl:text-sm font-medium rounded-lg transition-all duration-200 relative
+                    w-full text-left group flex items-center md:justify-center xl:justify-start gap-3 px-4 md:px-3 xl:px-4 py-3 md:py-2.5 xl:py-3 
+                    text-sm font-medium rounded-lg transition-all duration-200 relative
                     ${
                       isActive
                         ? "bg-gradient-to-r from-navy to-navy-dark text-white shadow-lg transform scale-105 ring-2 ring-navy/20"
@@ -282,7 +305,7 @@ export function Sidebar() {
                   <span className="md:hidden xl:block truncate transition-all duration-200">
                     {item.name}
                   </span>
-                </Link>
+                </NavLink>
               );
 
               return (
@@ -304,11 +327,11 @@ export function Sidebar() {
               {policyItems.map((item) => {
                 const isActive = currentPath === item.path;
                 const content = (
-                  <Link
+                  <NavLink
                     to={item.path}
                     className={`
                       group flex items-center md:justify-center xl:justify-start gap-3 px-4 md:px-3 xl:px-4 py-2.5 md:py-2 xl:py-2.5 
-                      text-sm md:text-xs xl:text-sm rounded-lg transition-all duration-200 relative
+                      text-sm rounded-lg transition-all duration-200 relative
                       ${
                         isActive
                           ? "text-navy font-medium bg-gradient-to-r from-navy/10 to-navy/5 shadow-sm transform scale-105 ring-1 ring-navy/20"
@@ -331,7 +354,7 @@ export function Sidebar() {
                     <span className="md:hidden xl:block truncate transition-all duration-200">
                       {item.name}
                     </span>
-                  </Link>
+                  </NavLink>
                 );
 
                 return (
@@ -349,7 +372,7 @@ export function Sidebar() {
           <NavTooltip text="Sign Out">
             <button
               onClick={useAuth().logout}
-              className="w-full flex items-center md:justify-center xl:justify-start gap-3 px-4 md:px-3 xl:px-4 py-3 md:py-2.5 xl:py-3 text-sm md:text-xs xl:text-sm text-gray-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-600 rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group relative"
+              className="w-full flex items-center md:justify-center xl:justify-start gap-3 px-4 md:px-3 xl:px-4 py-3 md:py-2.5 xl:py-3 text-sm text-gray-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-600 rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-md group relative"
             >
               <FiLogOut
                 className="h-5 w-5 md:h-6 md:w-6 xl:h-5 xl:w-5 text-gray-400 group-hover:text-red-600 flex-shrink-0 transition-transform duration-200 group-hover:scale-125 md:stroke-2 font-bold sidebar-icon-enhanced md:icon-pulse-hover"

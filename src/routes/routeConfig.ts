@@ -11,7 +11,8 @@ import { Availability } from "../components/expert/Availability";
 import { Payments } from "../components/expert/Payments";
 import ExpertProfileManager from "../components/expert/ProfileManager";
 import { Dashboard } from "../components/dashboard/Dashboard";
-import StudentProfileManager from "../components/student/ProfileManager";
+import { StudentProfileManager } from "../components/student/ProfileManager";
+import BrowseExperts from "../components/student/BrowseExperts";
 import { RouteConfig, ROUTE_PATHS } from "../types/routes";
 
 export const adminRoutes: RouteConfig[] = [
@@ -117,6 +118,13 @@ export const studentRoutes: RouteConfig[] = [
     component: StudentProfileManager,
     title: "Profile Management",
     description: "Update your student profile",
+    allowedRoles: ["student"],
+  },
+  {
+    path: ROUTE_PATHS.BROWSE_EXPERTS,
+    component: BrowseExperts,
+    title: "Browse Experts",
+    description: "Find and connect with experts",
     allowedRoles: ["student"],
   },
 ];
