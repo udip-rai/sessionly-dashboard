@@ -19,7 +19,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { ExpertManagement } from "./components/admin/ExpertManagement";
 import { UserManagement } from "./components/admin/UserManagement";
 import { CategoryManagement } from "./components/admin/CategoryManagement";
-import { ContentManagement } from "./components/admin/ContentManagement";
+import { ContentManagement } from "./components/admin/content/ContentManagement";
 import { BookingManagement } from "./components/admin/BookingManagement";
 import { MessageManagement } from "./components/admin/MessageManagement";
 import { PaymentManagement } from "./components/admin/PaymentManagement";

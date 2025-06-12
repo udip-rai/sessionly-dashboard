@@ -17,6 +17,14 @@ export const ADMIN_APIS = {
   get: "admin/get",
   getAllStudents: "admin/students/all",
   getAllStaff: "admin/staff/all",
+
+  CONTENT: {
+    faq: {
+      create: "faq",
+      get: "faq/published",
+      delete: (id: string) => `faq/${id}`,
+    },
+  },
 };
 
 export const CATEGORY_APIS = {

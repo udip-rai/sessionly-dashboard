@@ -1,6 +1,18 @@
 import { BASE_API } from "../axios";
 import { ADMIN_APIS } from "../index";
 
+// FAQ interface
+export interface FAQ {
+  _id: string;
+  question: string;
+  answer: string;
+  version: number;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 // Student interface based on actual API response structure
 export interface Student {
   _id: string;
@@ -143,6 +155,63 @@ export const adminService = {
       const response = await BASE_API.post(`admin/staff/reject/${staffId}`, {
         reason: reason || "",
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // FAQ Management
+  async getAllFAQs(): Promise<FAQ[]> {
+    try {
+      console.log("Making API call to:", ADMIN_APIS.CONTENT.faq.get);
+      const response = await BASE_API.get(ADMIN_APIS.CONTENT.faq.get);
+      console.log("API response:", response);
+
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data?.faqs && Array.isArray(response.data.faqs)) {
+        return response.data.faqs;
+      } else {
+        console.log("Unexpected response format:", response.data);
+        return [];
+      }
+    } catch (error: any) {
+      console.error("FAQ API Error:", error);
+      console.error("Request URL:", error?.config?.url);
+      console.error("Request Method:", error?.config?.method);
+      console.error("Response Status:", error?.response?.status);
+      console.error("Response Data:", error?.response?.data);
+      throw error;
+    }
+  },
+
+  async createFAQ(faqData: {
+    question: string;
+    answer: string;
+    isPublished?: boolean;
+  }): Promise<FAQ> {
+    try {
+      const response = await BASE_API.post(
+        ADMIN_APIS.CONTENT.faq.create,
+        faqData,
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async deleteFAQ(
+    faqId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await BASE_API.delete(
+        ADMIN_APIS.CONTENT.faq.delete(faqId),
+      );
       return response.data;
     } catch (error) {
       throw error;

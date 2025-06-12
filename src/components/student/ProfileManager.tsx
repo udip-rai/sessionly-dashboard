@@ -9,6 +9,10 @@ import {
   FiRefreshCw,
   FiArrowLeft,
   FiArrowRight,
+  FiFileText,
+  FiUpload,
+  FiDownload,
+  FiTrash2,
 } from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
 import { userService } from "../../api/services/user.service";
@@ -62,6 +66,10 @@ export function StudentProfileManager() {
   // File state for profile picture
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
 
+  // Resume/Documents state
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
+
   // Tab configuration
   const tabs = [
     {
@@ -81,6 +89,12 @@ export function StudentProfileManager() {
       label: "Social Links",
       icon: FiLink,
       description: "LinkedIn, website, and other URLs",
+    },
+    {
+      id: "documents",
+      label: "Documents",
+      icon: FiFileText,
+      description: "Resume and other documents",
     },
   ];
 
