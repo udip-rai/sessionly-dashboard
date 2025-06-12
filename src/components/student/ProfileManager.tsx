@@ -57,6 +57,7 @@ export function StudentProfileManager() {
     linkedinUrl: "",
     websiteUrl: "",
     otherUrls: [],
+    resume: null, // Added resume field
     userType: "student",
   });
 
@@ -122,6 +123,7 @@ export function StudentProfileManager() {
           otherUrls: Array.isArray(userData.otherUrls)
             ? userData.otherUrls
             : [],
+          resume: userData.resume || null, // Added resume field
           userType: "student",
           emailVerified: userData.emailVerified || false,
         };
@@ -553,6 +555,148 @@ export function StudentProfileManager() {
                 originalData={studentData}
               />
             </div>
+            <TabNavigation />
+          </div>
+        );
+
+      case "documents":
+        return (
+          <div className="animate-fadeIn">
+            {/* Section Header */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl border-l-4 border-purple-500">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiFileText className="w-5 h-5 mr-2 text-purple-600" />
+                Documents & Resume
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Upload and manage your resume and other important documents
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {/* Resume Upload Section */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-medium text-gray-900">Resume</h4>
+                  {resumeUploading && (
+                    <div className="flex items-center text-sm text-blue-600">
+                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Uploading...
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                  <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Upload Your Resume
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    PDF files only, maximum 5MB
+                  </p>
+
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setResumeFile(file);
+                      }
+                    }}
+                    className="hidden"
+                    id="resume-upload"
+                    disabled={resumeUploading}
+                  />
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <button
+                      onClick={() =>
+                        document.getElementById("resume-upload")?.click()
+                      }
+                      disabled={resumeUploading}
+                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                    >
+                      <FiUpload className="w-4 h-4 mr-2" />
+                      Choose File
+                    </button>
+
+                    {resumeFile && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FiFileText className="w-4 h-4 mr-2 text-purple-600" />
+                        {resumeFile.name}
+                        <button
+                          onClick={() => setResumeFile(null)}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Current Resume Display */}
+                {formData.resume && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FiFileText className="w-5 h-5 text-purple-600 mr-2" />
+                        <span className="text-sm font-medium text-gray-900">
+                          Current Resume
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            // Download resume logic would go here
+                            window.open(formData.resume, "_blank");
+                          }}
+                          className="p-2 text-gray-600 hover:text-purple-600 transition-colors"
+                          title="Download Resume"
+                        >
+                          <FiDownload className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (
+                              confirm(
+                                "Are you sure you want to delete your resume?",
+                              )
+                            ) {
+                              setFormData({ ...formData, resume: null });
+                            }
+                          }}
+                          className="p-2 text-gray-600 hover:text-red-600 transition-colors"
+                          title="Delete Resume"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Documents Section */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">
+                  Additional Documents
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload any additional documents like cover letters,
+                  portfolios, or certificates.
+                </p>
+
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <FiFileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">
+                    Additional document uploads coming soon
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <TabNavigation />
           </div>
         );

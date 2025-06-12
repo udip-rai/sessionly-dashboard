@@ -8,6 +8,7 @@ export interface StudentData {
   linkedinUrl?: string;
   websiteUrl?: string;
   otherUrls?: string[];
+  resume?: string | null; // Added resume field
   emailVerified?: boolean;
   userType?: "student";
 }

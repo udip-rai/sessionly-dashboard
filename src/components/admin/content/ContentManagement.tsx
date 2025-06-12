@@ -2,12 +2,6 @@ import { useState } from "react";
 import { FiSave, FiEdit2, FiX } from "react-icons/fi";
 import { TabFaq } from "./TabFaq";
 
-// Simple toast function for now
-const showToast = {
-  success: (message: string) => alert(`✅ ${message}`),
-  error: (message: string) => alert(`❌ ${message}`),
-};
-
 interface ContentSection {
   id: string;
   title: string;
