@@ -138,10 +138,9 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     },
     [content, onChange],
   );
-
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Page Title *
@@ -159,22 +158,20 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             Page Description *
           </label>
           <textarea
-            rows={2}
+            rows={3}
             value={content.description || ""}
             onChange={(e) => updateField("description", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
             placeholder="Brief description of your platform"
           />
         </div>
-      </div>
-
-      {/* Everything Reasons Section */}
+      </div>      {/* Everything Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Everything You Need Section
         </h4>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Section Title *
@@ -194,7 +191,7 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
                 Section Description *
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={content.everything_reasons?.description || ""}
                 onChange={(e) =>
                   updateEverythingReason("description", e.target.value)
@@ -283,15 +280,13 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Advantages Reasons Section */}
+      </div>      {/* Advantages Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Our Advantages Section
         </h4>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Section Title *
@@ -309,7 +304,7 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
                 Section Description *
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={content.advantages_reasons?.description || ""}
                 onChange={(e) =>
                   updateAdvantageReason("description", e.target.value)
@@ -353,15 +348,13 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Powered by AI Reasons Section */}
+      </div>      {/* Powered by AI Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Powered by AI Section
         </h4>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Section Title *
@@ -379,7 +372,7 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
                 Section Description *
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={content.powered_by_ai_reasons?.description || ""}
                 onChange={(e) => updateAIReason("description", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
@@ -421,14 +414,12 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Testimonials Section */}
+      </div>      {/* Testimonials Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Testimonials Section
         </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Section Title *
@@ -446,7 +437,7 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
               Section Description *
             </label>
             <textarea
-              rows={2}
+              rows={3}
               value={content.testimonials?.description || ""}
               onChange={(e) =>
                 updateTestimonials("description", e.target.value)

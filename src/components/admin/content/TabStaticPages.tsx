@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { flushSync } from "react-dom";
 import { FiPlus, FiTrash2, FiEdit2, FiSave } from "react-icons/fi";
 import {
   adminService,
@@ -8,11 +9,14 @@ import {
 } from "../../../api/services/admin.service";
 import { Modal, ConfirmModal } from "../../ui";
 import { StaticAboutPage, StaticHomePage } from "./static-page";
-import { useSimpleToast } from "./utils";
+import { toast } from "../../toast";
+import {
+  DEFAULT_ABOUT_PAGE,
+  EMPTY_ABOUT_PAGE,
+  EMPTY_HOME_PAGE,
+} from "./constants/staticPageDefaults";
 
 export function TabStaticPages() {
-  const toast = useSimpleToast();
-
   // Static Pages state
   const [pages, setPages] = useState<StaticPage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,97 +33,161 @@ export function TabStaticPages() {
     pageId: string | null;
     pageTitle: string;
   }>({ isOpen: false, pageId: null, pageTitle: "" });
+  const [modalRenderKey, setModalRenderKey] = useState<number>(0);
+
   // Form data for creating/editing pages
   const [formData, setFormData] = useState<{
     title: string;
-    content: string;
-    pageData: HomePageContent | AboutPageContent;
+    content: HomePageContent | AboutPageContent;
   }>({
     title: "",
-    content: "",
-    pageData: {} as AboutPageContent,
+    content: EMPTY_ABOUT_PAGE,
   });
+
   // Initialize form data based on page type
   const initializeFormData = (type: "home" | "about") => {
     if (type === "about") {
       setFormData({
         title: "",
-        content: "",
-        pageData: {
-          hero: {
-            title: "",
-            brandName: {
-              ses: "",
-              sion: "",
-              ly: "",
-            },
-            descriptors: ["", "", ""],
-            description: {
-              intro: "",
-              stats: "",
-              aiMatch: "",
-            },
-          },
-          mission: {
-            title: "",
-            description: "",
-          },
-          features: {
-            title: {
-              why: "",
-              choose: "",
-              brandName: {
-                ses: "",
-                sion: "",
-                ly: "",
-              },
-            },
-            cards: [
-              { title: "", description: "" },
-              { title: "", description: "" },
-              { title: "", description: "" },
-              { title: "", description: "" },
-            ],
-          },
-          cta: {
-            title: "",
-            description: "",
-            disclaimer: "",
-          },
-        } as AboutPageContent,
+        content: JSON.parse(JSON.stringify(EMPTY_ABOUT_PAGE)),
       });
     } else {
       setFormData({
         title: "",
-        content: "",
-        pageData: {
-          title: "",
-          description: "",
-          everything_reasons: {
-            title: "",
-            description: "",
-            children: [],
-          },
-          transform_reasons: {
-            title: "",
-            children: [],
-          },
-          advantages_reasons: {
-            title: "",
-            description: "",
-            children: [],
-          },
-          powered_by_ai_reasons: {
-            title: "",
-            description: "",
-            children: [],
-          },
-          testimonials: {
-            title: "",
-            description: "",
-          },
-        } as HomePageContent,
+        content: JSON.parse(JSON.stringify(EMPTY_HOME_PAGE)),
       });
+    }
+  };
+
+  // Load default content for About page
+  const loadDefaultAboutContent = () => {
+    setFormData({
+      title: "About Us",
+      content: JSON.parse(JSON.stringify(DEFAULT_ABOUT_PAGE)),
+    });
+  };
+
+  // Utility function to normalize page data with proper fallbacks
+  const normalizePageData = (page: StaticPage) => {
+    // Parse the content field which contains stringified JSON
+    let parsedContent: HomePageContent | AboutPageContent;
+    try {
+      parsedContent = JSON.parse(page.content);
+    } catch (error) {
+      console.error("Failed to parse page content:", error);
+      // Fallback to empty content based on page type
+      parsedContent =
+        page.type === "about" ? EMPTY_ABOUT_PAGE : EMPTY_HOME_PAGE;
+    }
+
+    if (page.type === "about") {
+      const aboutContent = parsedContent as AboutPageContent;
+      const emptyAbout = EMPTY_ABOUT_PAGE;
+      const currentCards = aboutContent?.features?.cards || [];
+      const normalizedCards = [...currentCards];
+      while (normalizedCards.length < 4) {
+        normalizedCards.push({ title: "", description: "" });
+      }
+      normalizedCards.splice(4);
+
+      return {
+        hero: {
+          title: aboutContent?.hero?.title || emptyAbout.hero.title,
+          descriptors:
+            aboutContent?.hero?.descriptors || emptyAbout.hero.descriptors,
+          description: {
+            intro:
+              aboutContent?.hero?.description?.intro ||
+              emptyAbout.hero.description.intro,
+            stats:
+              aboutContent?.hero?.description?.stats ||
+              emptyAbout.hero.description.stats,
+            aiMatch:
+              aboutContent?.hero?.description?.aiMatch ||
+              emptyAbout.hero.description.aiMatch,
+          },
+        },
+        mission: {
+          title: aboutContent?.mission?.title || emptyAbout.mission.title,
+          description:
+            aboutContent?.mission?.description ||
+            emptyAbout.mission.description,
+        },
+        features: {
+          title: {
+            why:
+              aboutContent?.features?.title?.why ||
+              emptyAbout.features.title.why,
+            choose:
+              aboutContent?.features?.title?.choose ||
+              emptyAbout.features.title.choose,
+          },
+          cards: normalizedCards,
+        },
+        cta: {
+          title: aboutContent?.cta?.title || emptyAbout.cta.title,
+          description:
+            aboutContent?.cta?.description || emptyAbout.cta.description,
+          disclaimer:
+            aboutContent?.cta?.disclaimer || emptyAbout.cta.disclaimer,
+        },
+      };
+    } else {
+      const homeContent = parsedContent as HomePageContent;
+      const emptyHome = EMPTY_HOME_PAGE;
+
+      return {
+        title: homeContent?.title || emptyHome.title,
+        description: homeContent?.description || emptyHome.description,
+        everything_reasons: {
+          title:
+            homeContent?.everything_reasons?.title ||
+            emptyHome.everything_reasons.title,
+          description:
+            homeContent?.everything_reasons?.description ||
+            emptyHome.everything_reasons.description,
+          children:
+            homeContent?.everything_reasons?.children ||
+            emptyHome.everything_reasons.children,
+        },
+        transform_reasons: {
+          title:
+            homeContent?.transform_reasons?.title ||
+            emptyHome.transform_reasons.title,
+          children:
+            homeContent?.transform_reasons?.children ||
+            emptyHome.transform_reasons.children,
+        },
+        advantages_reasons: {
+          title:
+            homeContent?.advantages_reasons?.title ||
+            emptyHome.advantages_reasons.title,
+          description:
+            homeContent?.advantages_reasons?.description ||
+            emptyHome.advantages_reasons.description,
+          children:
+            homeContent?.advantages_reasons?.children ||
+            emptyHome.advantages_reasons.children,
+        },
+        powered_by_ai_reasons: {
+          title:
+            homeContent?.powered_by_ai_reasons?.title ||
+            emptyHome.powered_by_ai_reasons.title,
+          description:
+            homeContent?.powered_by_ai_reasons?.description ||
+            emptyHome.powered_by_ai_reasons.description,
+          children:
+            homeContent?.powered_by_ai_reasons?.children ||
+            emptyHome.powered_by_ai_reasons.children,
+        },
+        testimonials: {
+          title:
+            homeContent?.testimonials?.title || emptyHome.testimonials.title,
+          description:
+            homeContent?.testimonials?.description ||
+            emptyHome.testimonials.description,
+        },
+      };
     }
   };
 
@@ -127,19 +195,22 @@ export function TabStaticPages() {
   const loadStaticPages = async () => {
     try {
       setLoading(true);
-      console.log("Loading Static Pages...");
       const pagesData = await adminService.getAllStaticPages();
-      console.log("Static Pages data received:", pagesData);
       setPages(pagesData);
     } catch (error: any) {
       console.error("Failed to load Static Pages:", error);
       toast.error(
-        "Failed to load Static Pages",
-        error?.response?.data?.message || error?.message || "Unknown error",
+        "Failed to load Static Pages: " +
+          (error?.response?.data?.message || error?.message || "Unknown error"),
       );
     } finally {
       setLoading(false);
     }
+  };
+
+  // Utility: check if a page of a given type already exists
+  const pageTypeExists = (type: "home" | "about") => {
+    return pages.some((page) => page.type === type);
   };
 
   // Handle page creation
@@ -147,12 +218,19 @@ export function TabStaticPages() {
     setSelectedPageType("about");
     initializeFormData("about");
     setShowCreateModal(true);
+    setModalRenderKey((prev) => prev + 1);
   };
+
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setIsCreating(false);
     setEditingPage(null);
-    setFormData({ title: "", content: "", pageData: {} as AboutPageContent });
+    setFormData({
+      title: "",
+      content: JSON.parse(JSON.stringify(EMPTY_ABOUT_PAGE)),
+    });
+    setSelectedPageType("about");
+    setModalRenderKey((prev) => prev + 1);
   };
 
   const handlePageTypeChange = (type: "home" | "about") => {
@@ -161,89 +239,72 @@ export function TabStaticPages() {
   };
 
   const handleCreatePage = async () => {
-    if (!formData.title.trim()) {
-      toast.error("Validation Error", "Page title is required");
-      return;
-    }
-
     try {
       setIsCreating(true);
       const newPage = await adminService.createStaticPage({
         type: selectedPageType,
         title: formData.title,
         content: formData.content,
-        pageData: formData.pageData,
-        isPublished: false,
       });
 
       setPages([...pages, newPage]);
       handleCloseCreateModal();
-      toast.success("Static Page Created", "Page created successfully");
+      toast.success("Static Page Created successfully");
     } catch (error) {
       console.error("Failed to create static page:", error);
-      toast.error("Failed to create static page", "Please try again");
+      toast.error("Failed to create static page. Please try again");
     } finally {
       setIsCreating(false);
     }
   };
+
   // Handle page editing
   const handleEditPage = (page: StaticPage) => {
+    console.log("Opening edit modal for page:", page);
+
+    // Set editing page first
     setEditingPage(page);
 
-    // Normalize the content to ensure proper structure
-    let normalizedPageData = page.pageData;
-    if (page.type === "about") {
-      const aboutContent = page.pageData as AboutPageContent;
+    // Normalize the content using the utility function
+    const normalizedPageData = normalizePageData(page);
 
-      const currentCards = aboutContent.features?.cards || [];
-      const normalizedCards = [...currentCards];
+    const newFormData = {
+      title: page.title || "",
+      content: JSON.parse(JSON.stringify(normalizedPageData)),
+    };
 
-      // Fill up to 4 cards
-      while (normalizedCards.length < 4) {
-        normalizedCards.push({ title: "", description: "" });
-      }
-
-      // Trim to exactly 4 cards
-      normalizedCards.splice(4);
-
-      normalizedPageData = {
-        ...aboutContent,
-        features: {
-          ...aboutContent.features,
-          cards: normalizedCards,
-        },
-      };
-    }
-
-    setFormData({
-      title: page.title,
-      content: page.content,
-      pageData: normalizedPageData,
+    // Update all state synchronously
+    flushSync(() => {
+      setFormData(newFormData);
+      setSelectedPageType(page.type);
     });
-    setSelectedPageType(page.type);
-    setShowCreateModal(true);
+
+    // Open modal with slight delay to ensure state is set
+    setTimeout(() => {
+      flushSync(() => {
+        setShowCreateModal(true);
+        setModalRenderKey((prev) => prev + 1);
+      });
+      console.log("Edit modal opened for page:", page.type);
+    }, 0);
   };
 
   const handleUpdatePage = async () => {
-    if (!editingPage || !formData.title.trim()) {
-      toast.error("Validation Error", "Page title is required");
-      return;
-    }
+    if (!editingPage) return;
 
     try {
       setIsCreating(true);
       const updatedPage = await adminService.updateStaticPage(editingPage._id, {
         title: formData.title,
         content: formData.content,
-        pageData: formData.pageData,
       });
 
       setPages(pages.map((p) => (p._id === editingPage._id ? updatedPage : p)));
       handleCloseCreateModal();
-      toast.success("Static Page Updated", "Page updated successfully");
+      toast.success("Static Page Updated successfully");
     } catch (error) {
       console.error("Failed to update static page:", error);
-      toast.error("Failed to update static page", "Please try again");
+      toast.error("Failed to update static page. Please try again");
     } finally {
       setIsCreating(false);
     }
@@ -272,11 +333,11 @@ export function TabStaticPages() {
     try {
       await adminService.deleteStaticPage(deleteConfirmDialog.pageId);
       setPages(pages.filter((page) => page._id !== deleteConfirmDialog.pageId));
-      toast.success("Static Page Deleted", "Page deleted successfully");
+      toast.success("Static Page Deleted successfully");
       handleCloseDeleteDialog();
     } catch (error) {
       console.error("Failed to delete static page:", error);
-      toast.error("Failed to delete static page", "Please try again");
+      toast.error("Failed to delete static page. Please try again");
     }
   };
 
@@ -285,29 +346,57 @@ export function TabStaticPages() {
     loadStaticPages();
   }, []);
 
+  // Sync formData and selectedPageType with editingPage when it changes
+  useEffect(() => {
+    if (editingPage) {
+      // Normalize the content using the utility function
+      const normalizedPageData = normalizePageData(editingPage);
+
+      const newFormData = {
+        title: editingPage.title || "",
+        content: JSON.parse(JSON.stringify(normalizedPageData)),
+      };
+
+      // Update all state synchronously
+      flushSync(() => {
+        setFormData(newFormData);
+        setSelectedPageType(editingPage.type);
+      });
+
+      // Open modal with slight delay to ensure state is set
+      setTimeout(() => {
+        flushSync(() => {
+          setShowCreateModal(true);
+          setModalRenderKey((prev) => prev + 1);
+        });
+        console.log("Edit modal opened for page:", editingPage.type);
+      }, 0);
+    }
+  }, [editingPage]);
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium text-gray-900">
-            Static Pages Management
-          </h2>
-          <p className="text-sm text-gray-500">
-            Manage your website's static pages (Home, About, etc.)
+          <h2 className="text-2xl font-bold text-gray-900">Static Pages</h2>
+          <p className="text-gray-600 mt-1">
+            Manage your website's static content pages
           </p>
         </div>
         <button
           onClick={handleOpenCreateModal}
-          className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90"
+          className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={loading}
         >
           <FiPlus className="w-4 h-4 mr-2" />
-          Create Page
+          Add New Page
         </button>
       </div>
 
-      {/* Create/Edit Page Modal */}
+      {/* Create/Edit Modal */}
       <Modal
+        key={`modal-${modalRenderKey}`}
         isOpen={showCreateModal}
         onClose={handleCloseCreateModal}
         title={editingPage ? "Edit Static Page" : "Create New Static Page"}
@@ -330,8 +419,14 @@ export function TabStaticPages() {
                       handlePageTypeChange(e.target.value as "about")
                     }
                     className="mr-2"
+                    disabled={pageTypeExists("about")}
                   />
                   About Page
+                  {pageTypeExists("about") && (
+                    <span className="ml-2 text-xs text-red-500">
+                      (Already created)
+                    </span>
+                  )}
                 </label>
                 <label className="flex items-center">
                   <input
@@ -342,12 +437,32 @@ export function TabStaticPages() {
                       handlePageTypeChange(e.target.value as "home")
                     }
                     className="mr-2"
+                    disabled={pageTypeExists("home")}
                   />
                   Home Page
+                  {pageTypeExists("home") && (
+                    <span className="ml-2 text-xs text-red-500">
+                      (Already created)
+                    </span>
+                  )}
                 </label>
               </div>
+
+              {/* Load Default Content Button for About Page */}
+              {selectedPageType === "about" && !pageTypeExists("about") && (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={loadDefaultAboutContent}
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    Load default About page content
+                  </button>
+                </div>
+              )}
             </div>
           )}
+
           {/* Page Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -363,35 +478,34 @@ export function TabStaticPages() {
               placeholder="Enter page title"
               autoFocus
             />
-          </div>{" "}
-          {/* Page Content Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Page Content
-            </label>
-            <textarea
-              rows={3}
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-              placeholder="Enter basic page content/description"
-            />
           </div>
+
           {/* Page Content Form */}
           {selectedPageType === "about" && (
             <StaticAboutPage
-              content={formData.pageData as AboutPageContent}
-              onChange={(pageData) => setFormData({ ...formData, pageData })}
+              key={editingPage ? `about-${editingPage._id}` : "about-create"}
+              content={formData.content as AboutPageContent}
+              onChange={(content) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  content: JSON.parse(JSON.stringify(content)),
+                }))
+              }
             />
           )}
           {selectedPageType === "home" && (
             <StaticHomePage
-              content={formData.pageData as HomePageContent}
-              onChange={(pageData) => setFormData({ ...formData, pageData })}
+              key={editingPage ? `home-${editingPage._id}` : "home-create"}
+              content={formData.content as HomePageContent}
+              onChange={(content) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  content: JSON.parse(JSON.stringify(content)),
+                }))
+              }
             />
           )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <button
@@ -404,7 +518,11 @@ export function TabStaticPages() {
             <button
               onClick={editingPage ? handleUpdatePage : handleCreatePage}
               className="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-              disabled={isCreating || !formData.title.trim()}
+              disabled={
+                isCreating ||
+                !formData.title.trim() ||
+                (!editingPage && pageTypeExists(selectedPageType))
+              }
             >
               {isCreating ? (
                 <>

@@ -107,8 +107,7 @@ export interface StaticPageBase {
   _id: string;
   type: "home" | "about";
   title: string;
-  content: string; // Simple string content
-  pageData: AboutPageContent | HomePageContent; // Complex structured data
+  content: string; // Stringified JSON content (HomePageContent | AboutPageContent)
   version: number;
   isPublished: boolean;
   createdAt: string;
@@ -119,11 +118,6 @@ export interface StaticPageBase {
 export interface AboutPageContent {
   hero: {
     title: string;
-    brandName: {
-      ses: string;
-      sion: string;
-      ly: string;
-    };
     descriptors: string[];
     description: {
       intro: string;
@@ -139,11 +133,6 @@ export interface AboutPageContent {
     title: {
       why: string;
       choose: string;
-      brandName: {
-        ses: string;
-        sion: string;
-        ly: string;
-      };
     };
     cards: Array<{
       title: string;
@@ -196,12 +185,10 @@ export interface HomePageContent {
 
 export interface AboutPage extends StaticPageBase {
   type: "about";
-  pageData: AboutPageContent;
 }
 
 export interface HomePage extends StaticPageBase {
   type: "home";
-  pageData: HomePageContent;
 }
 
 export type StaticPage = AboutPage | HomePage;
@@ -441,17 +428,22 @@ export const adminService = {
       const response = await BASE_API.get(ADMIN_APIS.CONTENT.STATIC_PAGES.get);
       console.log("Static Pages API response:", response);
 
+      let rawPages: any[] = [];
+
       // Handle different response formats
       if (Array.isArray(response.data)) {
-        return response.data;
+        rawPages = response.data;
       } else if (response.data?.data && Array.isArray(response.data.data)) {
-        return response.data.data;
+        rawPages = response.data.data;
       } else if (response.data?.pages && Array.isArray(response.data.pages)) {
-        return response.data.pages;
+        rawPages = response.data.pages;
       } else {
         console.log("Unexpected response format:", response.data);
         return [];
       }
+
+      // Return pages as-is since content field already contains stringified JSON
+      return rawPages;
     } catch (error: any) {
       console.error("Static Pages API Error:", error);
       console.error("Request URL:", error?.config?.url);
@@ -465,15 +457,23 @@ export const adminService = {
   async createStaticPage(pageData: {
     type: "home" | "about";
     title: string;
-    content: string;
-    pageData: HomePageContent | AboutPageContent;
+    content: HomePageContent | AboutPageContent;
     isPublished?: boolean;
   }): Promise<StaticPage> {
     try {
+      // Stringify content before sending to server
+      const payload = {
+        type: pageData.type,
+        title: pageData.title,
+        content: JSON.stringify(pageData.content),
+        isPublished: pageData.isPublished,
+      };
+
       const response = await BASE_API.post(
         ADMIN_APIS.CONTENT.STATIC_PAGES.create,
-        pageData,
+        payload,
       );
+
       return response.data;
     } catch (error) {
       throw error;
@@ -484,13 +484,22 @@ export const adminService = {
     pageId: string,
     pageData: {
       title?: string;
-      content?: string;
-      pageData?: HomePageContent | AboutPageContent;
+      content?: HomePageContent | AboutPageContent;
       isPublished?: boolean;
     },
   ): Promise<StaticPage> {
     try {
-      const response = await BASE_API.put(`static-page/${pageId}`, pageData);
+      // Stringify content before sending to server
+      const payload = {
+        ...(pageData.title && { title: pageData.title }),
+        ...(pageData.content && { content: JSON.stringify(pageData.content) }),
+        ...(pageData.isPublished !== undefined && {
+          isPublished: pageData.isPublished,
+        }),
+      };
+
+      const response = await BASE_API.put(`static-page/${pageId}`, payload);
+
       return response.data;
     } catch (error) {
       throw error;

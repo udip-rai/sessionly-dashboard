@@ -20,7 +20,6 @@ export const StaticAboutPage = ({
     ],
     [],
   );
-
   const updateHero = useCallback(
     (field: string, value: any) => {
       onChange({
@@ -28,22 +27,6 @@ export const StaticAboutPage = ({
         hero: {
           ...content.hero,
           [field]: value,
-        },
-      });
-    },
-    [content, onChange],
-  );
-
-  const updateHeroBrandName = useCallback(
-    (field: keyof typeof content.hero.brandName, value: string) => {
-      onChange({
-        ...content,
-        hero: {
-          ...content.hero,
-          brandName: {
-            ...content.hero?.brandName,
-            [field]: value,
-          },
         },
       });
     },
@@ -87,7 +70,6 @@ export const StaticAboutPage = ({
     },
     [content, onChange],
   );
-
   const updateFeaturesTitle = useCallback(
     (field: string, value: any) => {
       onChange({
@@ -97,25 +79,6 @@ export const StaticAboutPage = ({
           title: {
             ...content.features?.title,
             [field]: value,
-          },
-        },
-      });
-    },
-    [content, onChange],
-  );
-
-  const updateFeaturesBrandName = useCallback(
-    (field: keyof typeof content.features.title.brandName, value: string) => {
-      onChange({
-        ...content,
-        features: {
-          ...content.features,
-          title: {
-            ...content.features?.title,
-            brandName: {
-              ...content.features?.title?.brandName,
-              [field]: value,
-            },
           },
         },
       });
@@ -177,46 +140,7 @@ export const StaticAboutPage = ({
               onChange={(e) => updateHero("title", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
               placeholder="Welcome to"
-            />
-          </div>
-          {/* Brand Name Components */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Brand Name - "ses" *
-              </label>
-              <input
-                type="text"
-                value={content.hero?.brandName?.ses || ""}
-                onChange={(e) => updateHeroBrandName("ses", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="Ses"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Brand Name - "sion" *
-              </label>
-              <input
-                type="text"
-                value={content.hero?.brandName?.sion || ""}
-                onChange={(e) => updateHeroBrandName("sion", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="sion"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Brand Name - "ly" *
-              </label>
-              <input
-                type="text"
-                value={content.hero?.brandName?.ly || ""}
-                onChange={(e) => updateHeroBrandName("ly", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="ly"
-              />
-            </div>
+            />{" "}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -349,48 +273,7 @@ export const StaticAboutPage = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
                 placeholder="Choose"
               />
-            </div>
-          </div>
-          {/* Features Brand Name Components */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Features Brand - "ses" *
-              </label>
-              <input
-                type="text"
-                value={content.features?.title?.brandName?.ses || ""}
-                onChange={(e) => updateFeaturesBrandName("ses", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="Ses"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Features Brand - "sion" *
-              </label>
-              <input
-                type="text"
-                value={content.features?.title?.brandName?.sion || ""}
-                onChange={(e) =>
-                  updateFeaturesBrandName("sion", e.target.value)
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="sion"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Features Brand - "ly" *
-              </label>
-              <input
-                type="text"
-                value={content.features?.title?.brandName?.ly || ""}
-                onChange={(e) => updateFeaturesBrandName("ly", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="ly"
-              />
-            </div>
+            </div>{" "}
           </div>
           {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -8,15 +8,6 @@ export function ContentManagement() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Content Management Hub
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Take full control of your website's content and user experience
-        </p>
-      </div>
-
       {/* Tab Navigation */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="flex space-x-8">
