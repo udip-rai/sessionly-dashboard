@@ -6,27 +6,12 @@ import {
   AboutPageContent,
   HomePageContent,
 } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal, useToast } from "../../ui";
+import { Modal, ConfirmModal } from "../../ui";
 import { StaticAboutPage, StaticHomePage } from "./static-page";
+import { useSimpleToast } from "./utils";
 
 export function TabStaticPages() {
-  // Use toast with fallback
-  let toast;
-  try {
-    toast = useToast();
-  } catch {
-    // Fallback toast implementation
-    toast = {
-      success: (title: string, message?: string) =>
-        alert(`✅ ${title}: ${message || ""}`),
-      error: (title: string, message?: string) =>
-        alert(`❌ ${title}: ${message || ""}`),
-      warning: (title: string, message?: string) =>
-        alert(`⚠️ ${title}: ${message || ""}`),
-      info: (title: string, message?: string) =>
-        alert(`ℹ️ ${title}: ${message || ""}`),
-    };
-  }
+  const toast = useSimpleToast();
 
   // Static Pages state
   const [pages, setPages] = useState<StaticPage[]>([]);
@@ -44,32 +29,35 @@ export function TabStaticPages() {
     pageId: string | null;
     pageTitle: string;
   }>({ isOpen: false, pageId: null, pageTitle: "" });
-
   // Form data for creating/editing pages
   const [formData, setFormData] = useState<{
     title: string;
-    content: HomePageContent | AboutPageContent;
+    content: string;
+    pageData: HomePageContent | AboutPageContent;
   }>({
     title: "",
-    content: {} as AboutPageContent,
+    content: "",
+    pageData: {} as AboutPageContent,
   });
-
   // Initialize form data based on page type
   const initializeFormData = (type: "home" | "about") => {
     if (type === "about") {
       setFormData({
         title: "",
-        content: {
+        content: "",
+        pageData: {
           hero: {
             title: "",
             brandName: {
-              part1: "",
-              part2: "",
+              ses: "",
+              sion: "",
+              ly: "",
             },
-            description: ["", "", ""],
-            cta: {
-              text: "",
-              link: "",
+            descriptors: ["", "", ""],
+            description: {
+              intro: "",
+              stats: "",
+              aiMatch: "",
             },
           },
           mission: {
@@ -77,8 +65,15 @@ export function TabStaticPages() {
             description: "",
           },
           features: {
-            title: "",
-            subtitle: "",
+            title: {
+              why: "",
+              choose: "",
+              brandName: {
+                ses: "",
+                sion: "",
+                ly: "",
+              },
+            },
             cards: [
               { title: "", description: "" },
               { title: "", description: "" },
@@ -89,38 +84,39 @@ export function TabStaticPages() {
           cta: {
             title: "",
             description: "",
-            buttonText: "",
-            buttonLink: "",
+            disclaimer: "",
           },
         } as AboutPageContent,
       });
     } else {
       setFormData({
         title: "",
-        content: {
-          everythingYouNeed: {
+        content: "",
+        pageData: {
+          title: "",
+          description: "",
+          everything_reasons: {
             title: "",
-            subtitle: "",
             description: "",
+            children: [],
           },
-          transformReasons: {
+          transform_reasons: {
             title: "",
-            subtitle: "",
-            description: "",
+            children: [],
           },
-          advantages: {
+          advantages_reasons: {
             title: "",
-            subtitle: "",
             description: "",
+            children: [],
           },
-          poweredByAI: {
+          powered_by_ai_reasons: {
             title: "",
-            subtitle: "",
             description: "",
+            children: [],
           },
           testimonials: {
             title: "",
-            subtitle: "",
+            description: "",
           },
         } as HomePageContent,
       });
@@ -152,12 +148,11 @@ export function TabStaticPages() {
     initializeFormData("about");
     setShowCreateModal(true);
   };
-
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setIsCreating(false);
     setEditingPage(null);
-    setFormData({ title: "", content: {} as AboutPageContent });
+    setFormData({ title: "", content: "", pageData: {} as AboutPageContent });
   };
 
   const handlePageTypeChange = (type: "home" | "about") => {
@@ -177,6 +172,7 @@ export function TabStaticPages() {
         type: selectedPageType,
         title: formData.title,
         content: formData.content,
+        pageData: formData.pageData,
         isPublished: false,
       });
 
@@ -190,15 +186,14 @@ export function TabStaticPages() {
       setIsCreating(false);
     }
   };
-
   // Handle page editing
   const handleEditPage = (page: StaticPage) => {
     setEditingPage(page);
 
     // Normalize the content to ensure proper structure
-    let normalizedContent = page.content;
+    let normalizedPageData = page.pageData;
     if (page.type === "about") {
-      const aboutContent = page.content as AboutPageContent;
+      const aboutContent = page.pageData as AboutPageContent;
 
       const currentCards = aboutContent.features?.cards || [];
       const normalizedCards = [...currentCards];
@@ -211,7 +206,7 @@ export function TabStaticPages() {
       // Trim to exactly 4 cards
       normalizedCards.splice(4);
 
-      normalizedContent = {
+      normalizedPageData = {
         ...aboutContent,
         features: {
           ...aboutContent.features,
@@ -222,7 +217,8 @@ export function TabStaticPages() {
 
     setFormData({
       title: page.title,
-      content: normalizedContent,
+      content: page.content,
+      pageData: normalizedPageData,
     });
     setSelectedPageType(page.type);
     setShowCreateModal(true);
@@ -239,6 +235,7 @@ export function TabStaticPages() {
       const updatedPage = await adminService.updateStaticPage(editingPage._id, {
         title: formData.title,
         content: formData.content,
+        pageData: formData.pageData,
       });
 
       setPages(pages.map((p) => (p._id === editingPage._id ? updatedPage : p)));
@@ -351,7 +348,6 @@ export function TabStaticPages() {
               </div>
             </div>
           )}
-
           {/* Page Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -367,23 +363,35 @@ export function TabStaticPages() {
               placeholder="Enter page title"
               autoFocus
             />
+          </div>{" "}
+          {/* Page Content Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Page Content
+            </label>
+            <textarea
+              rows={3}
+              value={formData.content}
+              onChange={(e) =>
+                setFormData({ ...formData, content: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+              placeholder="Enter basic page content/description"
+            />
           </div>
-
           {/* Page Content Form */}
           {selectedPageType === "about" && (
             <StaticAboutPage
-              content={formData.content as AboutPageContent}
-              onChange={(content) => setFormData({ ...formData, content })}
+              content={formData.pageData as AboutPageContent}
+              onChange={(pageData) => setFormData({ ...formData, pageData })}
             />
           )}
-
           {selectedPageType === "home" && (
             <StaticHomePage
-              content={formData.content as HomePageContent}
-              onChange={(content) => setFormData({ ...formData, content })}
+              content={formData.pageData as HomePageContent}
+              onChange={(pageData) => setFormData({ ...formData, pageData })}
             />
           )}
-
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <button
@@ -441,19 +449,24 @@ export function TabStaticPages() {
                             : "bg-purple-100 text-purple-800"
                         }`}
                       >
-                        {page.type.toUpperCase()} PAGE
+                        {(page.type || "—").toUpperCase()} PAGE
                       </span>
                       <span className="text-xs text-gray-500">
                         Created{" "}
-                        {new Date(page.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {page.createdAt
+                          ? new Date(page.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )
+                          : "—"}
                       </span>
                     </div>
                     <h3 className="text-lg font-medium text-gray-900">
-                      {page.title}
+                      {page.title || "—"}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">

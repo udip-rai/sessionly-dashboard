@@ -1,26 +1,12 @@
 import { useState, useEffect } from "react";
 import { FiPlus, FiTrash2, FiEdit3 } from "react-icons/fi";
 import { adminService, FAQ } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal, useToast } from "../../ui";
+import { Modal, ConfirmModal } from "../../ui";
+import { useSimpleToast } from "../../toast";
+import { FaqForm } from "./faq";
 
 export function TabFaq() {
-  // Use toast with fallback
-  let toast;
-  try {
-    toast = useToast();
-  } catch {
-    // Fallback toast implementation
-    toast = {
-      success: (title: string, message?: string) =>
-        alert(`✅ ${title}: ${message || ""}`),
-      error: (title: string, message?: string) =>
-        alert(`❌ ${title}: ${message || ""}`),
-      warning: (title: string, message?: string) =>
-        alert(`⚠️ ${title}: ${message || ""}`),
-      info: (title: string, message?: string) =>
-        alert(`ℹ️ ${title}: ${message || ""}`),
-    };
-  }
+  const toast = useSimpleToast();
   // FAQ-related state
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [editedFaq, setEditedFaq] = useState<{
@@ -40,19 +26,7 @@ export function TabFaq() {
     faqId: string | null;
     faqQuestion: string;
   }>({ isOpen: false, faqId: null, faqQuestion: "" });
-  const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length <= 200) {
-      setEditedFaq({ ...editedFaq, question: value });
-    }
-  };
 
-  const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 500) {
-      setEditedFaq({ ...editedFaq, answer: value });
-    }
-  };
   const loadFAQs = async () => {
     try {
       setLoading(true);
@@ -245,44 +219,10 @@ export function TabFaq() {
                 </div>
               </div>
             </div>
-          </div>{" "}
-          {/* Form Fields */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Question *
-              </label>{" "}
-              <input
-                type="text"
-                value={editedFaq.question}
-                onChange={handleQuestionChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="What is your question? (e.g., How do I book a session?)"
-                disabled={isAddingFaq}
-                autoFocus
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                Characters: {editedFaq.question.length}/200
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Answer *
-              </label>
-              <textarea
-                value={editedFaq.answer}
-                onChange={handleAnswerChange}
-                rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy resize-none"
-                placeholder="Provide a clear, helpful answer to the question..."
-                disabled={isAddingFaq}
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                Characters: {editedFaq.answer.length}/500
-              </p>
-            </div>
           </div>
+
+          <FaqForm faq={editedFaq} onChange={setEditedFaq} isEditing={false} />
+
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <button
@@ -314,8 +254,8 @@ export function TabFaq() {
               )}
             </button>
           </div>
-        </div>{" "}
-      </Modal>
+        </div>
+      </Modal>{" "}
       {/* Edit FAQ Modal */}
       <Modal
         isOpen={showEditFaqModal}
@@ -357,43 +297,7 @@ export function TabFaq() {
             </div>
           </div>
 
-          {/* Form Fields */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Question *
-              </label>
-              <input
-                type="text"
-                value={editedFaq.question}
-                onChange={handleQuestionChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
-                placeholder="What is your question? (e.g., How do I book a session?)"
-                disabled={isUpdatingFaq}
-                autoFocus
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                Characters: {editedFaq.question.length}/200
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Answer *
-              </label>
-              <textarea
-                value={editedFaq.answer}
-                onChange={handleAnswerChange}
-                rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy resize-none"
-                placeholder="Provide a clear, helpful answer to the question..."
-                disabled={isUpdatingFaq}
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                Characters: {editedFaq.answer.length}/500
-              </p>
-            </div>
-          </div>
+          <FaqForm faq={editedFaq} onChange={setEditedFaq} isEditing={true} />
 
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
@@ -436,7 +340,19 @@ export function TabFaq() {
         </div>
       )}{" "}
       {/* FAQ List */}
-      {!loading && (
+      {!loading && faqs.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">No FAQs found</p>
+          <button
+            onClick={handleOpenAddFaqModal}
+            className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 mx-auto"
+          >
+            <FiPlus className="w-4 h-4 mr-2" />
+            Add Your First FAQ
+          </button>
+        </div>
+      )}{" "}
+      {!loading && faqs.length > 0 && (
         <div className="space-y-4">
           {faqs.map((faq) => (
             <div
@@ -444,7 +360,6 @@ export function TabFaq() {
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
             >
               <div className="p-6">
-                {" "}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     {/* Enhanced timestamp styling */}
@@ -505,31 +420,6 @@ export function TabFaq() {
                           </span>
                         </div>
                       )}
-
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full">
-                        <svg
-                          className="w-3.5 h-3.5 text-gray-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                        <span className="text-xs font-medium text-gray-700">
-                          {faq.isPublished ? "Published" : "Draft"}
-                        </span>
-                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -556,12 +446,12 @@ export function TabFaq() {
                 <div className="space-y-3">
                   <div>
                     <h3 className="font-medium text-gray-900">
-                      {faq.question}
+                      {faq.question || "—"}
                     </h3>
                   </div>
                   <div>
                     <p className="text-gray-700 leading-relaxed">
-                      {faq.answer}
+                      {faq.answer || "—"}
                     </p>
                   </div>
                 </div>

@@ -107,6 +107,8 @@ export interface StaticPageBase {
   _id: string;
   type: "home" | "about";
   title: string;
+  content: string; // Simple string content
+  pageData: AboutPageContent | HomePageContent; // Complex structured data
   version: number;
   isPublished: boolean;
   createdAt: string;
@@ -194,12 +196,12 @@ export interface HomePageContent {
 
 export interface AboutPage extends StaticPageBase {
   type: "about";
-  content: AboutPageContent;
+  pageData: AboutPageContent;
 }
 
 export interface HomePage extends StaticPageBase {
   type: "home";
-  content: HomePageContent;
+  pageData: HomePageContent;
 }
 
 export type StaticPage = AboutPage | HomePage;
@@ -463,7 +465,8 @@ export const adminService = {
   async createStaticPage(pageData: {
     type: "home" | "about";
     title: string;
-    content: HomePageContent | AboutPageContent;
+    content: string;
+    pageData: HomePageContent | AboutPageContent;
     isPublished?: boolean;
   }): Promise<StaticPage> {
     try {
@@ -481,7 +484,8 @@ export const adminService = {
     pageId: string,
     pageData: {
       title?: string;
-      content?: HomePageContent | AboutPageContent;
+      content?: string;
+      pageData?: HomePageContent | AboutPageContent;
       isPublished?: boolean;
     },
   ): Promise<StaticPage> {
