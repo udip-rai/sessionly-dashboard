@@ -22,12 +22,20 @@ export const ADMIN_APIS = {
     faq: {
       create: "faq",
       get: "faq/published",
+      update: (id: string) => `faq/${id}`,
       delete: (id: string) => `faq/${id}`,
     },
     websiteStats: {
       create: "stat",
       get: "stat/published",
+      update: (id: string) => `stat/${id}`,
       delete: (id: string) => `stat/${id}`,
+    },
+    STATIC_PAGES: {
+      create: "static-page",
+      get: "static-page/published",
+      update: (id: string) => `static-page/${id}`,
+      delete: (id: string) => `static-page/${id}`,
     },
   },
 };

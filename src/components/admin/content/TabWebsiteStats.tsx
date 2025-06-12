@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiPlus, FiTrash2, FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit3 } from "react-icons/fi";
 import { adminService, WebsiteStat } from "../../../api/services/admin.service";
 import { Modal, ConfirmModal, useToast } from "../../ui";
 
@@ -32,9 +32,11 @@ export function TabWebsiteStats() {
   }>({ label: "", value: "", description: "", order: 1 });
   const [isAddingStat, setIsAddingStat] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
   // Modal states
   const [showAddStatModal, setShowAddStatModal] = useState<boolean>(false);
+  const [showEditStatModal, setShowEditStatModal] = useState<boolean>(false);
+  const [editingStatId, setEditingStatId] = useState<string | null>(null);
+  const [isUpdatingStat, setIsUpdatingStat] = useState<boolean>(false);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
     isOpen: boolean;
     statId: string | null;
@@ -102,7 +104,6 @@ export function TabWebsiteStats() {
     setShowAddStatModal(false);
     setIsAddingStat(false);
   };
-
   const handleAddStat = async () => {
     if (
       !editedStat.label.trim() ||
@@ -134,6 +135,63 @@ export function TabWebsiteStats() {
       toast.error("Failed to create website stat", "Please try again");
     } finally {
       setIsAddingStat(false);
+    }
+  };
+
+  const handleOpenEditStatModal = (stat: WebsiteStat) => {
+    setEditedStat({
+      label: stat.label,
+      value: stat.value,
+      description: stat.description,
+      order: stat.order,
+    });
+    setEditingStatId(stat._id);
+    setShowEditStatModal(true);
+  };
+
+  const handleCloseEditStatModal = () => {
+    setEditedStat({ label: "", value: "", description: "", order: 1 });
+    setEditingStatId(null);
+    setShowEditStatModal(false);
+    setIsUpdatingStat(false);
+  };
+
+  const handleUpdateStat = async () => {
+    if (
+      !editedStat.label.trim() ||
+      !editedStat.value.trim() ||
+      !editedStat.description.trim()
+    ) {
+      toast.error("Validation Error", "All fields are required");
+      return;
+    }
+
+    if (!editingStatId) return;
+
+    try {
+      setIsUpdatingStat(true);
+      const updatedStat = await adminService.updateWebsiteStat(editingStatId, {
+        label: editedStat.label,
+        value: editedStat.value,
+        description: editedStat.description,
+        order: editedStat.order,
+      });
+
+      setStats(
+        stats
+          .map((stat) => (stat._id === editingStatId ? updatedStat : stat))
+          .sort((a, b) => a.order - b.order),
+      );
+      handleCloseEditStatModal();
+      toast.success(
+        "Website Stat Updated",
+        "Website stat updated successfully",
+      );
+    } catch (error) {
+      console.error("Failed to update website stat:", error);
+      toast.error("Failed to update website stat", "Please try again");
+    } finally {
+      setIsUpdatingStat(false);
     }
   };
 
@@ -350,6 +408,160 @@ export function TabWebsiteStats() {
               )}
             </button>
           </div>
+        </div>{" "}
+      </Modal>
+
+      {/* Edit Website Stat Modal */}
+      <Modal
+        isOpen={showEditStatModal}
+        onClose={handleCloseEditStatModal}
+        title="Edit Website Stat"
+        size="lg"
+      >
+        <div className="space-y-6">
+          {/* Instructions */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-blue-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  Edit Website Stat Guidelines
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Update labels to be clear and memorable</li>
+                    <li>Keep values concise and impressive</li>
+                    <li>Write descriptions that build trust and credibility</li>
+                    <li>
+                      Adjust order to control display sequence on the website
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Form Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Label *
+              </label>
+              <input
+                type="text"
+                value={editedStat.label}
+                onChange={handleLabelChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                placeholder="e.g., Active Users, Sessions Completed"
+                disabled={isUpdatingStat}
+                autoFocus
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Characters: {editedStat.label.length}/50
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Value *
+              </label>
+              <input
+                type="text"
+                value={editedStat.value}
+                onChange={handleValueChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                placeholder="e.g., 50K+, 99%, 1000+"
+                disabled={isUpdatingStat}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Characters: {editedStat.value.length}/20
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description *
+              </label>
+              <input
+                type="text"
+                value={editedStat.description}
+                onChange={handleDescriptionChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                placeholder="e.g., Trusted globally by professionals"
+                disabled={isUpdatingStat}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Characters: {editedStat.description.length}/100
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Display Order *
+              </label>
+              <input
+                type="number"
+                value={editedStat.order}
+                onChange={(e) =>
+                  setEditedStat({
+                    ...editedStat,
+                    order: parseInt(e.target.value) || 1,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
+                min="1"
+                disabled={isUpdatingStat}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Lower numbers appear first on the website
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+            <button
+              onClick={handleCloseEditStatModal}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              disabled={isUpdatingStat}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdateStat}
+              className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              disabled={
+                isUpdatingStat ||
+                !editedStat.label.trim() ||
+                !editedStat.value.trim() ||
+                !editedStat.description.trim()
+              }
+            >
+              {isUpdatingStat ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Updating Stat...
+                </>
+              ) : (
+                <>
+                  <FiEdit3 className="w-4 h-4 mr-2" />
+                  Update Stat
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </Modal>
 
@@ -370,29 +582,28 @@ export function TabWebsiteStats() {
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
             >
               <div className="p-6">
+                {" "}
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    {/* <div className="flex items-center gap-3 mb-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Order #{stat.order}
-                      </span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Published
-                      </span>
-                    </div> */}
-                    <p className="text-sm text-gray-500">
-                      {/* Created:{" "} */}
-                      {new Date(stat.updatedAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {stat.updatedAt !== stat.createdAt && (
-                        <span className="ml-4">
-                          Updated:{" "}
-                          {new Date(stat.updatedAt).toLocaleDateString(
+                    {/* Enhanced timestamp styling */}
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full">
+                        <svg
+                          className="w-3.5 h-3.5 text-purple-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="text-xs font-medium text-purple-700">
+                          Created:{" "}
+                          {new Date(stat.createdAt).toLocaleDateString(
                             "en-US",
                             {
                               year: "numeric",
@@ -403,10 +614,93 @@ export function TabWebsiteStats() {
                             },
                           )}
                         </span>
+                      </div>
+
+                      {stat.updatedAt !== stat.createdAt && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-full">
+                          <svg
+                            className="w-3.5 h-3.5 text-orange-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                          <span className="text-xs font-medium text-orange-700">
+                            Updated:{" "}
+                            {new Date(stat.updatedAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
+                        </div>
                       )}
-                    </p>
+
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-full">
+                        <svg
+                          className="w-3.5 h-3.5 text-indigo-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                          />
+                        </svg>
+                        <span className="text-xs font-medium text-indigo-700">
+                          Order #{stat.order}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full">
+                        <svg
+                          className="w-3.5 h-3.5 text-green-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                        <span className="text-xs font-medium text-green-700">
+                          {stat.isPublished ? "Published" : "Draft"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleOpenEditStatModal(stat)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      disabled={loading}
+                      title="Edit Website Stat"
+                    >
+                      <FiEdit3 className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() =>
                         handleOpenDeleteDialog(stat._id, stat.label)
