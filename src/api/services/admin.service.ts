@@ -13,6 +13,19 @@ export interface FAQ {
   __v: number;
 }
 
+// Website Stats interface
+export interface WebsiteStat {
+  _id: string;
+  label: string;
+  value: string;
+  description: string;
+  order: number;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 // Student interface based on actual API response structure
 export interface Student {
   _id: string;
@@ -211,6 +224,65 @@ export const adminService = {
     try {
       const response = await BASE_API.delete(
         ADMIN_APIS.CONTENT.faq.delete(faqId),
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Website Stats Management
+  async getAllWebsiteStats(): Promise<WebsiteStat[]> {
+    try {
+      console.log("Making API call to:", ADMIN_APIS.CONTENT.websiteStats.get);
+      const response = await BASE_API.get(ADMIN_APIS.CONTENT.websiteStats.get);
+      console.log("Website Stats API response:", response);
+
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data?.stats && Array.isArray(response.data.stats)) {
+        return response.data.stats;
+      } else {
+        console.log("Unexpected response format:", response.data);
+        return [];
+      }
+    } catch (error: any) {
+      console.error("Website Stats API Error:", error);
+      console.error("Request URL:", error?.config?.url);
+      console.error("Request Method:", error?.config?.method);
+      console.error("Response Status:", error?.response?.status);
+      console.error("Response Data:", error?.response?.data);
+      throw error;
+    }
+  },
+
+  async createWebsiteStat(statData: {
+    label: string;
+    value: string;
+    description: string;
+    order?: number;
+    isPublished?: boolean;
+  }): Promise<WebsiteStat> {
+    try {
+      const response = await BASE_API.post(
+        ADMIN_APIS.CONTENT.websiteStats.create,
+        statData,
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async deleteWebsiteStat(
+    statId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await BASE_API.delete(
+        ADMIN_APIS.CONTENT.websiteStats.delete(statId),
       );
       return response.data;
     } catch (error) {

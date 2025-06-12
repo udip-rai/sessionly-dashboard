@@ -24,6 +24,11 @@ export const ADMIN_APIS = {
       get: "faq/published",
       delete: (id: string) => `faq/${id}`,
     },
+    websiteStats: {
+      create: "stat",
+      get: "stat/published",
+      delete: (id: string) => `stat/${id}`,
+    },
   },
 };
 
