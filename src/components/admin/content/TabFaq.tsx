@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { FiPlus, FiTrash2, FiEdit3 } from "react-icons/fi";
+import { FiTrash2, FiEdit3 } from "react-icons/fi";
 import { adminService, FAQ } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal } from "../../ui";
+import { Modal, ConfirmModal, AddButton } from "../../ui";
 import { useSimpleToast } from "../../toast";
 import { FaqForm } from "./faq";
 
@@ -169,14 +169,9 @@ export function TabFaq() {
             Manage frequently asked questions
           </p>
         </div>{" "}
-        <button
-          onClick={handleOpenAddFaqModal}
-          className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90"
-          disabled={loading}
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
+        <AddButton onClick={handleOpenAddFaqModal} disabled={loading}>
           Add FAQ
-        </button>
+        </AddButton>
       </div>{" "}
       {/* Add FAQ Modal */}
       <Modal
@@ -248,7 +243,19 @@ export function TabFaq() {
                 </>
               ) : (
                 <>
-                  <FiPlus className="w-4 h-4 mr-2" />
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
                   Add FAQ
                 </>
               )}
@@ -339,17 +346,13 @@ export function TabFaq() {
           <p className="mt-2 text-gray-500">Loading FAQs...</p>
         </div>
       )}{" "}
-      {/* FAQ List */}
+      {/* FAQ List */}{" "}
       {!loading && faqs.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No FAQs found</p>
-          <button
-            onClick={handleOpenAddFaqModal}
-            className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 mx-auto"
-          >
-            <FiPlus className="w-4 h-4 mr-2" />
+          <AddButton onClick={handleOpenAddFaqModal} className="mx-auto">
             Add Your First FAQ
-          </button>
+          </AddButton>
         </div>
       )}{" "}
       {!loading && faqs.length > 0 && (
@@ -463,13 +466,9 @@ export function TabFaq() {
       {!loading && faqs.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No FAQs found</p>
-          <button
-            onClick={handleOpenAddFaqModal}
-            className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 mx-auto"
-          >
-            <FiPlus className="w-4 h-4 mr-2" />
+          <AddButton onClick={handleOpenAddFaqModal} className="mx-auto">
             Add Your First FAQ
-          </button>
+          </AddButton>
         </div>
       )}{" "}
       {/* Delete Confirmation Modal */}

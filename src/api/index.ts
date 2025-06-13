@@ -19,6 +19,12 @@ export const ADMIN_APIS = {
   getAllStaff: "admin/staff/all",
 
   CONTENT: {
+    team: {
+      create: "team",
+      get: "team/published",
+      update: (id: string) => `team/${id}`,
+      delete: (id: string) => `team/${id}`,
+    },
     faq: {
       create: "faq",
       get: "faq/published",

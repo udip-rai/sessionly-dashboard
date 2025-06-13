@@ -26,6 +26,21 @@ export interface WebsiteStat {
   __v: number;
 }
 
+// Team interface
+export interface Team {
+  _id: string;
+  name: string;
+  title: string;
+  description: string;
+  image: string;
+  socialLinks: string[];
+  version: number;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 // Student interface based on actual API response structure
 export interface Student {
   _id: string;
@@ -512,6 +527,88 @@ export const adminService = {
     try {
       const response = await BASE_API.delete(
         ADMIN_APIS.CONTENT.STATIC_PAGES.delete(pageId),
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Team Management
+  async getAllTeamMembers(): Promise<Team[]> {
+    try {
+      console.log("Making API call to:", ADMIN_APIS.CONTENT.team.get);
+      const response = await BASE_API.get(ADMIN_APIS.CONTENT.team.get);
+      console.log("Team API response:", response);
+
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data?.team && Array.isArray(response.data.team)) {
+        return response.data.team;
+      } else {
+        console.log("Unexpected response format:", response.data);
+        return [];
+      }
+    } catch (error: any) {
+      console.error("Team API Error:", error);
+      console.error("Request URL:", error?.config?.url);
+      console.error("Request Method:", error?.config?.method);
+      console.error("Response Status:", error?.response?.status);
+      console.error("Response Data:", error?.response?.data);
+      throw error;
+    }
+  },
+
+  async createTeamMember(teamData: {
+    name: string;
+    title: string;
+    description: string;
+    image?: string;
+    socialLinks?: string[];
+    isPublished?: boolean;
+  }): Promise<Team> {
+    try {
+      const response = await BASE_API.post(
+        ADMIN_APIS.CONTENT.team.create,
+        teamData,
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async updateTeamMember(
+    teamId: string,
+    teamData: {
+      name?: string;
+      title?: string;
+      description?: string;
+      image?: string;
+      socialLinks?: string[];
+      isPublished?: boolean;
+    },
+  ): Promise<Team> {
+    try {
+      const response = await BASE_API.put(
+        ADMIN_APIS.CONTENT.team.update(teamId),
+        teamData,
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async deleteTeamMember(
+    teamId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await BASE_API.delete(
+        ADMIN_APIS.CONTENT.team.delete(teamId),
       );
       return response.data;
     } catch (error) {

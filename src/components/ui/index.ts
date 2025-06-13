@@ -8,3 +8,4 @@ export { ImageZoomModal } from "./ImageZoomModal";
 export { NotFoundPage } from "./NotFoundPage";
 export { AnimatedCloseButton } from "./AnimatedCloseButton";
 export { ToastTestComponent } from "./ToastTestComponent";
+export { AddButton } from "./AddButton";

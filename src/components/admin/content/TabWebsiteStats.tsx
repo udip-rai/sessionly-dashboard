@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { FiTrash2, FiEdit3, FiPlus } from "react-icons/fi";
+import { FiTrash2, FiEdit3 } from "react-icons/fi";
 import { adminService, WebsiteStat } from "../../../api/services/admin.service";
-import { ConfirmModal } from "../../ui";
+import { ConfirmModal, AddButton } from "../../ui";
 import { useSimpleToast } from "./utils";
 import { AddWebsiteStat, EditWebsiteStat } from "./website-stats";
 
@@ -112,15 +112,10 @@ export function TabWebsiteStats() {
           <p className="text-sm text-gray-500">
             Manage website statistics displayed on your homepage
           </p>
-        </div>
-        <button
-          className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90"
-          onClick={() => setShowAddModal(true)}
-          disabled={loading}
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
+        </div>{" "}
+        <AddButton onClick={() => setShowAddModal(true)} disabled={loading}>
           Add Stat
-        </button>
+        </AddButton>
       </div>
       {/* Loading indicator */}
       {loading && (
@@ -129,18 +124,17 @@ export function TabWebsiteStats() {
           <p className="mt-2 text-gray-500">Loading Website Stats...</p>
         </div>
       )}
-      {/* Website Stats List */}
+      {/* Website Stats List */}{" "}
       {!loading && stats.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No website stats found</p>
-          <button
-            className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 mx-auto"
+          <AddButton
             onClick={() => setShowAddModal(true)}
             disabled={loading}
+            className="mx-auto"
           >
-            <FiPlus className="w-4 h-4 mr-2" />
             Add Your First Stat
-          </button>
+          </AddButton>
         </div>
       )}
       {!loading && stats.length > 0 && (

@@ -165,7 +165,8 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             placeholder="Brief description of your platform"
           />
         </div>
-      </div>      {/* Everything Reasons Section */}
+      </div>{" "}
+      {/* Everything Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Everything You Need Section
@@ -240,7 +241,6 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
           </div>
         </div>
       </div>
-
       {/* Transform Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
@@ -280,7 +280,8 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>      {/* Advantages Reasons Section */}
+      </div>{" "}
+      {/* Advantages Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Our Advantages Section
@@ -348,7 +349,8 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>      {/* Powered by AI Reasons Section */}
+      </div>{" "}
+      {/* Powered by AI Reasons Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Powered by AI Section
@@ -414,7 +416,8 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
             ))}
           </div>
         </div>
-      </div>      {/* Testimonials Section */}
+      </div>{" "}
+      {/* Testimonials Section */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h4 className="text-md font-medium text-gray-900 mb-4">
           Testimonials Section

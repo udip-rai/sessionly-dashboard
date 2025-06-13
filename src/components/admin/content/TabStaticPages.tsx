@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { flushSync } from "react-dom";
-import { FiPlus, FiTrash2, FiEdit2, FiSave } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave } from "react-icons/fi";
 import {
   adminService,
   StaticPage,
   AboutPageContent,
   HomePageContent,
 } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal } from "../../ui";
+import { Modal, ConfirmModal, AddButton } from "../../ui";
 import { StaticAboutPage, StaticHomePage } from "./static-page";
 import { toast } from "../../toast";
 import {
@@ -382,18 +382,12 @@ export function TabStaticPages() {
           <h2 className="text-2xl font-bold text-gray-900">Static Pages</h2>
           <p className="text-gray-600 mt-1">
             Manage your website's static content pages
-          </p>
+          </p>{" "}
         </div>
-        <button
-          onClick={handleOpenCreateModal}
-          className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={loading}
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
+        <AddButton onClick={handleOpenCreateModal} disabled={loading}>
           Add New Page
-        </button>
+        </AddButton>
       </div>
-
       {/* Create/Edit Modal */}
       <Modal
         key={`modal-${modalRenderKey}`}
@@ -539,7 +533,6 @@ export function TabStaticPages() {
           </div>
         </div>
       </Modal>
-
       {/* Loading indicator */}
       {loading && (
         <div className="text-center py-8">
@@ -547,7 +540,6 @@ export function TabStaticPages() {
           <p className="mt-2 text-gray-500">Loading Static Pages...</p>
         </div>
       )}
-
       {/* Static Pages List */}
       {!loading && (
         <div className="space-y-4">
@@ -612,21 +604,15 @@ export function TabStaticPages() {
             </div>
           ))}
         </div>
-      )}
-
+      )}{" "}
       {!loading && pages.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No static pages found</p>
-          <button
-            onClick={handleOpenCreateModal}
-            className="flex items-center px-4 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy/90 mx-auto"
-          >
-            <FiPlus className="w-4 h-4 mr-2" />
+          <AddButton onClick={handleOpenCreateModal} className="mx-auto">
             Create Your First Page
-          </button>
+          </AddButton>
         </div>
       )}
-
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirmDialog.isOpen}

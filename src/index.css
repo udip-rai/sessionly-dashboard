@@ -675,3 +675,11 @@ body.modal-open {
 .animate-modal-in {
   animation: modalFadeIn 0.2s ease-out;
 }
+
+/* Line clamp utilities */
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
