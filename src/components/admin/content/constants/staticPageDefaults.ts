@@ -51,8 +51,9 @@ export const DEFAULT_ABOUT_PAGE: AboutPageContent = {
           "Join the rapidly growing expert economy with 22% CAGR in on-demand talent platforms. We're positioned to transform how professionals connect and grow.",
       },
       {
-        title: "",
-        description: "",
+        title: "Proven Impact",
+        description:
+          "95% of our users report significant career progress within 3 months. Our platform is designed to deliver measurable results and long-term value.",
       },
     ],
   },
