@@ -24,7 +24,6 @@ export function TabStaticPages() {
   const {
     formData,
     setFormData,
-    originalFormData,
     setOriginalFormData,
     initializeFormData,
     loadDefaultAboutContent,
@@ -179,7 +178,6 @@ export function TabStaticPages() {
         isOpen={showCreateModal}
         editingPage={editingPage}
         formData={formData}
-        originalFormData={originalFormData}
         selectedPageType={selectedPageType}
         isCreating={isCreating}
         modalRenderKey={modalRenderKey}
@@ -187,8 +185,6 @@ export function TabStaticPages() {
         onClose={handleCloseCreateModal}
         onPageTypeChange={handlePageTypeChange}
         onFormDataChange={setFormData}
-        onSetOriginalFormData={setOriginalFormData}
-        onSetSelectedPageType={setSelectedPageType}
         onLoadDefaultAbout={loadDefaultAboutContent}
         onLoadDefaultTeam={loadDefaultTeamContent}
         onCreate={handleCreatePage}

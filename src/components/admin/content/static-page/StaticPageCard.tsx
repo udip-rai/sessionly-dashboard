@@ -9,11 +9,11 @@ interface StaticPageCardProps {
   loading?: boolean;
 }
 
-export const StaticPageCard = ({ 
-  page, 
-  onEdit, 
-  onDelete, 
-  loading = false 
+export const StaticPageCard = ({
+  page,
+  onEdit,
+  onDelete,
+  loading = false,
 }: StaticPageCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow relative">
@@ -30,12 +30,12 @@ export const StaticPageCard = ({
               : "bg-gradient-to-r from-gray-500 to-gray-600"
           }`}
           style={{
-            clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%)"
+            clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%)",
           }}
         >
-          {page.type.charAt(0).toUpperCase() + page.type.slice(1)}
+          {page.type.charAt(0).toUpperCase() + page.type.slice(1)} Page
           {/* Small triangle shadow effect */}
-          <div 
+          <div
             className={`absolute top-full left-0 w-2 h-2 ${
               page.type === "home"
                 ? "bg-green-700"
@@ -46,12 +46,12 @@ export const StaticPageCard = ({
                 : "bg-gray-700"
             }`}
             style={{
-              clipPath: "polygon(0 0, 100% 0, 0 100%)"
+              clipPath: "polygon(0 0, 100% 0, 0 100%)",
             }}
           />
         </div>
       </div>
-      
+
       <div className="p-6 pt-8">
         <div className="flex items-center justify-between">
           <div className="flex-1">

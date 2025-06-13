@@ -207,7 +207,7 @@ export interface StaticPage {
   _id: string;
   type: "home" | "about" | "team";
   title: string;
-  content: HomePageContent | AboutPageContent | TeamPageContent;
+  content: string; // Content is stored as stringified JSON in the database
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -465,9 +465,15 @@ export const adminService = {
     isPublished?: boolean;
   }): Promise<StaticPage> {
     try {
+      // Stringify the content before sending to API
+      const payload = {
+        ...pageData,
+        content: JSON.stringify(pageData.content),
+      };
+      
       const response = await BASE_API.post(
         ADMIN_APIS.CONTENT.staticPages.create,
-        pageData,
+        payload,
       );
       return response.data;
     } catch (error) {
@@ -484,9 +490,15 @@ export const adminService = {
     },
   ): Promise<StaticPage> {
     try {
+      // Stringify the content before sending to API if it exists
+      const payload = {
+        ...pageData,
+        ...(pageData.content && { content: JSON.stringify(pageData.content) }),
+      };
+      
       const response = await BASE_API.put(
         ADMIN_APIS.CONTENT.staticPages.update(pageId),
-        pageData,
+        payload,
       );
       return response.data;
     } catch (error) {

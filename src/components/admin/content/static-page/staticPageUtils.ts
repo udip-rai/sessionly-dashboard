@@ -2,13 +2,11 @@ import { StaticPage, HomePageContent, AboutPageContent, TeamPageContent } from "
 import { EMPTY_ABOUT_PAGE, EMPTY_HOME_PAGE, EMPTY_TEAM_PAGE } from "../constants/staticPageDefaults";
 
 export const normalizePageData = (page: StaticPage) => {
-  // The content field is already parsed as an object
+  // The content field comes as a stringified JSON from the API
   let parsedContent: HomePageContent | AboutPageContent | TeamPageContent;
   try {
-    // If content is a string, parse it; otherwise use it directly
-    parsedContent = typeof page.content === 'string' 
-      ? JSON.parse(page.content) 
-      : page.content;
+    // Parse the stringified content
+    parsedContent = JSON.parse(page.content);
   } catch (error) {
     console.error("Failed to parse page content:", error);
     // Fallback to empty content based on page type
