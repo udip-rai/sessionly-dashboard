@@ -25,6 +25,11 @@ export const ADMIN_APIS = {
       update: (id: string) => `team/${id}`,
       delete: (id: string) => `team/${id}`,
     },
+    featuredExperts: {
+      get: "experts/featured",
+      feature: (id: string) => `admin/staff/${id}/feature`,
+      unfeature: (id: string) => `admin/staff/${id}/unfeature`,
+    },
     faq: {
       create: "faq",
       get: "faq/published",

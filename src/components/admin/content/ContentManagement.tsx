@@ -3,14 +3,17 @@ import { TabFaq } from "./TabFaq";
 import { TabWebsiteStats } from "./TabWebsiteStats";
 import { TabStaticPages } from "./TabStaticPages";
 import { TabTeam } from "./TabTeam";
+import { TabFeaturedExperts } from "./TabFeaturedExperts";
 
 export function ContentManagement() {
   const [activeTab, setActiveTab] = useState<
-    "faq" | "stats" | "pages" | "team"
+    "faq" | "stats" | "pages" | "team" | "experts"
   >("faq");
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const handleTabChange = (newTab: "faq" | "stats" | "pages" | "team") => {
+  const handleTabChange = (
+    newTab: "faq" | "stats" | "pages" | "team" | "experts",
+  ) => {
     if (newTab === activeTab) return;
 
     setIsTransitioning(true);
@@ -69,6 +72,16 @@ export function ContentManagement() {
           >
             Team Members
           </button>
+          <button
+            onClick={() => handleTabChange("experts")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+              activeTab === "experts"
+                ? "border-navy text-navy"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Featured Experts
+          </button>
         </nav>
       </div>
 
@@ -89,8 +102,10 @@ export function ContentManagement() {
           <TabWebsiteStats />
         ) : activeTab === "pages" ? (
           <TabStaticPages />
-        ) : (
+        ) : activeTab === "team" ? (
           <TabTeam />
+        ) : (
+          <TabFeaturedExperts />
         )}
       </div>
     </div>

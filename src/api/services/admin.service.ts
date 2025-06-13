@@ -93,10 +93,43 @@ export interface Staff {
   emailVerified?: boolean;
   userType: "staff";
   advisoryTopics?: string[];
+  isFeatured?: boolean; // Featured status for experts
   createdAt?: string;
   updatedAt?: string;
   password?: string;
   __v?: number;
+}
+
+// Featured Expert interface based on actual API response structure
+export interface FeaturedExpert {
+  _id: string;
+  username: string;
+  email: string;
+  expertiseAreas: Array<{
+    category: string;
+    categoryName: string;
+    subCategory: string;
+    subCategoryName: string;
+    _id: string;
+  }>;
+  advisoryTopics: string[];
+  rate: string;
+  otherUrls: string[];
+  userType: "staff";
+  image: string;
+  googleId?: string;
+  emailVerified: boolean;
+  isApproved: boolean;
+  approvedBy: string;
+  approvedAt: string;
+  certificates: any[];
+  __v: number;
+  bio: string;
+  phone: string;
+  updatedAt: string;
+  linkedinUrl: string;
+  websiteUrl: string;
+  isFeatured: boolean;
 }
 
 // Static Pages interfaces
@@ -633,6 +666,50 @@ export const adminService = {
           },
         },
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Expert Management (Staff-based)
+  async getAllExperts(): Promise<Staff[]> {
+    try {
+      console.log("Making API call to:", ADMIN_APIS.getAllStaff);
+      const response = await BASE_API.get(ADMIN_APIS.getAllStaff);
+      console.log("All Staff API response:", response);
+
+      // Handle different response formats
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data?.staff && Array.isArray(response.data.staff)) {
+        return response.data.staff;
+      } else {
+        console.log("Unexpected response format:", response.data);
+        return [];
+      }
+    } catch (error: any) {
+      console.error("All Staff API Error:", error);
+      console.error("Request URL:", error?.config?.url);
+      console.error("Response Status:", error?.response?.status);
+      console.error("Response Data:", error?.response?.data);
+      throw error;
+    }
+  },
+
+  async updateExpertFeaturedStatus(
+    expertId: string,
+    isFeatured: boolean,
+  ): Promise<Staff> {
+    try {
+      // Use separate endpoints for feature/unfeature actions
+      const endpoint = isFeatured
+        ? ADMIN_APIS.CONTENT.featuredExperts.feature(expertId)
+        : ADMIN_APIS.CONTENT.featuredExperts.unfeature(expertId);
+
+      const response = await BASE_API.patch(endpoint);
       return response.data;
     } catch (error) {
       throw error;
