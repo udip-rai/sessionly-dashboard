@@ -143,71 +143,86 @@ export function TabTeam() {
       </div>
       {/* Team Members Grid */}
       {teamMembers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {teamMembers.map((member) => (
             <div
               key={member._id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200"
+              className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200"
             >
-              {/* Team Member Image */}
-              <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
-                {member.image ? (
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    style={{ transform: "scale(1.35)" }}
+              {" "}
+              {/* Team Member Image */}{" "}
+              <div
+                className="relative h-32 flex items-center justify-center overflow-hidden"
+                style={{
+                  backgroundImage: member.image
+                    ? `url(${member.image})`
+                    : "linear-gradient(135deg, #f3f4f6, #e5e7eb)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter: member.image ? "blur(0px)" : "none",
+                }}
+              >
+                {/* Blurred background overlay */}
+                {member.image && (
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      backgroundImage: `url(${member.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      filter: "blur(8px) brightness(0.85)",
+                      transform: "scale(1.1)", // Slightly larger to avoid blur edges
+                    }}
                   />
+                )}
+
+                {/* Semi-transparent overlay for better contrast */}
+                <div className="absolute inset-0 bg-black/20" />
+
+                {member.image ? (
+                  <div className="relative z-10 w-20 h-20 rounded-full overflow-hidden border-3 border-white shadow-lg">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                  </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-20 h-20 bg-navy/10 rounded-full flex items-center justify-center">
-                      <FiUser className="w-8 h-8 text-navy/60" />
-                    </div>
+                  <div className="relative z-10 w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-3 border-white shadow-lg">
+                    <FiUser className="w-8 h-8 text-white" />
                   </div>
                 )}
               </div>
-
-              {/* Team Member Info */}
-              <div className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              {/* Team Member Info */}{" "}
+              <div className="p-4">
+                <div className="mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
                     {member.name}
                   </h3>
-                  <p className="text-gray-600 text-sm">{member.title}</p>
+                  <p className="text-gray-600 text-xs line-clamp-1">
+                    {member.title}
+                  </p>
                   {member.description && (
-                    <p className="text-gray-500 text-xs mt-2 line-clamp-2">
+                    <p className="text-gray-500 text-xs mt-1 line-clamp-2">
                       {member.description}
                     </p>
                   )}
-                </div>
-
-                {/* Status Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      member.isPublished
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {member.isPublished ? "Published" : "Draft"}
-                  </span>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleOpenEditTeamModal(member)}
-                    className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                    className="flex-1 flex items-center justify-center px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
                   >
-                    <FiEdit3 className="w-4 h-4 mr-2" />
+                    <FiEdit3 className="w-3 h-3 mr-1" />
                     Edit
                   </button>
                   <button
                     onClick={() => handleOpenDeleteConfirm(member)}
-                    className="flex items-center justify-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                    className="flex items-center justify-center px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
                   >
-                    <FiTrash2 className="w-4 h-4" />
+                    <FiTrash2 className="w-3 h-3" />
                   </button>
                 </div>
               </div>
