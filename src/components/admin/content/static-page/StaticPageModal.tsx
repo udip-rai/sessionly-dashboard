@@ -117,7 +117,11 @@ export const StaticPageModal = ({
       key={`modal-${modalRenderKey}`}
       isOpen={isOpen}
       onClose={onClose}
-      title={editingPage ? "Edit Static Page" : "Create New Static Page"}
+      title={
+        editingPage
+          ? `Edit Static Page - ${selectedPageType.toUpperCase()}`
+          : "Create New Static Page"
+      }
       size="xl"
     >
       <div className="space-y-6">

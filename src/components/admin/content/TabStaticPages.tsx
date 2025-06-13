@@ -47,6 +47,7 @@ export function TabStaticPages() {
     pageId: string | null;
     pageTitle: string;
   }>({ isOpen: false, pageId: null, pageTitle: "" });
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Modal handlers
   const handleOpenCreateModal = () => {
@@ -149,11 +150,14 @@ export function TabStaticPages() {
   const handleConfirmDelete = async () => {
     if (!deleteConfirmDialog.pageId) return;
 
+    setIsDeleting(true);
     try {
       await deletePage(deleteConfirmDialog.pageId);
       handleCloseDeleteDialog();
     } catch (error) {
       // Error handling is done in the hook
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -231,6 +235,7 @@ export function TabStaticPages() {
         confirmText="Delete Page"
         cancelText="Cancel"
         variant="danger"
+        loading={isDeleting}
       />
     </div>
   );

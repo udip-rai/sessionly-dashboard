@@ -167,6 +167,12 @@ export interface HomePageContent {
   testimonials: {
     title: string;
     description: string;
+    items: Array<{
+      name: string;
+      role: string;
+      rating: number;
+      content: string;
+    }>;
   };
 }
 

@@ -135,12 +135,41 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     [content, onChange],
   );
   const updateTestimonials = useCallback(
-    (field: keyof HomePageContent["testimonials"], value: string) => {
+    (
+      field: keyof HomePageContent["testimonials"],
+      value:
+        | string
+        | Array<{
+            name: string;
+            role: string;
+            rating: number;
+            content: string;
+          }>,
+    ) => {
       onChange({
         ...content,
         testimonials: {
           ...content.testimonials,
           [field]: value,
+        },
+      });
+    },
+    [content, onChange],
+  );
+
+  const updateTestimonialItem = useCallback(
+    (index: number, field: string, value: string | number) => {
+      const newItems = [...(content.testimonials?.items || [])];
+      // Ensure we always have exactly 4 items
+      while (newItems.length < 4) {
+        newItems.push({ name: "", role: "", rating: 5, content: "" });
+      }
+      newItems[index] = { ...newItems[index], [field]: value };
+      onChange({
+        ...content,
+        testimonials: {
+          ...content.testimonials,
+          items: newItems,
         },
       });
     },
@@ -456,6 +485,139 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy focus:border-navy"
               placeholder="Brief introduction to testimonials"
             />
+          </div>
+
+          {/* Testimonials */}
+          <div className="space-y-4">
+            <h5 className="text-sm font-medium text-gray-700">Testimonials</h5>
+
+            {(() => {
+              // Ensure we always have exactly 4 testimonials
+              const testimonials = content.testimonials?.items || [];
+              const filledTestimonials = [...testimonials];
+              while (filledTestimonials.length < 4) {
+                filledTestimonials.push({
+                  name: "",
+                  role: "",
+                  rating: 5,
+                  content: "",
+                });
+              }
+
+              return filledTestimonials.slice(0, 4).map((item, index) => {
+                const isCEO = index === 0; // First testimonial is CEO
+                const testimonialLabels = [
+                  "CEO Testimonial",
+                  "Professional Testimonial #1",
+                  "Professional Testimonial #2",
+                  "Professional Testimonial #3",
+                ];
+
+                return (
+                  <div
+                    key={index}
+                    className={`border rounded-md p-4 space-y-3 ${
+                      isCEO ? "border-blue-200 bg-blue-50" : "border-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <h6
+                        className={`text-sm font-medium ${
+                          isCEO ? "text-blue-800" : "text-gray-600"
+                        }`}
+                      >
+                        {testimonialLabels[index]}
+                      </h6>
+                      {isCEO && (
+                        <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={item.name || ""}
+                          onChange={(e) =>
+                            updateTestimonialItem(index, "name", e.target.value)
+                          }
+                          className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-navy focus:border-navy"
+                          placeholder={isCEO ? "John Doe" : "Professional Name"}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Role *
+                        </label>
+                        <input
+                          type="text"
+                          value={item.role || ""}
+                          onChange={(e) =>
+                            updateTestimonialItem(index, "role", e.target.value)
+                          }
+                          className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-navy focus:border-navy"
+                          placeholder={
+                            isCEO
+                              ? "Chief Executive Officer, Company Inc."
+                              : "Position at Company"
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Rating *
+                        </label>
+                        <select
+                          value={item.rating || 5}
+                          onChange={(e) =>
+                            updateTestimonialItem(
+                              index,
+                              "rating",
+                              parseInt(e.target.value),
+                            )
+                          }
+                          className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-navy focus:border-navy"
+                        >
+                          <option value={5}>5 Stars</option>
+                          <option value={4}>4 Stars</option>
+                          <option value={3}>3 Stars</option>
+                          <option value={2}>2 Stars</option>
+                          <option value={1}>1 Star</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Testimonial Content *
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={item.content || ""}
+                        onChange={(e) =>
+                          updateTestimonialItem(
+                            index,
+                            "content",
+                            e.target.value,
+                          )
+                        }
+                        className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-navy focus:border-navy"
+                        placeholder={
+                          isCEO
+                            ? "Share executive perspective on business transformation..."
+                            : "Share your experience with Sessionly..."
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>

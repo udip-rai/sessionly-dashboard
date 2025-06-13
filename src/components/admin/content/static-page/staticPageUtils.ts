@@ -190,6 +190,21 @@ export const normalizePageData = (page: StaticPage) => {
         description:
           homeContent?.testimonials?.description ||
           emptyHome.testimonials.description,
+        items: (() => {
+          const testimonials =
+            homeContent?.testimonials?.items || emptyHome.testimonials.items;
+          const filledTestimonials = [...testimonials];
+          // Ensure we always have exactly 4 testimonials
+          while (filledTestimonials.length < 4) {
+            filledTestimonials.push({
+              name: "",
+              role: "",
+              rating: 5,
+              content: "",
+            });
+          }
+          return filledTestimonials.slice(0, 4);
+        })(),
       },
     };
   }

@@ -158,6 +158,36 @@ export const DEFAULT_HOME_PAGE: HomePageContent = {
     title: "What Our Users Say",
     description:
       "Real experiences from professionals who've transformed their careers with Sessionly",
+    items: [
+      {
+        name: "Mike Okehee",
+        role: "Chief Executive Officer, Tech Innovations Inc.",
+        rating: 5,
+        content:
+          "Sessionly revolutionized our talent acquisition strategy. The AI-powered matching system helped us identify and connect with exceptional candidates in record time, transforming our entire hiring process.",
+      },
+      {
+        name: "Sarah Johnson",
+        role: "Product Manager at TechCorp",
+        rating: 5,
+        content:
+          "The AI-powered matching connected me with the perfect mentor. Within 3 months, I landed my dream role as Senior Product Manager.",
+      },
+      {
+        name: "Michael Chen",
+        role: "Software Engineer at StartupXYZ",
+        rating: 5,
+        content:
+          "Sessionly's expert network is incredible. The personalized guidance helped me transition from junior to senior developer faster than I imagined.",
+      },
+      {
+        name: "Emily Rodriguez",
+        role: "Marketing Director",
+        rating: 5,
+        content:
+          "The platform's flexibility and global reach allowed me to connect with industry leaders worldwide. My career trajectory completely changed.",
+      },
+    ],
   },
 };
 
@@ -220,6 +250,12 @@ export const EMPTY_HOME_PAGE: HomePageContent = {
   testimonials: {
     title: "",
     description: "",
+    items: [
+      { name: "", role: "", rating: 5, content: "" },
+      { name: "", role: "", rating: 5, content: "" },
+      { name: "", role: "", rating: 5, content: "" },
+      { name: "", role: "", rating: 5, content: "" },
+    ],
   },
 };
 
