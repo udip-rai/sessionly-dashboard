@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { flushSync } from "react-dom";
-import { StaticPage } from "../../../api/services/admin.service";
+import {
+  StaticPage,
+  HomePageContent,
+  AboutPageContent,
+  TeamPageContent,
+} from "../../../api/services/admin.service";
 import { ConfirmModal, AddButton } from "../../ui";
 import {
   StaticPageList,
@@ -99,7 +104,7 @@ export function TabStaticPages() {
   const handleCreatePage = async (
     type: "home" | "about" | "team",
     title: string,
-    content: any,
+    content: HomePageContent | AboutPageContent | TeamPageContent,
   ) => {
     setIsCreating(true);
     try {
@@ -109,7 +114,13 @@ export function TabStaticPages() {
     }
   };
 
-  const handleUpdatePage = async (pageId: string, updates: any) => {
+  const handleUpdatePage = async (
+    pageId: string,
+    updates: {
+      title?: string;
+      content?: HomePageContent | AboutPageContent | TeamPageContent;
+    },
+  ) => {
     setIsCreating(true);
     try {
       await updatePage(pageId, updates);

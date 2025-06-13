@@ -190,9 +190,14 @@ export const useStaticPageForm = () => {
     setFormData(newFormData);
     setOriginalFormData(JSON.parse(JSON.stringify(newFormData)));
   }, []);
-
-  const getChangedFields = useCallback(() => {
-    const changes: any = {};
+  const getChangedFields = useCallback((): {
+    title?: string;
+    content?: HomePageContent | AboutPageContent | TeamPageContent;
+  } => {
+    const changes: {
+      title?: string;
+      content?: HomePageContent | AboutPageContent | TeamPageContent;
+    } = {};
 
     // Check if title changed
     if (formData.title.trim() !== originalFormData.title.trim()) {

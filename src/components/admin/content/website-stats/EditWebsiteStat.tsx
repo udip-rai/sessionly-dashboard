@@ -58,10 +58,13 @@ export const EditWebsiteStat = ({
     setIsUpdating(false);
     onClose();
   };
-
   // Helper function to detect what fields have changed
-  const getChangedFields = () => {
-    const changes: any = {};
+  const getChangedFields = (): Partial<
+    Pick<WebsiteStat, "label" | "value" | "description" | "order">
+  > => {
+    const changes: Partial<
+      Pick<WebsiteStat, "label" | "value" | "description" | "order">
+    > = {};
 
     if (statData.label.trim() !== originalData.label) {
       changes.label = statData.label.trim();

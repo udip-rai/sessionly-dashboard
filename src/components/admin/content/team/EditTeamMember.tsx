@@ -71,11 +71,21 @@ export const EditTeamMember = ({
     }
     setIsUpdating(false);
     onClose();
-  };
-
-  // Helper function to detect what fields have changed
-  const getChangedFields = () => {
-    const changes: any = {};
+  }; // Helper function to detect what fields have changed
+  const getChangedFields = (): {
+    name?: string;
+    title?: string;
+    image?: File | string;
+    imageUrl?: string;
+    removeImage?: boolean;
+  } => {
+    const changes: {
+      name?: string;
+      title?: string;
+      image?: File | string;
+      imageUrl?: string;
+      removeImage?: boolean;
+    } = {};
 
     if (teamData.name.trim() !== originalData.name) {
       changes.name = teamData.name.trim();

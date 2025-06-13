@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { adminService } from "../../../../api/services/admin.service";
+import {
+  adminService,
+  WebsiteStat,
+} from "../../../../api/services/admin.service";
 import { Modal } from "../../../ui";
 import { WebsiteStatForm } from "./WebsiteStatForm";
 import { useSimpleToast } from "../../../toast";
@@ -8,7 +11,7 @@ import { useSimpleToast } from "../../../toast";
 export interface AddWebsiteStatProps {
   isOpen: boolean;
   onClose: () => void;
-  onStatAdded: (stat: any) => void;
+  onStatAdded: (stat: WebsiteStat) => void;
 }
 
 export const AddWebsiteStat = ({

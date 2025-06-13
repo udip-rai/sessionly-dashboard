@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dialog, ConfirmDialog, useToast } from "../ui";
 
 export function ToastTestComponent() {

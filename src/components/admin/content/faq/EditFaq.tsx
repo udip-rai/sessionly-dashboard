@@ -49,10 +49,9 @@ export const EditFaq = ({
     setIsUpdating(false);
     onClose();
   };
-
   // Helper function to detect what fields have changed
-  const getChangedFields = () => {
-    const changes: any = {};
+  const getChangedFields = (): Partial<Pick<FAQ, "question" | "answer">> => {
+    const changes: Partial<Pick<FAQ, "question" | "answer">> = {};
 
     if (faqData.question.trim() !== originalData.question) {
       changes.question = faqData.question.trim();

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { adminService } from "../../../../api/services/admin.service";
+import { adminService, Team } from "../../../../api/services/admin.service";
 import { Modal } from "../../../ui";
 import { TeamForm } from "./TeamForm";
 import { useSimpleToast } from "../../../toast";
@@ -8,7 +8,7 @@ import { useSimpleToast } from "../../../toast";
 export interface AddTeamMemberProps {
   isOpen: boolean;
   onClose: () => void;
-  onTeamMemberAdded: (teamMember: any) => void;
+  onTeamMemberAdded: (teamMember: Team) => void;
 }
 
 export const AddTeamMember = ({

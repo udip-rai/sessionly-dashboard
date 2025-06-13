@@ -17,9 +17,9 @@ const transformStudentToUser = (student: Student): User => {
     status: student.isActive === false ? "blocked" : "active",
     joinedDate: student.createdAt || "",
     createdAt: student.createdAt || "",
-    timezone: student.timezone || "",
-    totalSessions: student.totalSessions || 0,
-    rating: student.rating || 0,
+    timezone: "", // Not available in Student interface
+    totalSessions: 0, // Not available in Student interface
+    rating: 0, // Not available in Student interface
     image: student.image || "",
     bio: student.bio || "",
     linkedinUrl: student.linkedinUrl || "",

@@ -2,6 +2,7 @@ import {
   AboutPageContent,
   HomePageContent,
   TeamPageContent,
+  StaticPage,
 } from "../../../../api/services/admin.service";
 import { StaticAboutPage, StaticHomePage, StaticTeamPage } from "./";
 import { StaticPageFormData } from "./useStaticPageData";
@@ -9,7 +10,7 @@ import { StaticPageFormData } from "./useStaticPageData";
 interface StaticPageFormProps {
   selectedPageType: "home" | "about" | "team";
   formData: StaticPageFormData;
-  editingPage: any;
+  editingPage: StaticPage | null;
   pageTypeExists: (type: "home" | "about" | "team") => boolean;
   onPageTypeChange: (type: "home" | "about" | "team") => void;
   onTitleChange: (title: string) => void;

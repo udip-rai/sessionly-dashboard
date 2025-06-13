@@ -21,7 +21,10 @@ export const StaticAboutPage = ({
     [],
   );
   const updateHero = useCallback(
-    (field: string, value: any) => {
+    (
+      field: keyof AboutPageContent["hero"],
+      value: string | string[] | AboutPageContent["hero"]["description"],
+    ) => {
       onChange({
         ...content,
         hero: {
@@ -71,7 +74,7 @@ export const StaticAboutPage = ({
     [content, onChange],
   );
   const updateFeaturesTitle = useCallback(
-    (field: string, value: any) => {
+    (field: keyof AboutPageContent["features"]["title"], value: string) => {
       onChange({
         ...content,
         features: {

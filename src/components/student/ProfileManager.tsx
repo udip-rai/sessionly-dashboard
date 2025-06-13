@@ -69,7 +69,6 @@ export function StudentProfileManager() {
 
   // Resume/Documents state
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeUploading, setResumeUploading] = useState(false);
 
   // Tab configuration
   const tabs = [
@@ -123,7 +122,7 @@ export function StudentProfileManager() {
           otherUrls: Array.isArray(userData.otherUrls)
             ? userData.otherUrls
             : [],
-          resume: userData.resume || null, // Added resume field
+          resume: (userData as any).resume || null, // Added resume field with type assertion
           userType: "student",
           emailVerified: userData.emailVerified || false,
         };
@@ -578,12 +577,6 @@ export function StudentProfileManager() {
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-medium text-gray-900">Resume</h4>
-                  {resumeUploading && (
-                    <div className="flex items-center text-sm text-blue-600">
-                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Uploading...
-                    </div>
-                  )}
                 </div>
 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
@@ -606,7 +599,6 @@ export function StudentProfileManager() {
                     }}
                     className="hidden"
                     id="resume-upload"
-                    disabled={resumeUploading}
                   />
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -614,8 +606,7 @@ export function StudentProfileManager() {
                       onClick={() =>
                         document.getElementById("resume-upload")?.click()
                       }
-                      disabled={resumeUploading}
-                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                     >
                       <FiUpload className="w-4 h-4 mr-2" />
                       Choose File
@@ -650,7 +641,9 @@ export function StudentProfileManager() {
                         <button
                           onClick={() => {
                             // Download resume logic would go here
-                            window.open(formData.resume, "_blank");
+                            if (formData.resume) {
+                              window.open(formData.resume, "_blank");
+                            }
                           }}
                           className="p-2 text-gray-600 hover:text-purple-600 transition-colors"
                           title="Download Resume"

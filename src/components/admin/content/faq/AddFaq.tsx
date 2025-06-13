@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { adminService } from "../../../../api/services/admin.service";
+import { adminService, FAQ } from "../../../../api/services/admin.service";
 import { Modal } from "../../../ui";
 import { FaqForm } from "./FaqForm";
 import { useSimpleToast } from "../../../toast";
@@ -8,7 +8,7 @@ import { useSimpleToast } from "../../../toast";
 export interface AddFaqProps {
   isOpen: boolean;
   onClose: () => void;
-  onFaqAdded: (faq: any) => void;
+  onFaqAdded: (faq: FAQ) => void;
 }
 
 export const AddFaq = ({ isOpen, onClose, onFaqAdded }: AddFaqProps) => {

@@ -8,14 +8,17 @@ interface StaticHomePageProps {
 
 export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
   const updateField = useCallback(
-    (field: keyof HomePageContent, value: any) => {
+    (field: keyof HomePageContent, value: string) => {
       onChange({ ...content, [field]: value });
     },
     [content, onChange],
   );
 
   const updateEverythingReason = useCallback(
-    (field: string, value: any) => {
+    (
+      field: keyof HomePageContent["everything_reasons"],
+      value: string | Array<{ title: string; description: string }>,
+    ) => {
       onChange({
         ...content,
         everything_reasons: {
@@ -41,9 +44,11 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     },
     [content, onChange],
   );
-
   const updateTransformReason = useCallback(
-    (field: string, value: any) => {
+    (
+      field: keyof HomePageContent["transform_reasons"],
+      value: string | string[],
+    ) => {
       onChange({
         ...content,
         transform_reasons: {
@@ -69,9 +74,11 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     },
     [content, onChange],
   );
-
   const updateAdvantageReason = useCallback(
-    (field: string, value: any) => {
+    (
+      field: keyof HomePageContent["advantages_reasons"],
+      value: string | Array<{ title: string; description: string }>,
+    ) => {
       onChange({
         ...content,
         advantages_reasons: {
@@ -97,9 +104,11 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     },
     [content, onChange],
   );
-
   const updateAIReason = useCallback(
-    (field: string, value: any) => {
+    (
+      field: keyof HomePageContent["powered_by_ai_reasons"],
+      value: string | Array<{ title: string; description: string }>,
+    ) => {
       onChange({
         ...content,
         powered_by_ai_reasons: {
@@ -125,9 +134,8 @@ export const StaticHomePage = ({ content, onChange }: StaticHomePageProps) => {
     },
     [content, onChange],
   );
-
   const updateTestimonials = useCallback(
-    (field: string, value: string) => {
+    (field: keyof HomePageContent["testimonials"], value: string) => {
       onChange({
         ...content,
         testimonials: {

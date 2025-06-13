@@ -27,10 +27,19 @@ interface StaticPageModalProps {
   onCreate: (
     type: "home" | "about" | "team",
     title: string,
-    content: any,
+    content: HomePageContent | AboutPageContent | TeamPageContent,
   ) => Promise<void>;
-  onUpdate: (pageId: string, updates: any) => Promise<void>;
-  getChangedFields: () => any;
+  onUpdate: (
+    pageId: string,
+    updates: {
+      title?: string;
+      content?: HomePageContent | AboutPageContent | TeamPageContent;
+    },
+  ) => Promise<void>;
+  getChangedFields: () => {
+    title?: string;
+    content?: HomePageContent | AboutPageContent | TeamPageContent;
+  };
 }
 
 export const StaticPageModal = ({
