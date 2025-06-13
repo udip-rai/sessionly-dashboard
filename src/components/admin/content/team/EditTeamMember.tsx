@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiSave } from "react-icons/fi";
 import { adminService, Team } from "../../../../api/services/admin.service";
 import { Modal } from "../../../ui";
-import { TeamForm } from "./TeamForm";
+import { TeamForm, SocialLink } from "./TeamForm";
 import { useSimpleToast } from "../../../toast";
 
 export interface EditTeamMemberProps {
@@ -23,49 +23,172 @@ export const EditTeamMember = ({
   const [teamData, setTeamData] = useState({
     name: "",
     title: "",
+    description: "",
     image: null as string | File | null,
+    socialLinks: [] as SocialLink[],
   });
 
   // Track original values to detect changes
   const [originalData, setOriginalData] = useState({
     name: "",
     title: "",
+    description: "",
     image: null as string | null,
+    socialLinks: [] as SocialLink[],
   });
 
   // Initialize form data when team member changes
   useEffect(() => {
     if (teamMember) {
+      // Safely parse social links with error handling
+      let parsedSocialLinks: SocialLink[] = [{ platform: "LinkedIn", url: "" }];
+
+      try {
+        if (teamMember.socialLinks) {
+          console.log("Raw socialLinks from API:", teamMember.socialLinks);
+          console.log("Type of socialLinks:", typeof teamMember.socialLinks);
+
+          if (typeof teamMember.socialLinks === "string") {
+            // Parse JSON string
+            const parsed = JSON.parse(teamMember.socialLinks);
+            parsedSocialLinks = Array.isArray(parsed)
+              ? parsed
+              : [{ platform: "LinkedIn", url: "" }];
+          } else if (Array.isArray(teamMember.socialLinks)) {
+            // Array format - check if it contains JSON strings or objects
+            if (
+              teamMember.socialLinks.length > 0 &&
+              typeof teamMember.socialLinks[0] === "string" &&
+              teamMember.socialLinks[0].startsWith("[")
+            ) {
+              // Array contains JSON string(s) - parse the first one
+              try {
+                console.log(
+                  "Parsing JSON string from array:",
+                  teamMember.socialLinks[0],
+                );
+                const parsed = JSON.parse(teamMember.socialLinks[0]);
+                console.log("Parsed result:", parsed);
+                parsedSocialLinks = Array.isArray(parsed)
+                  ? parsed
+                  : [{ platform: "LinkedIn", url: "" }];
+              } catch (parseError) {
+                console.error(
+                  "Error parsing JSON string from array:",
+                  parseError,
+                );
+                // Fallback to default
+                parsedSocialLinks = [{ platform: "LinkedIn", url: "" }];
+              }
+            } else if (
+              teamMember.socialLinks.length > 0 &&
+              typeof teamMember.socialLinks[0] === "object"
+            ) {
+              parsedSocialLinks = teamMember.socialLinks as SocialLink[];
+            } else {
+              // Convert old format string array to new format
+              parsedSocialLinks = teamMember.socialLinks.map((link: any) => ({
+                platform: "LinkedIn",
+                url: typeof link === "string" ? link : "",
+              }));
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing social links:", error);
+        parsedSocialLinks = [{ platform: "LinkedIn", url: "" }];
+      }
+
+      console.log("Final parsed social links:", parsedSocialLinks);
+
       const initialData = {
         name: teamMember.name || "",
         title: teamMember.title || "",
+        description: teamMember.description || "",
         image: teamMember.image || null,
+        socialLinks: parsedSocialLinks,
       };
       setTeamData(initialData);
       setOriginalData({
         name: teamMember.name || "",
         title: teamMember.title || "",
+        description: teamMember.description || "",
         image: teamMember.image || null,
+        socialLinks: parsedSocialLinks,
       });
     } else {
       setTeamData({
         name: "",
         title: "",
+        description: "",
         image: null,
+        socialLinks: [{ platform: "LinkedIn", url: "" }],
       });
       setOriginalData({
         name: "",
         title: "",
+        description: "",
         image: null,
+        socialLinks: [],
       });
     }
   }, [teamMember]);
   const handleClose = () => {
     if (teamMember) {
+      // Safely parse social links with error handling
+      let parsedSocialLinks: SocialLink[] = [{ platform: "LinkedIn", url: "" }];
+
+      try {
+        if (teamMember.socialLinks) {
+          if (typeof teamMember.socialLinks === "string") {
+            const parsed = JSON.parse(teamMember.socialLinks);
+            parsedSocialLinks = Array.isArray(parsed)
+              ? parsed
+              : [{ platform: "LinkedIn", url: "" }];
+          } else if (Array.isArray(teamMember.socialLinks)) {
+            // Array format - check if it contains JSON strings or objects
+            if (
+              teamMember.socialLinks.length > 0 &&
+              typeof teamMember.socialLinks[0] === "string" &&
+              teamMember.socialLinks[0].startsWith("[")
+            ) {
+              // Array contains JSON string(s) - parse the first one
+              try {
+                const parsed = JSON.parse(teamMember.socialLinks[0]);
+                parsedSocialLinks = Array.isArray(parsed)
+                  ? parsed
+                  : [{ platform: "LinkedIn", url: "" }];
+              } catch (parseError) {
+                console.error(
+                  "Error parsing JSON string from array on close:",
+                  parseError,
+                );
+                parsedSocialLinks = [{ platform: "LinkedIn", url: "" }];
+              }
+            } else if (
+              teamMember.socialLinks.length > 0 &&
+              typeof teamMember.socialLinks[0] === "object"
+            ) {
+              parsedSocialLinks = teamMember.socialLinks as SocialLink[];
+            } else {
+              parsedSocialLinks = teamMember.socialLinks.map((link: any) => ({
+                platform: "LinkedIn",
+                url: typeof link === "string" ? link : "",
+              }));
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing social links on close:", error);
+        parsedSocialLinks = [{ platform: "LinkedIn", url: "" }];
+      }
+
       const initialData = {
         name: teamMember.name || "",
         title: teamMember.title || "",
+        description: teamMember.description || "",
         image: teamMember.image || null,
+        socialLinks: parsedSocialLinks,
       };
       setTeamData(initialData);
     }
@@ -75,6 +198,8 @@ export const EditTeamMember = ({
   const getChangedFields = (): {
     name?: string;
     title?: string;
+    description?: string;
+    socialLinks?: SocialLink[];
     image?: File | string;
     imageUrl?: string;
     removeImage?: boolean;
@@ -82,6 +207,8 @@ export const EditTeamMember = ({
     const changes: {
       name?: string;
       title?: string;
+      description?: string;
+      socialLinks?: SocialLink[];
       image?: File | string;
       imageUrl?: string;
       removeImage?: boolean;
@@ -93,6 +220,18 @@ export const EditTeamMember = ({
 
     if (teamData.title.trim() !== originalData.title) {
       changes.title = teamData.title.trim();
+    }
+
+    if (teamData.description.trim() !== originalData.description) {
+      changes.description = teamData.description.trim();
+    }
+
+    // Check if social links have changed
+    if (
+      JSON.stringify(teamData.socialLinks) !==
+      JSON.stringify(originalData.socialLinks)
+    ) {
+      changes.socialLinks = teamData.socialLinks;
     }
 
     // Check if image has changed
@@ -144,6 +283,17 @@ export const EditTeamMember = ({
         formData.append("title", changedFields.title);
       }
 
+      if (changedFields.description) {
+        formData.append("description", changedFields.description);
+      }
+
+      if (changedFields.socialLinks) {
+        formData.append(
+          "socialLinks",
+          JSON.stringify(changedFields.socialLinks),
+        );
+      }
+
       // Handle image changes
       if (changedFields.image) {
         formData.append("image", changedFields.image);
@@ -154,12 +304,16 @@ export const EditTeamMember = ({
       }
 
       // Always preserve existing fields that weren't changed
-      formData.append("description", teamMember.description || "");
+      if (!changedFields.description) {
+        formData.append("description", teamMember.description || "");
+      }
       formData.append("isPublished", teamMember.isPublished ? "true" : "false");
-      formData.append(
-        "socialLinks",
-        JSON.stringify(teamMember.socialLinks || []),
-      );
+      if (!changedFields.socialLinks) {
+        formData.append(
+          "socialLinks",
+          JSON.stringify(teamMember.socialLinks || []),
+        );
+      }
 
       const updatedTeamMember = await adminService.updateTeamMemberWithFormData(
         teamMember._id,

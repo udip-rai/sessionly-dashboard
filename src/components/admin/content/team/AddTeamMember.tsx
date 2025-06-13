@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { adminService, Team } from "../../../../api/services/admin.service";
 import { Modal } from "../../../ui";
-import { TeamForm } from "./TeamForm";
+import { TeamForm, SocialLink } from "./TeamForm";
 import { useSimpleToast } from "../../../toast";
 
 export interface AddTeamMemberProps {
@@ -21,10 +21,18 @@ export const AddTeamMember = ({
   const [teamData, setTeamData] = useState({
     name: "",
     title: "",
+    description: "",
     image: null as string | File | null,
+    socialLinks: [{ platform: "LinkedIn", url: "" }] as SocialLink[],
   });
   const handleClose = () => {
-    setTeamData({ name: "", title: "", image: null });
+    setTeamData({
+      name: "",
+      title: "",
+      description: "",
+      image: null,
+      socialLinks: [{ platform: "LinkedIn", url: "" }],
+    });
     setIsAdding(false);
     onClose();
   };
@@ -42,7 +50,7 @@ export const AddTeamMember = ({
       const formData = new FormData();
       formData.append("name", teamData.name.trim());
       formData.append("title", teamData.title.trim());
-      formData.append("description", "");
+      formData.append("description", teamData.description.trim());
       formData.append("isPublished", "true");
 
       // Handle image - only append if it's a File object
@@ -50,8 +58,8 @@ export const AddTeamMember = ({
         formData.append("image", teamData.image);
       }
 
-      // Add empty social links array
-      formData.append("socialLinks", JSON.stringify([]));
+      // Add social links as JSON string
+      formData.append("socialLinks", JSON.stringify(teamData.socialLinks));
 
       const newTeamMember = await adminService.createTeamMemberWithFormData(
         formData,

@@ -33,7 +33,7 @@ export interface Team {
   title: string;
   description: string;
   image: string;
-  socialLinks: string[];
+  socialLinks: string[] | string | { platform: string; url: string }[]; // Flexible format to handle API variations
   version: number;
   isPublished: boolean;
   createdAt: string;

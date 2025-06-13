@@ -202,11 +202,6 @@ export function TabTeam() {
                   <p className="text-gray-600 text-xs line-clamp-1">
                     {member.title}
                   </p>
-                  {member.description && (
-                    <p className="text-gray-500 text-xs mt-1 line-clamp-2">
-                      {member.description}
-                    </p>
-                  )}
                 </div>
 
                 {/* Action Buttons */}
