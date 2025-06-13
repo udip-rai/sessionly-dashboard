@@ -101,39 +101,78 @@ export interface Staff {
 
 // Static Pages interfaces
 export interface HomePageContent {
-  hero: {
+  title: string;
+  description: string;
+  everything_reasons: {
     title: string;
-    subtitle: string;
-    ctaText: string;
+    description: string;
+    children: Array<{
+      title: string;
+      description: string;
+    }>;
   };
-  stats: Array<{
-    label: string;
-    value: string;
-    description: string;
-  }>;
-  features: Array<{
+  transform_reasons: {
+    title: string;
+    children: string[];
+  };
+  advantages_reasons: {
     title: string;
     description: string;
-    icon: string;
-  }>;
+    children: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  powered_by_ai_reasons: {
+    title: string;
+    description: string;
+    children: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  testimonials: {
+    title: string;
+    description: string;
+  };
 }
 
 export interface AboutPageContent {
-  mission: string;
-  vision: string;
-  team: Array<{
-    name: string;
-    role: string;
-    bio: string;
-    image: string;
-  }>;
+  hero: {
+    title: string;
+    descriptors: string[];
+    description: {
+      intro: string;
+      stats: string;
+      aiMatch: string;
+    };
+  };
+  mission: {
+    title: string;
+    description: string;
+  };
+  features: {
+    title: {
+      why: string;
+      choose: string;
+    };
+    cards: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  cta: {
+    title: string;
+    description: string;
+    disclaimer: string;
+  };
 }
 
 export interface StaticPage {
   _id: string;
   type: "home" | "about";
   title: string;
-  content: HomePageContent | AboutPageContent;
+  content: string; // JSON string representation of HomePageContent | AboutPageContent
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;

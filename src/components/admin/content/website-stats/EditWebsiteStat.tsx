@@ -30,22 +30,56 @@ export const EditWebsiteStat = ({
     order: 1,
   });
 
+  // Track original values to detect changes
+  const [originalData, setOriginalData] = useState({
+    label: "",
+    value: "",
+    description: "",
+    order: 1,
+  });
+
   // Update form data when stat changes
   useEffect(() => {
     if (stat) {
-      setStatData({
-        label: stat.label,
-        value: stat.value,
-        description: stat.description,
-        order: stat.order,
-      });
+      const initialData = {
+        label: stat.label || "",
+        value: stat.value || "",
+        description: stat.description || "",
+        order: stat.order || 1,
+      };
+      setStatData(initialData);
+      setOriginalData(initialData);
     }
   }, [stat]);
 
   const handleClose = () => {
     setStatData({ label: "", value: "", description: "", order: 1 });
+    setOriginalData({ label: "", value: "", description: "", order: 1 });
     setIsUpdating(false);
     onClose();
+  };
+
+  // Helper function to detect what fields have changed
+  const getChangedFields = () => {
+    const changes: any = {};
+    
+    if (statData.label.trim() !== originalData.label) {
+      changes.label = statData.label.trim();
+    }
+    
+    if (statData.value.trim() !== originalData.value) {
+      changes.value = statData.value.trim();
+    }
+    
+    if (statData.description.trim() !== originalData.description) {
+      changes.description = statData.description.trim();
+    }
+    
+    if (statData.order !== originalData.order) {
+      changes.order = statData.order;
+    }
+    
+    return changes;
   };
 
   const handleUpdate = async () => {
@@ -59,18 +93,24 @@ export const EditWebsiteStat = ({
       return;
     }
 
+    const changedFields = getChangedFields();
+    
+    // Check if anything actually changed
+    if (Object.keys(changedFields).length === 0) {
+      toast.warning("No Changes", "No changes detected to save");
+      return;
+    }
+
     try {
       setIsUpdating(true);
-      const updatedStat = await adminService.updateWebsiteStat(stat._id, {
-        label: statData.label,
-        value: statData.value,
-        description: statData.description,
-        order: statData.order,
-      });
+      const updatedStat = await adminService.updateWebsiteStat(stat._id, changedFields);
 
       onStatUpdated(updatedStat);
       handleClose();
-      toast.success("Website Stat Updated", "Stat updated successfully");
+      
+      // Show specific success message about what was changed
+      const changesList = Object.keys(changedFields).join(', ');
+      toast.success("Website Stat Updated", `Successfully updated: ${changesList}`);
     } catch (error) {
       console.error("Failed to update website stat:", error);
       toast.error("Failed to update website stat", "Please try again");
@@ -78,6 +118,11 @@ export const EditWebsiteStat = ({
       setIsUpdating(false);
     }
   };
+  if (!stat) return null;
+
+  // Check if there are any changes
+  const changedFields = getChangedFields();
+  const hasChanges = Object.keys(changedFields).length > 0;
 
   return (
     <Modal
@@ -108,14 +153,12 @@ export const EditWebsiteStat = ({
                 Edit Website Stat Guidelines
               </h3>
               <div className="mt-2 text-sm text-blue-700">
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Update labels to be clear and memorable</li>
-                  <li>Keep values concise and impressive</li>
-                  <li>Write descriptions that build trust and credibility</li>
-                  <li>
-                    Adjust order to control display sequence on the website
-                  </li>
-                </ul>
+                <p>Update the website stat content below. Only changed fields will be saved.</p>
+                {hasChanges && (
+                  <p className="mt-1 text-xs text-green-600 font-medium">
+                    • {Object.keys(changedFields).length} field(s) modified
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -139,23 +182,29 @@ export const EditWebsiteStat = ({
           </button>
           <button
             onClick={handleUpdate}
-            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
+              hasChanges 
+                ? 'text-white bg-blue-600 hover:bg-blue-700' 
+                : 'text-gray-500 bg-gray-200 cursor-not-allowed'
+            }`}
             disabled={
               isUpdating ||
               !statData.label.trim() ||
               !statData.value.trim() ||
-              !statData.description.trim()
+              !statData.description.trim() ||
+              !hasChanges
             }
+            title={!hasChanges ? "No changes to save" : "Save changes"}
           >
             {isUpdating ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Updating Stat...
+                Updating...
               </>
             ) : (
               <>
                 <FiEdit3 className="w-4 h-4 mr-2" />
-                Update Stat
+                {hasChanges ? `Save Changes (${Object.keys(changedFields).length})` : 'No Changes'}
               </>
             )}
           </button>
