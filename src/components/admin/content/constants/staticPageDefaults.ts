@@ -223,14 +223,11 @@ export const DEFAULT_TEAM_PAGE: TeamPageContent = {
       title: "Our",
       highlighted: "Values",
       subtitle: "The principles that guide everything we do",
-    },
-    join: {
+    },    join: {
       title: "Join Our",
       highlighted: "Journey",
       description:
         "We're always looking for talented individuals who are passionate about revolutionizing online learning and mentorship.",
-      buttonText: "View Open Positions",
-      buttonLink: "/careers",
     },
   },
 };
@@ -264,13 +261,10 @@ export const EMPTY_TEAM_PAGE: TeamPageContent = {
       title: "",
       highlighted: "",
       subtitle: "",
-    },
-    join: {
+    },    join: {
       title: "",
       highlighted: "",
       description: "",
-      buttonText: "",
-      buttonLink: "",
     },
   },
 };

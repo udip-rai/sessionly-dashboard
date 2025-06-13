@@ -199,8 +199,6 @@ export interface TeamPageContent {
       title: string;
       highlighted: string;
       description: string;
-      buttonText: string;
-      buttonLink: string;
     };
   };
 }
