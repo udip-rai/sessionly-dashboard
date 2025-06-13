@@ -11,6 +11,7 @@ const baseToastOptions = {
     maxWidth: "400px",
     border: "1px solid rgba(0, 0, 0, 0.05)",
     animation: "toast-slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+    zIndex: 999999,
   },
   duration: 4000,
   position: "top-right",

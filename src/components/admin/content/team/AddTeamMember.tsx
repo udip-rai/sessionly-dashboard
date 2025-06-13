@@ -21,11 +21,10 @@ export const AddTeamMember = ({
   const [teamData, setTeamData] = useState({
     name: "",
     title: "",
-    image: "",
+    image: null as string | File | null,
   });
-
   const handleClose = () => {
-    setTeamData({ name: "", title: "", image: "" });
+    setTeamData({ name: "", title: "", image: null });
     setIsAdding(false);
     onClose();
   };
@@ -38,14 +37,25 @@ export const AddTeamMember = ({
 
     try {
       setIsAdding(true);
-      const newTeamMember = await adminService.createTeamMember({
-        name: teamData.name.trim(),
-        title: teamData.title.trim(),
-        description: "",
-        image: teamData.image.trim(),
-        socialLinks: [],
-        isPublished: true,
-      });
+
+      // Create FormData for the request
+      const formData = new FormData();
+      formData.append("name", teamData.name.trim());
+      formData.append("title", teamData.title.trim());
+      formData.append("description", "");
+      formData.append("isPublished", "true");
+
+      // Handle image - only append if it's a File object
+      if (teamData.image instanceof File) {
+        formData.append("image", teamData.image);
+      }
+
+      // Add empty social links array
+      formData.append("socialLinks", JSON.stringify([]));
+
+      const newTeamMember = await adminService.createTeamMemberWithFormData(
+        formData,
+      );
 
       onTeamMemberAdded(newTeamMember);
       handleClose();

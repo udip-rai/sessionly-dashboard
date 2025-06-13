@@ -7,7 +7,7 @@ import {
   AboutPageContent,
   HomePageContent,
 } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal, AddButton } from "../../ui";
+import { Modal, ConfirmModal, AddButton, TimestampBadges } from "../../ui";
 import { StaticAboutPage, StaticHomePage } from "./static-page";
 import { toast } from "../../toast";
 import {
@@ -19,7 +19,7 @@ import {
 export function TabStaticPages() {
   // Static Pages state
   const [pages, setPages] = useState<StaticPage[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [editingPage, setEditingPage] = useState<StaticPage | null>(null);
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
@@ -551,30 +551,10 @@ export function TabStaticPages() {
               <div className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          page.type === "home"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-purple-100 text-purple-800"
-                        }`}
-                      >
-                        {(page.type || "—").toUpperCase()} PAGE
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Created{" "}
-                        {page.createdAt
-                          ? new Date(page.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              },
-                            )
-                          : "—"}
-                      </span>
-                    </div>
+                    <TimestampBadges
+                      createdAt={page.createdAt}
+                      updatedAt={page.updatedAt}
+                    />
                     <h3 className="text-lg font-medium text-gray-900">
                       {page.title || "—"}
                     </h3>

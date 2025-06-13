@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
 import { FiTrash2, FiEdit3 } from "react-icons/fi";
 import { adminService, FAQ } from "../../../api/services/admin.service";
-import { Modal, ConfirmModal, AddButton } from "../../ui";
+import { Modal, ConfirmModal, AddButton, TimestampBadges } from "../../ui";
 import { useSimpleToast } from "../../toast";
 import { FaqForm } from "./faq";
 
 export function TabFaq() {
-  const toast = useSimpleToast();
-  // FAQ-related state
+  const toast = useSimpleToast(); // FAQ-related state
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [editedFaq, setEditedFaq] = useState<{
     question: string;
     answer: string;
   }>({ question: "", answer: "" });
   const [isAddingFaq, setIsAddingFaq] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Modal states
   const [showAddFaqModal, setShowAddFaqModal] = useState<boolean>(false);
@@ -159,20 +158,92 @@ export function TabFaq() {
   useEffect(() => {
     loadFAQs();
   }, []);
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-medium text-gray-900">FAQ Management</h2>
-          <p className="text-sm text-gray-500">
-            Manage frequently asked questions
-          </p>
-        </div>{" "}
-        <AddButton onClick={handleOpenAddFaqModal} disabled={loading}>
-          Add FAQ
-        </AddButton>
-      </div>{" "}
+      {/* Show loading state for everything, or show all content */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-navy"></div>
+          <p className="mt-2 text-gray-500">Loading FAQs...</p>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">
+                FAQ Management
+              </h2>
+              <p className="text-sm text-gray-500">
+                Manage frequently asked questions
+              </p>
+            </div>
+            <AddButton onClick={handleOpenAddFaqModal}>Add FAQ</AddButton>
+          </div>
+
+          {/* FAQ List */}
+          {faqs.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 mb-4">No FAQs found</p>
+              <AddButton onClick={handleOpenAddFaqModal} className="mx-auto">
+                Add Your First FAQ
+              </AddButton>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {faqs.map((faq) => (
+                <div
+                  key={faq._id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                >
+                  <div className="p-6">
+                    {" "}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        {/* Enhanced timestamp styling */}
+                        <TimestampBadges
+                          createdAt={faq.createdAt}
+                          updatedAt={faq.updatedAt}
+                          variant="green"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEditFaqModal(faq)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          title="Edit FAQ"
+                        >
+                          <FiEdit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleOpenDeleteDialog(faq._id, faq.question)
+                          }
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          title="Delete FAQ"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {faq.question || "—"}
+                        </h3>
+                      </div>
+                      <div>
+                        <p className="text-gray-700 leading-relaxed">
+                          {faq.answer || "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
       {/* Add FAQ Modal */}
       <Modal
         isOpen={showAddFaqModal}
@@ -303,9 +374,7 @@ export function TabFaq() {
               </div>
             </div>
           </div>
-
           <FaqForm faq={editedFaq} onChange={setEditedFaq} isEditing={true} />
-
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <button
@@ -336,141 +405,9 @@ export function TabFaq() {
                 </>
               )}
             </button>
-          </div>
+          </div>{" "}
         </div>
       </Modal>
-      {/* Loading indicator */}
-      {loading && (
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-navy"></div>
-          <p className="mt-2 text-gray-500">Loading FAQs...</p>
-        </div>
-      )}{" "}
-      {/* FAQ List */}{" "}
-      {!loading && faqs.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No FAQs found</p>
-          <AddButton onClick={handleOpenAddFaqModal} className="mx-auto">
-            Add Your First FAQ
-          </AddButton>
-        </div>
-      )}{" "}
-      {!loading && faqs.length > 0 && (
-        <div className="space-y-4">
-          {faqs.map((faq) => (
-            <div
-              key={faq._id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    {/* Enhanced timestamp styling */}
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full">
-                        <svg
-                          className="w-3.5 h-3.5 text-green-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-xs font-medium text-green-700">
-                          Created:{" "}
-                          {new Date(faq.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-
-                      {faq.updatedAt !== faq.createdAt && (
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full">
-                          <svg
-                            className="w-3.5 h-3.5 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                          </svg>
-                          <span className="text-xs font-medium text-blue-700">
-                            Updated:{" "}
-                            {new Date(faq.updatedAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleOpenEditFaqModal(faq)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                      disabled={loading}
-                      title="Edit FAQ"
-                    >
-                      <FiEdit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleOpenDeleteDialog(faq._id, faq.question)
-                      }
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      disabled={loading}
-                      title="Delete FAQ"
-                    >
-                      <FiTrash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      {faq.question || "—"}
-                    </h3>
-                  </div>
-                  <div>
-                    <p className="text-gray-700 leading-relaxed">
-                      {faq.answer || "—"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}{" "}
-      {!loading && faqs.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No FAQs found</p>
-          <AddButton onClick={handleOpenAddFaqModal} className="mx-auto">
-            Add Your First FAQ
-          </AddButton>
-        </div>
-      )}{" "}
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirmDialog.isOpen}

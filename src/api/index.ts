@@ -37,7 +37,7 @@ export const ADMIN_APIS = {
       update: (id: string) => `stat/${id}`,
       delete: (id: string) => `stat/${id}`,
     },
-    STATIC_PAGES: {
+    staticPages: {
       create: "static-page",
       get: "static-page/published",
       update: (id: string) => `static-page/${id}`,

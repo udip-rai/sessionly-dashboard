@@ -51,17 +51,12 @@ export interface Student {
   linkedinUrl?: string;
   websiteUrl?: string;
   otherUrls?: string[];
-  image?: string; // API uses 'image' field
-  timezone?: string;
-  isActive?: boolean; // May not be in API response, handled in transformation
-  emailVerified?: boolean;
-  userType: "student";
-  advisoryTopics?: string[];
+  image?: string;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  totalSessions?: number;
-  rating?: number;
-  password?: string;
+  emailVerified?: boolean;
+  userType: "student";
   __v?: number;
 }
 
@@ -104,119 +99,72 @@ export interface Staff {
   __v?: number;
 }
 
-// Updated interfaces based on actual API response structure
-export interface StudentsResponse {
-  message: string;
-  success: boolean;
-  data: Student[];
+// Static Pages interfaces
+export interface HomePageContent {
+  hero: {
+    title: string;
+    subtitle: string;
+    ctaText: string;
+  };
+  stats: Array<{
+    label: string;
+    value: string;
+    description: string;
+  }>;
+  features: Array<{
+    title: string;
+    description: string;
+    icon: string;
+  }>;
 }
 
-export interface StaffResponse {
-  message: string;
-  success: boolean;
-  data: Staff[];
+export interface AboutPageContent {
+  mission: string;
+  vision: string;
+  team: Array<{
+    name: string;
+    role: string;
+    bio: string;
+    image: string;
+  }>;
 }
 
-// Static Page interfaces
-export interface StaticPageBase {
+export interface StaticPage {
   _id: string;
   type: "home" | "about";
   title: string;
-  content: string; // Stringified JSON content (HomePageContent | AboutPageContent)
-  version: number;
+  content: HomePageContent | AboutPageContent;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
-export interface AboutPageContent {
-  hero: {
-    title: string;
-    descriptors: string[];
-    description: {
-      intro: string;
-      stats: string;
-      aiMatch: string;
-    };
-  };
-  mission: {
-    title: string;
-    description: string;
-  };
-  features: {
-    title: {
-      why: string;
-      choose: string;
-    };
-    cards: Array<{
-      title: string;
-      description: string;
-    }>;
-  };
-  cta: {
-    title: string;
-    description: string;
-    disclaimer: string;
-  };
+// Response interfaces
+export interface StudentsResponse {
+  data: Student[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
-export interface HomePageContent {
-  title: string;
-  description: string;
-  everything_reasons: {
-    title: string;
-    description: string;
-    children: Array<{
-      title: string;
-      description: string;
-    }>;
-  };
-  transform_reasons: {
-    title: string;
-    children: string[]; // 4 titles as strings
-  };
-  advantages_reasons: {
-    title: string;
-    description: string;
-    children: Array<{
-      title: string;
-      description: string;
-    }>;
-  };
-  powered_by_ai_reasons: {
-    title: string;
-    description: string;
-    children: Array<{
-      title: string;
-      description: string;
-    }>;
-  };
-  testimonials: {
-    title: string;
-    description: string;
-  };
+export interface StaffResponse {
+  data: Staff[];
+  total: number;
+  page: number;
+  limit: number;
 }
-
-export interface AboutPage extends StaticPageBase {
-  type: "about";
-}
-
-export interface HomePage extends StaticPageBase {
-  type: "home";
-}
-
-export type StaticPage = AboutPage | HomePage;
 
 export const adminService = {
+  // User Management
   async getAllStudents(
     page: number = 1,
-    limit: number = 50,
+    limit: number = 10,
   ): Promise<StudentsResponse> {
     try {
-      const response = await BASE_API.get(ADMIN_APIS.getAllStudents, {
-        params: { page, limit },
-      });
+      const response = await BASE_API.get(
+        `${ADMIN_APIS.getAllStudents}?page=${page}&limit=${limit}`,
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -225,12 +173,12 @@ export const adminService = {
 
   async getAllStaff(
     page: number = 1,
-    limit: number = 50,
+    limit: number = 10,
   ): Promise<StaffResponse> {
     try {
-      const response = await BASE_API.get(ADMIN_APIS.getAllStaff, {
-        params: { page, limit },
-      });
+      const response = await BASE_API.get(
+        `${ADMIN_APIS.getAllStaff}?page=${page}&limit=${limit}`,
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -256,6 +204,7 @@ export const adminService = {
       throw error;
     }
   },
+
   async approveStaff(
     staffId: string,
   ): Promise<{ success: boolean; message: string }> {
@@ -266,13 +215,14 @@ export const adminService = {
       throw error;
     }
   },
+
   async rejectStaff(
     staffId: string,
     reason?: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await BASE_API.post(`admin/staff/reject/${staffId}`, {
-        reason: reason || "",
+        reason,
       });
       return response.data;
     } catch (error) {
@@ -283,11 +233,7 @@ export const adminService = {
   // FAQ Management
   async getAllFAQs(): Promise<FAQ[]> {
     try {
-      console.log("Making API call to:", ADMIN_APIS.CONTENT.faq.get);
       const response = await BASE_API.get(ADMIN_APIS.CONTENT.faq.get);
-      console.log("API response:", response);
-
-      // Handle different response formats
       if (Array.isArray(response.data)) {
         return response.data;
       } else if (response.data?.data && Array.isArray(response.data.data)) {
@@ -295,15 +241,9 @@ export const adminService = {
       } else if (response.data?.faqs && Array.isArray(response.data.faqs)) {
         return response.data.faqs;
       } else {
-        console.log("Unexpected response format:", response.data);
         return [];
       }
-    } catch (error: any) {
-      console.error("FAQ API Error:", error);
-      console.error("Request URL:", error?.config?.url);
-      console.error("Request Method:", error?.config?.method);
-      console.error("Response Status:", error?.response?.status);
-      console.error("Response Data:", error?.response?.data);
+    } catch (error) {
       throw error;
     }
   },
@@ -359,11 +299,7 @@ export const adminService = {
   // Website Stats Management
   async getAllWebsiteStats(): Promise<WebsiteStat[]> {
     try {
-      console.log("Making API call to:", ADMIN_APIS.CONTENT.websiteStats.get);
       const response = await BASE_API.get(ADMIN_APIS.CONTENT.websiteStats.get);
-      console.log("Website Stats API response:", response);
-
-      // Handle different response formats
       if (Array.isArray(response.data)) {
         return response.data;
       } else if (response.data?.data && Array.isArray(response.data.data)) {
@@ -371,15 +307,9 @@ export const adminService = {
       } else if (response.data?.stats && Array.isArray(response.data.stats)) {
         return response.data.stats;
       } else {
-        console.log("Unexpected response format:", response.data);
         return [];
       }
-    } catch (error: any) {
-      console.error("Website Stats API Error:", error);
-      console.error("Request URL:", error?.config?.url);
-      console.error("Request Method:", error?.config?.method);
-      console.error("Response Status:", error?.response?.status);
-      console.error("Response Data:", error?.response?.data);
+    } catch (error) {
       throw error;
     }
   },
@@ -388,7 +318,7 @@ export const adminService = {
     label: string;
     value: string;
     description: string;
-    order?: number;
+    order: number;
     isPublished?: boolean;
   }): Promise<WebsiteStat> {
     try {
@@ -439,32 +369,17 @@ export const adminService = {
   // Static Pages Management
   async getAllStaticPages(): Promise<StaticPage[]> {
     try {
-      console.log("Making API call to:", ADMIN_APIS.CONTENT.STATIC_PAGES.get);
-      const response = await BASE_API.get(ADMIN_APIS.CONTENT.STATIC_PAGES.get);
-      console.log("Static Pages API response:", response);
-
-      let rawPages: any[] = [];
-
-      // Handle different response formats
+      const response = await BASE_API.get(ADMIN_APIS.CONTENT.staticPages.get);
       if (Array.isArray(response.data)) {
-        rawPages = response.data;
+        return response.data;
       } else if (response.data?.data && Array.isArray(response.data.data)) {
-        rawPages = response.data.data;
+        return response.data.data;
       } else if (response.data?.pages && Array.isArray(response.data.pages)) {
-        rawPages = response.data.pages;
+        return response.data.pages;
       } else {
-        console.log("Unexpected response format:", response.data);
         return [];
       }
-
-      // Return pages as-is since content field already contains stringified JSON
-      return rawPages;
-    } catch (error: any) {
-      console.error("Static Pages API Error:", error);
-      console.error("Request URL:", error?.config?.url);
-      console.error("Request Method:", error?.config?.method);
-      console.error("Response Status:", error?.response?.status);
-      console.error("Response Data:", error?.response?.data);
+    } catch (error) {
       throw error;
     }
   },
@@ -476,19 +391,10 @@ export const adminService = {
     isPublished?: boolean;
   }): Promise<StaticPage> {
     try {
-      // Stringify content before sending to server
-      const payload = {
-        type: pageData.type,
-        title: pageData.title,
-        content: JSON.stringify(pageData.content),
-        isPublished: pageData.isPublished,
-      };
-
       const response = await BASE_API.post(
-        ADMIN_APIS.CONTENT.STATIC_PAGES.create,
-        payload,
+        ADMIN_APIS.CONTENT.staticPages.create,
+        pageData,
       );
-
       return response.data;
     } catch (error) {
       throw error;
@@ -504,17 +410,10 @@ export const adminService = {
     },
   ): Promise<StaticPage> {
     try {
-      // Stringify content before sending to server
-      const payload = {
-        ...(pageData.title && { title: pageData.title }),
-        ...(pageData.content && { content: JSON.stringify(pageData.content) }),
-        ...(pageData.isPublished !== undefined && {
-          isPublished: pageData.isPublished,
-        }),
-      };
-
-      const response = await BASE_API.put(`static-page/${pageId}`, payload);
-
+      const response = await BASE_API.put(
+        ADMIN_APIS.CONTENT.staticPages.update(pageId),
+        pageData,
+      );
       return response.data;
     } catch (error) {
       throw error;
@@ -526,7 +425,7 @@ export const adminService = {
   ): Promise<{ success: boolean; message: string }> {
     try {
       const response = await BASE_API.delete(
-        ADMIN_APIS.CONTENT.STATIC_PAGES.delete(pageId),
+        ADMIN_APIS.CONTENT.staticPages.delete(pageId),
       );
       return response.data;
     } catch (error) {
@@ -609,6 +508,44 @@ export const adminService = {
     try {
       const response = await BASE_API.delete(
         ADMIN_APIS.CONTENT.team.delete(teamId),
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // FormData-based team member operations
+  async createTeamMemberWithFormData(formData: FormData): Promise<Team> {
+    try {
+      const response = await BASE_API.post(
+        ADMIN_APIS.CONTENT.team.create,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async updateTeamMemberWithFormData(
+    teamId: string,
+    formData: FormData,
+  ): Promise<Team> {
+    try {
+      const response = await BASE_API.put(
+        ADMIN_APIS.CONTENT.team.update(teamId),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
       return response.data;
     } catch (error) {

@@ -1,13 +1,17 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { FiUpload, FiImage, FiX } from "react-icons/fi";
 
 export interface TeamFormProps {
   teamData: {
     name: string;
     title: string;
-    image: string;
+    image: string | File | null;
   };
-  onChange: (teamData: { name: string; title: string; image: string }) => void;
+  onChange: (teamData: {
+    name: string;
+    title: string;
+    image: string | File | null;
+  }) => void;
   isEditing?: boolean;
   disabled?: boolean;
 }
@@ -19,6 +23,20 @@ export const TeamForm = ({
   disabled = false,
 }: TeamFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+
+  // Update image preview when teamData.image changes
+  useEffect(() => {
+    if (teamData.image instanceof File) {
+      const url = URL.createObjectURL(teamData.image);
+      setImagePreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else if (typeof teamData.image === "string" && teamData.image) {
+      setImagePreview(teamData.image);
+    } else {
+      setImagePreview("");
+    }
+  }, [teamData.image]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -33,22 +51,16 @@ export const TeamForm = ({
       onChange({ ...teamData, title: value });
     }
   };
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // For demo purposes, we'll create a data URL. In production, you'd upload to your server
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        onChange({ ...teamData, image: result });
-      };
-      reader.readAsDataURL(file);
+      // Store the actual File object instead of converting to data URL
+      onChange({ ...teamData, image: file });
     }
   };
 
   const clearImage = () => {
-    onChange({ ...teamData, image: "" });
+    onChange({ ...teamData, image: null });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -97,12 +109,12 @@ export const TeamForm = ({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Profile Image
-        </label>
+        </label>{" "}
         <div className="space-y-3">
-          {teamData.image ? (
+          {imagePreview ? (
             <div className="relative inline-block">
               <img
-                src={teamData.image}
+                src={imagePreview}
                 alt="Profile preview"
                 className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
               />
@@ -139,7 +151,7 @@ export const TeamForm = ({
               <FiUpload className="w-4 h-4 mr-2" />
               Choose Image
             </button>
-            {teamData.image && (
+            {imagePreview && (
               <button
                 type="button"
                 onClick={clearImage}
