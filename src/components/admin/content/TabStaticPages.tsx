@@ -12,14 +12,8 @@ import {
 
 export function TabStaticPages() {
   // Data management hooks
-  const {
-    pages,
-    loading,
-    createPage,
-    updatePage,
-    deletePage,
-    pageTypeExists,
-  } = useStaticPageData();
+  const { pages, loading, createPage, updatePage, deletePage, pageTypeExists } =
+    useStaticPageData();
 
   const {
     formData,
@@ -27,6 +21,7 @@ export function TabStaticPages() {
     setOriginalFormData,
     initializeFormData,
     loadDefaultAboutContent,
+    loadDefaultHomeContent,
     loadDefaultTeamContent,
     getChangedFields,
     resetForm,
@@ -36,9 +31,11 @@ export function TabStaticPages() {
   const [editingPage, setEditingPage] = useState<StaticPage | null>(null);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
-  const [selectedPageType, setSelectedPageType] = useState<"home" | "about" | "team">("about");
+  const [selectedPageType, setSelectedPageType] = useState<
+    "home" | "about" | "team"
+  >("about");
   const [modalRenderKey, setModalRenderKey] = useState<number>(0);
-  
+
   // Delete confirmation state
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
     isOpen: boolean;
@@ -72,9 +69,9 @@ export function TabStaticPages() {
   // Page operations
   const handleEditPage = (page: StaticPage) => {
     console.log("Opening edit modal for page:", page);
-    
+
     setEditingPage(page);
-    
+
     // Normalize the content using the utility function
     const normalizedPageData = normalizePageData(page);
     const newFormData = {
@@ -102,7 +99,7 @@ export function TabStaticPages() {
   const handleCreatePage = async (
     type: "home" | "about" | "team",
     title: string,
-    content: any
+    content: any,
   ) => {
     setIsCreating(true);
     try {
@@ -186,6 +183,7 @@ export function TabStaticPages() {
         onPageTypeChange={handlePageTypeChange}
         onFormDataChange={setFormData}
         onLoadDefaultAbout={loadDefaultAboutContent}
+        onLoadDefaultHome={loadDefaultHomeContent}
         onLoadDefaultTeam={loadDefaultTeamContent}
         onCreate={handleCreatePage}
         onUpdate={handleUpdatePage}

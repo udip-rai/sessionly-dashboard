@@ -53,15 +53,15 @@ export const EditFaq = ({
   // Helper function to detect what fields have changed
   const getChangedFields = () => {
     const changes: any = {};
-    
+
     if (faqData.question.trim() !== originalData.question) {
       changes.question = faqData.question.trim();
     }
-    
+
     if (faqData.answer.trim() !== originalData.answer) {
       changes.answer = faqData.answer.trim();
     }
-    
+
     return changes;
   };
 
@@ -72,7 +72,7 @@ export const EditFaq = ({
     }
 
     const changedFields = getChangedFields();
-    
+
     // Check if anything actually changed
     if (Object.keys(changedFields).length === 0) {
       toast.warning("No Changes", "No changes detected to save");
@@ -85,9 +85,9 @@ export const EditFaq = ({
 
       onFaqUpdated(updatedFaq);
       handleClose();
-      
+
       // Show specific success message about what was changed
-      const changesList = Object.keys(changedFields).join(', ');
+      const changesList = Object.keys(changedFields).join(", ");
       toast.success("FAQ Updated", `Successfully updated: ${changesList}`);
     } catch (error) {
       console.error("Failed to update FAQ:", error);
@@ -126,7 +126,10 @@ export const EditFaq = ({
                 Edit FAQ Guidelines
               </h3>
               <div className="mt-2 text-sm text-blue-700">
-                <p>Update the FAQ content below. Only changed fields will be saved.</p>
+                <p>
+                  Update the FAQ content below. Only changed fields will be
+                  saved.
+                </p>
                 {hasChanges && (
                   <p className="mt-1 text-xs text-green-600 font-medium">
                     • {Object.keys(changedFields).length} field(s) modified
@@ -156,12 +159,15 @@ export const EditFaq = ({
           <button
             onClick={handleUpdate}
             className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
-              hasChanges 
-                ? 'text-white bg-blue-600 hover:bg-blue-700' 
-                : 'text-gray-500 bg-gray-200 cursor-not-allowed'
+              hasChanges
+                ? "text-white bg-blue-600 hover:bg-blue-700"
+                : "text-gray-500 bg-gray-200 cursor-not-allowed"
             }`}
             disabled={
-              isUpdating || !faqData.question.trim() || !faqData.answer.trim() || !hasChanges
+              isUpdating ||
+              !faqData.question.trim() ||
+              !faqData.answer.trim() ||
+              !hasChanges
             }
             title={!hasChanges ? "No changes to save" : "Save changes"}
           >
@@ -173,7 +179,9 @@ export const EditFaq = ({
             ) : (
               <>
                 <FiEdit3 className="w-4 h-4 mr-2" />
-                {hasChanges ? `Save Changes (${Object.keys(changedFields).length})` : 'No Changes'}
+                {hasChanges
+                  ? `Save Changes (${Object.keys(changedFields).length})`
+                  : "No Changes"}
               </>
             )}
           </button>

@@ -66,30 +66,98 @@ export const DEFAULT_ABOUT_PAGE: AboutPageContent = {
 
 // Default Home Page Content
 export const DEFAULT_HOME_PAGE: HomePageContent = {
-  title: "",
-  description: "",
+  title: "Amplified",
+  description:
+    "Join our unified platform that combines structured mentorship, instant access to 3,000+ vetted experts, and AI-driven networking—all in one place.",
   everything_reasons: {
-    title: "",
-    description: "",
-    children: [],
+    title: "Everything You Need to Connect",
+    description:
+      "Our platform provides all the tools you need to schedule and manage productive sessions with experts.",
+    children: [
+      {
+        title: "Expert Discovery",
+        description:
+          "Browse through 3,000+ verified experts across 50+ industries and find the perfect match for your goals.",
+      },
+      {
+        title: "Smart Scheduling",
+        description:
+          "Flexible booking system that adapts to both your schedule and expert availability worldwide.",
+      },
+      {
+        title: "Session Management",
+        description:
+          "Complete session lifecycle management from booking to follow-up with integrated tools.",
+      },
+      {
+        title: "Progress Tracking",
+        description:
+          "Monitor your growth journey with detailed analytics and milestone tracking.",
+      },
+    ],
   },
   transform_reasons: {
-    title: "",
-    children: [],
+    title: "Your Success Journey Starts Here",
+    children: [
+      "Accelerate your career with personalized mentorship",
+      "Connect with industry leaders and decision makers",
+      "Develop skills through hands-on expert guidance",
+      "Build a powerful professional network globally",
+      "Access exclusive insights and opportunities",
+    ],
   },
   advantages_reasons: {
-    title: "",
-    description: "",
-    children: [],
+    title: "Why Choose Sessionly?",
+    description: "The Complete Platform for Professional Growth",
+    children: [
+      {
+        title: "AI-Powered Matching",
+        description:
+          "Our advanced algorithm ensures 90% match accuracy by analyzing your goals, experience, and preferences.",
+      },
+      {
+        title: "Global Expert Network",
+        description:
+          "Connect with verified professionals from Fortune 500 companies and leading institutions worldwide.",
+      },
+      {
+        title: "Flexible Engagement",
+        description:
+          "Choose from one-time consultations, ongoing mentorship, or project-based collaborations.",
+      },
+      {
+        title: "Proven Results",
+        description:
+          "95% of users report significant career progress within 3 months of joining our platform.",
+      },
+    ],
   },
   powered_by_ai_reasons: {
-    title: "",
-    description: "",
-    children: [],
+    title: "AI-Powered Expert Matching",
+    description:
+      "Our advanced AI technology ensures you connect with the most relevant experts for your specific needs and goals.",
+    children: [
+      {
+        title: "Smart Recommendations",
+        description:
+          "Get personalized expert suggestions based on your career goals and current challenges.",
+      },
+      {
+        title: "Compatibility Analysis",
+        description:
+          "Advanced matching considers communication styles, availability, and expertise overlap.",
+      },
+      {
+        title: "Success Prediction",
+        description:
+          "AI predicts collaboration success rates to optimize your mentorship outcomes.",
+      },
+    ],
   },
   testimonials: {
-    title: "",
-    description: "",
+    title: "What Our Users Say",
+    description:
+      "Real experiences from professionals who've transformed their careers with Sessionly",
   },
 };
 
@@ -223,7 +291,8 @@ export const DEFAULT_TEAM_PAGE: TeamPageContent = {
       title: "Our",
       highlighted: "Values",
       subtitle: "The principles that guide everything we do",
-    },    join: {
+    },
+    join: {
       title: "Join Our",
       highlighted: "Journey",
       description:
@@ -261,7 +330,8 @@ export const EMPTY_TEAM_PAGE: TeamPageContent = {
       title: "",
       highlighted: "",
       subtitle: "",
-    },    join: {
+    },
+    join: {
       title: "",
       highlighted: "",
       description: "",

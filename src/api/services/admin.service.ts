@@ -470,7 +470,7 @@ export const adminService = {
         ...pageData,
         content: JSON.stringify(pageData.content),
       };
-      
+
       const response = await BASE_API.post(
         ADMIN_APIS.CONTENT.staticPages.create,
         payload,
@@ -495,7 +495,7 @@ export const adminService = {
         ...pageData,
         ...(pageData.content && { content: JSON.stringify(pageData.content) }),
       };
-      
+
       const response = await BASE_API.put(
         ADMIN_APIS.CONTENT.staticPages.update(pageId),
         payload,

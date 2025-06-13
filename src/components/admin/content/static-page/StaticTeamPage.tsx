@@ -305,7 +305,8 @@ export const StaticTeamPage = ({ content, onChange }: StaticTeamPageProps) => {
                   updateSection("join", "description", e.target.value)
                 }
                 className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-navy focus:border-navy"
-                placeholder="We're always looking for talented individuals..."              />
+                placeholder="We're always looking for talented individuals..."
+              />
             </div>
           </div>
         </div>

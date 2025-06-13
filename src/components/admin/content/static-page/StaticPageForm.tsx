@@ -1,7 +1,7 @@
-import { 
-  AboutPageContent, 
-  HomePageContent, 
-  TeamPageContent 
+import {
+  AboutPageContent,
+  HomePageContent,
+  TeamPageContent,
 } from "../../../../api/services/admin.service";
 import { StaticAboutPage, StaticHomePage, StaticTeamPage } from "./";
 import { StaticPageFormData } from "./useStaticPageData";
@@ -13,8 +13,11 @@ interface StaticPageFormProps {
   pageTypeExists: (type: "home" | "about" | "team") => boolean;
   onPageTypeChange: (type: "home" | "about" | "team") => void;
   onTitleChange: (title: string) => void;
-  onContentChange: (content: HomePageContent | AboutPageContent | TeamPageContent) => void;
+  onContentChange: (
+    content: HomePageContent | AboutPageContent | TeamPageContent,
+  ) => void;
   onLoadDefaultAbout: () => void;
+  onLoadDefaultHome: () => void;
   onLoadDefaultTeam: () => void;
 }
 
@@ -27,6 +30,7 @@ export const StaticPageForm = ({
   onTitleChange,
   onContentChange,
   onLoadDefaultAbout,
+  onLoadDefaultHome,
   onLoadDefaultTeam,
 }: StaticPageFormProps) => {
   return (
@@ -43,9 +47,7 @@ export const StaticPageForm = ({
                 type="radio"
                 value="about"
                 checked={selectedPageType === "about"}
-                onChange={(e) =>
-                  onPageTypeChange(e.target.value as "about")
-                }
+                onChange={(e) => onPageTypeChange(e.target.value as "about")}
                 className="mr-2"
                 disabled={pageTypeExists("about")}
               />
@@ -61,9 +63,7 @@ export const StaticPageForm = ({
                 type="radio"
                 value="home"
                 checked={selectedPageType === "home"}
-                onChange={(e) =>
-                  onPageTypeChange(e.target.value as "home")
-                }
+                onChange={(e) => onPageTypeChange(e.target.value as "home")}
                 className="mr-2"
                 disabled={pageTypeExists("home")}
               />
@@ -79,9 +79,7 @@ export const StaticPageForm = ({
                 type="radio"
                 value="team"
                 checked={selectedPageType === "team"}
-                onChange={(e) =>
-                  onPageTypeChange(e.target.value as "team")
-                }
+                onChange={(e) => onPageTypeChange(e.target.value as "team")}
                 className="mr-2"
                 disabled={pageTypeExists("team")}
               />
@@ -92,8 +90,7 @@ export const StaticPageForm = ({
                 </span>
               )}
             </label>
-          </div>
-
+          </div>{" "}
           {/* Load Default Content Button for About Page */}
           {selectedPageType === "about" && !pageTypeExists("about") && (
             <div className="mt-3">
@@ -106,7 +103,18 @@ export const StaticPageForm = ({
               </button>
             </div>
           )}
-
+          {/* Load Default Content Button for Home Page */}
+          {selectedPageType === "home" && !pageTypeExists("home") && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={onLoadDefaultHome}
+                className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                Load default Home page content
+              </button>
+            </div>
+          )}
           {/* Load Default Content Button for Team Page */}
           {selectedPageType === "team" && !pageTypeExists("team") && (
             <div className="mt-3">

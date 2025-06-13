@@ -1,5 +1,14 @@
-import { StaticPage, HomePageContent, AboutPageContent, TeamPageContent } from "../../../../api/services/admin.service";
-import { EMPTY_ABOUT_PAGE, EMPTY_HOME_PAGE, EMPTY_TEAM_PAGE } from "../constants/staticPageDefaults";
+import {
+  StaticPage,
+  HomePageContent,
+  AboutPageContent,
+  TeamPageContent,
+} from "../../../../api/services/admin.service";
+import {
+  EMPTY_ABOUT_PAGE,
+  EMPTY_HOME_PAGE,
+  EMPTY_TEAM_PAGE,
+} from "../constants/staticPageDefaults";
 
 export const normalizePageData = (page: StaticPage) => {
   // The content field comes as a stringified JSON from the API
@@ -11,11 +20,11 @@ export const normalizePageData = (page: StaticPage) => {
     console.error("Failed to parse page content:", error);
     // Fallback to empty content based on page type
     parsedContent =
-      page.type === "about" 
-        ? EMPTY_ABOUT_PAGE 
-        : page.type === "team" 
-          ? EMPTY_TEAM_PAGE 
-          : EMPTY_HOME_PAGE;
+      page.type === "about"
+        ? EMPTY_ABOUT_PAGE
+        : page.type === "team"
+        ? EMPTY_TEAM_PAGE
+        : EMPTY_HOME_PAGE;
   }
 
   if (page.type === "about") {
@@ -48,14 +57,12 @@ export const normalizePageData = (page: StaticPage) => {
       mission: {
         title: aboutContent?.mission?.title || emptyAbout.mission.title,
         description:
-          aboutContent?.mission?.description ||
-          emptyAbout.mission.description,
+          aboutContent?.mission?.description || emptyAbout.mission.description,
       },
       features: {
         title: {
           why:
-            aboutContent?.features?.title?.why ||
-            emptyAbout.features.title.why,
+            aboutContent?.features?.title?.why || emptyAbout.features.title.why,
           choose:
             aboutContent?.features?.title?.choose ||
             emptyAbout.features.title.choose,
@@ -66,8 +73,7 @@ export const normalizePageData = (page: StaticPage) => {
         title: aboutContent?.cta?.title || emptyAbout.cta.title,
         description:
           aboutContent?.cta?.description || emptyAbout.cta.description,
-        disclaimer:
-          aboutContent?.cta?.disclaimer || emptyAbout.cta.disclaimer,
+        disclaimer: aboutContent?.cta?.disclaimer || emptyAbout.cta.disclaimer,
       },
     };
   } else if (page.type === "team") {
@@ -77,37 +83,57 @@ export const normalizePageData = (page: StaticPage) => {
     return {
       page: {
         title: teamContent?.page?.title || emptyTeam.page.title,
-        highlighted: teamContent?.page?.highlighted || emptyTeam.page.highlighted,
+        highlighted:
+          teamContent?.page?.highlighted || emptyTeam.page.highlighted,
         subtitle: teamContent?.page?.subtitle || emptyTeam.page.subtitle,
-        description: teamContent?.page?.description || emptyTeam.page.description,
+        description:
+          teamContent?.page?.description || emptyTeam.page.description,
       },
-      stats: teamContent?.stats?.length >= 4 
-        ? teamContent.stats.slice(0, 4) 
-        : [
-            ...(teamContent?.stats || []),
-            ...emptyTeam.stats.slice(teamContent?.stats?.length || 0)
-          ],
-      values: teamContent?.values?.length >= 4 
-        ? teamContent.values.slice(0, 4) 
-        : [
-            ...(teamContent?.values || []),
-            ...emptyTeam.values.slice(teamContent?.values?.length || 0)
-          ],
+      stats:
+        teamContent?.stats?.length >= 4
+          ? teamContent.stats.slice(0, 4)
+          : [
+              ...(teamContent?.stats || []),
+              ...emptyTeam.stats.slice(teamContent?.stats?.length || 0),
+            ],
+      values:
+        teamContent?.values?.length >= 4
+          ? teamContent.values.slice(0, 4)
+          : [
+              ...(teamContent?.values || []),
+              ...emptyTeam.values.slice(teamContent?.values?.length || 0),
+            ],
       sections: {
         team: {
-          title: teamContent?.sections?.team?.title || emptyTeam.sections.team.title,
-          highlighted: teamContent?.sections?.team?.highlighted || emptyTeam.sections.team.highlighted,
-          subtitle: teamContent?.sections?.team?.subtitle || emptyTeam.sections.team.subtitle,
+          title:
+            teamContent?.sections?.team?.title || emptyTeam.sections.team.title,
+          highlighted:
+            teamContent?.sections?.team?.highlighted ||
+            emptyTeam.sections.team.highlighted,
+          subtitle:
+            teamContent?.sections?.team?.subtitle ||
+            emptyTeam.sections.team.subtitle,
         },
         values: {
-          title: teamContent?.sections?.values?.title || emptyTeam.sections.values.title,
-          highlighted: teamContent?.sections?.values?.highlighted || emptyTeam.sections.values.highlighted,
-          subtitle: teamContent?.sections?.values?.subtitle || emptyTeam.sections.values.subtitle,
+          title:
+            teamContent?.sections?.values?.title ||
+            emptyTeam.sections.values.title,
+          highlighted:
+            teamContent?.sections?.values?.highlighted ||
+            emptyTeam.sections.values.highlighted,
+          subtitle:
+            teamContent?.sections?.values?.subtitle ||
+            emptyTeam.sections.values.subtitle,
         },
         join: {
-          title: teamContent?.sections?.join?.title || emptyTeam.sections.join.title,
-          highlighted: teamContent?.sections?.join?.highlighted || emptyTeam.sections.join.highlighted,
-          description: teamContent?.sections?.join?.description || emptyTeam.sections.join.description,
+          title:
+            teamContent?.sections?.join?.title || emptyTeam.sections.join.title,
+          highlighted:
+            teamContent?.sections?.join?.highlighted ||
+            emptyTeam.sections.join.highlighted,
+          description:
+            teamContent?.sections?.join?.description ||
+            emptyTeam.sections.join.description,
         },
       },
     };
@@ -160,8 +186,7 @@ export const normalizePageData = (page: StaticPage) => {
           emptyHome.powered_by_ai_reasons.children,
       },
       testimonials: {
-        title:
-          homeContent?.testimonials?.title || emptyHome.testimonials.title,
+        title: homeContent?.testimonials?.title || emptyHome.testimonials.title,
         description:
           homeContent?.testimonials?.description ||
           emptyHome.testimonials.description,

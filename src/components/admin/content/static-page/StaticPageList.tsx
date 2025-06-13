@@ -10,12 +10,12 @@ interface StaticPageListProps {
   onCreateNew: () => void;
 }
 
-export const StaticPageList = ({ 
-  pages, 
-  loading, 
-  onEdit, 
-  onDelete, 
-  onCreateNew 
+export const StaticPageList = ({
+  pages,
+  loading,
+  onEdit,
+  onDelete,
+  onCreateNew,
 }: StaticPageListProps) => {
   if (loading) {
     return (
