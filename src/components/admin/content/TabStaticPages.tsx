@@ -6,14 +6,17 @@ import {
   StaticPage,
   AboutPageContent,
   HomePageContent,
+  TeamPageContent,
 } from "../../../api/services/admin.service";
 import { Modal, ConfirmModal, AddButton, TimestampBadges } from "../../ui";
-import { StaticAboutPage, StaticHomePage } from "./static-page";
+import { StaticAboutPage, StaticHomePage, StaticTeamPage } from "./static-page";
 import { toast } from "../../toast";
 import {
   DEFAULT_ABOUT_PAGE,
   EMPTY_ABOUT_PAGE,
   EMPTY_HOME_PAGE,
+  DEFAULT_TEAM_PAGE,
+  EMPTY_TEAM_PAGE,
 } from "./constants/staticPageDefaults";
 
 export function TabStaticPages() {
@@ -25,7 +28,7 @@ export function TabStaticPages() {
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
-  const [selectedPageType, setSelectedPageType] = useState<"home" | "about">(
+  const [selectedPageType, setSelectedPageType] = useState<"home" | "about" | "team">(
     "about",
   );
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
@@ -38,41 +41,84 @@ export function TabStaticPages() {
   // Form data for creating/editing pages
   const [formData, setFormData] = useState<{
     title: string;
-    content: HomePageContent | AboutPageContent;
+    content: HomePageContent | AboutPageContent | TeamPageContent;
   }>({
     title: "",
     content: EMPTY_ABOUT_PAGE,
   });
 
+  // Track original data for change detection
+  const [originalFormData, setOriginalFormData] = useState<{
+    title: string;
+    content: HomePageContent | AboutPageContent | TeamPageContent;
+  }>({
+    title: "",
+    content: EMPTY_ABOUT_PAGE,
+  });
+
+  // Helper function to detect what fields have changed
+  const getChangedFields = () => {
+    const changes: any = {};
+    
+    // Check if title changed
+    if (formData.title.trim() !== originalFormData.title.trim()) {
+      changes.title = formData.title.trim();
+    }
+    
+    // Check if content changed by deep comparison
+    const currentContentStr = JSON.stringify(formData.content);
+    const originalContentStr = JSON.stringify(originalFormData.content);
+    
+    if (currentContentStr !== originalContentStr) {
+      changes.content = formData.content;
+    }
+    
+    return changes;
+  };
+
   // Initialize form data based on page type
-  const initializeFormData = (type: "home" | "about") => {
+  const initializeFormData = (type: "home" | "about" | "team") => {
+    let newFormData;
     if (type === "about") {
-      setFormData({
+      newFormData = {
         title: "",
         content: JSON.parse(JSON.stringify(EMPTY_ABOUT_PAGE)),
-      });
+      };
+    } else if (type === "team") {
+      newFormData = {
+        title: "",
+        content: JSON.parse(JSON.stringify(EMPTY_TEAM_PAGE)),
+      };
     } else {
-      setFormData({
+      newFormData = {
         title: "",
         content: JSON.parse(JSON.stringify(EMPTY_HOME_PAGE)),
-      });
+      };
     }
+    
+    setFormData(newFormData);
+    setOriginalFormData(JSON.parse(JSON.stringify(newFormData)));
   };
 
   // Load default content for About page
   const loadDefaultAboutContent = () => {
-    setFormData({
+    const newFormData = {
       title: "About Us",
       content: JSON.parse(JSON.stringify(DEFAULT_ABOUT_PAGE)),
-    });
+    };
+    setFormData(newFormData);
+    setOriginalFormData(JSON.parse(JSON.stringify(newFormData)));
   };
 
   // Utility function to normalize page data with proper fallbacks
   const normalizePageData = (page: StaticPage) => {
-    // Parse the content field which contains stringified JSON
+    // The content field is already parsed as an object
     let parsedContent: HomePageContent | AboutPageContent;
     try {
-      parsedContent = JSON.parse(page.content);
+      // If content is a string, parse it; otherwise use it directly
+      parsedContent = typeof page.content === 'string' 
+        ? JSON.parse(page.content) 
+        : page.content;
     } catch (error) {
       console.error("Failed to parse page content:", error);
       // Fallback to empty content based on page type
@@ -209,7 +255,7 @@ export function TabStaticPages() {
   };
 
   // Utility: check if a page of a given type already exists
-  const pageTypeExists = (type: "home" | "about") => {
+  const pageTypeExists = (type: "home" | "about" | "team") => {
     return pages.some((page) => page.type === type);
   };
 
@@ -233,7 +279,7 @@ export function TabStaticPages() {
     setModalRenderKey((prev) => prev + 1);
   };
 
-  const handlePageTypeChange = (type: "home" | "about") => {
+  const handlePageTypeChange = (type: "home" | "about" | "team") => {
     setSelectedPageType(type);
     initializeFormData(type);
   };
@@ -276,6 +322,7 @@ export function TabStaticPages() {
     // Update all state synchronously
     flushSync(() => {
       setFormData(newFormData);
+      setOriginalFormData(JSON.parse(JSON.stringify(newFormData))); // Set original data for change detection
       setSelectedPageType(page.type);
     });
 
@@ -292,16 +339,29 @@ export function TabStaticPages() {
   const handleUpdatePage = async () => {
     if (!editingPage) return;
 
+    if (!formData.title.trim()) {
+      toast.error("Validation Error", "Page title is required");
+      return;
+    }
+
+    const changedFields = getChangedFields();
+    
+    // Check if anything actually changed
+    if (Object.keys(changedFields).length === 0) {
+      toast.warning("No Changes", "No changes detected to save");
+      return;
+    }
+
     try {
       setIsCreating(true);
-      const updatedPage = await adminService.updateStaticPage(editingPage._id, {
-        title: formData.title,
-        content: formData.content,
-      });
+      const updatedPage = await adminService.updateStaticPage(editingPage._id, changedFields);
 
       setPages(pages.map((p) => (p._id === editingPage._id ? updatedPage : p)));
       handleCloseCreateModal();
-      toast.success("Static Page Updated successfully");
+      
+      // Show specific success message about what was changed
+      const changesList = Object.keys(changedFields).join(', ');
+      toast.success("Static Page Updated", `Successfully updated: ${changesList}`);
     } catch (error) {
       console.error("Failed to update static page:", error);
       toast.error("Failed to update static page. Please try again");
@@ -397,6 +457,36 @@ export function TabStaticPages() {
         size="xl"
       >
         <div className="space-y-6">
+          {/* Smart Edit Info Banner (only show when editing) */}
+          {editingPage && (() => {
+            const changedFields = getChangedFields();
+            const hasChanges = Object.keys(changedFields).length > 0;
+            
+            return (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      Edit Static Page Guidelines
+                    </h3>
+                    <div className="mt-2 text-sm text-blue-700">
+                      <p>Update the page content below. Only changed fields will be saved.</p>
+                      {hasChanges && (
+                        <p className="mt-1 text-xs text-green-600 font-medium">
+                          • {Object.keys(changedFields).length} field(s) modified
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {/* Page Type Selection (only for new pages) */}
           {!editingPage && (
             <div>
@@ -509,27 +599,94 @@ export function TabStaticPages() {
             >
               Cancel
             </button>
-            <button
-              onClick={editingPage ? handleUpdatePage : handleCreatePage}
-              className="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-              disabled={
-                isCreating ||
-                !formData.title.trim() ||
-                (!editingPage && pageTypeExists(selectedPageType))
-              }
-            >
-              {isCreating ? (
+            {(() => {
+              const changedFields = getChangedFields();
+              const hasChanges = Object.keys(changedFields).length > 0;
+              const isFormValid = formData.title.trim() && (!editingPage || !pageTypeExists(selectedPageType));
+              
+              return (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  {editingPage ? "Updating..." : "Creating..."}
+                  {/* Instructions for edit mode */}
+                  {editingPage && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <svg
+                            className="h-5 w-5 text-blue-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-blue-800">
+                            Edit Static Page
+                          </h3>
+                          <div className="mt-2 text-sm text-blue-700">
+                            <p>Update the page content below. Only changed fields will be saved.</p>
+                            {hasChanges && (
+                              <p className="mt-1 text-xs text-green-600 font-medium">
+                                • {Object.keys(changedFields).length} field(s) modified
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={editingPage ? handleUpdatePage : handleCreatePage}
+                    className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
+                      editingPage
+                        ? hasChanges && isFormValid
+                          ? 'text-white bg-blue-600 hover:bg-blue-700'
+                          : 'text-gray-500 bg-gray-200 cursor-not-allowed'
+                        : isFormValid
+                          ? 'text-white bg-green-600 hover:bg-green-700'
+                          : 'text-gray-500 bg-gray-200 cursor-not-allowed'
+                    }`}
+                    disabled={
+                      isCreating ||
+                      !formData.title.trim() ||
+                      (!editingPage && pageTypeExists(selectedPageType)) ||
+                      (editingPage != null && !hasChanges)
+                    }
+                    title={
+                      editingPage
+                        ? !hasChanges
+                          ? "No changes to save"
+                          : "Save changes"
+                        : !isFormValid
+                          ? "Please fill in required fields"
+                          : "Create page"
+                    }
+                  >
+                    {isCreating ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        {editingPage ? "Updating..." : "Creating..."}
+                      </>
+                    ) : (
+                      <>
+                        <FiSave className="w-4 h-4 mr-2" />
+                        {editingPage
+                          ? hasChanges
+                            ? `Save Changes (${Object.keys(changedFields).length})`
+                            : 'No Changes'
+                          : "Create Page"
+                        }
+                      </>
+                    )}
+                  </button>
                 </>
-              ) : (
-                <>
-                  <FiSave className="w-4 h-4 mr-2" />
-                  {editingPage ? "Update Page" : "Create Page"}
-                </>
-              )}
-            </button>
+              );
+            })()}
           </div>
         </div>
       </Modal>

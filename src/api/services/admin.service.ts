@@ -168,11 +168,48 @@ export interface AboutPageContent {
   };
 }
 
+export interface TeamPageContent {
+  page: {
+    title: string;
+    highlighted: string;
+    subtitle: string;
+    description: string;
+  };
+  stats: Array<{
+    value: string;
+    label: string;
+    description: string;
+  }>;
+  values: Array<{
+    title: string;
+    description: string;
+  }>;
+  sections: {
+    team: {
+      title: string;
+      highlighted: string;
+      subtitle: string;
+    };
+    values: {
+      title: string;
+      highlighted: string;
+      subtitle: string;
+    };
+    join: {
+      title: string;
+      highlighted: string;
+      description: string;
+      buttonText: string;
+      buttonLink: string;
+    };
+  };
+}
+
 export interface StaticPage {
   _id: string;
-  type: "home" | "about";
+  type: "home" | "about" | "team";
   title: string;
-  content: string; // JSON string representation of HomePageContent | AboutPageContent
+  content: HomePageContent | AboutPageContent | TeamPageContent;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -424,9 +461,9 @@ export const adminService = {
   },
 
   async createStaticPage(pageData: {
-    type: "home" | "about";
+    type: "home" | "about" | "team";
     title: string;
-    content: HomePageContent | AboutPageContent;
+    content: HomePageContent | AboutPageContent | TeamPageContent;
     isPublished?: boolean;
   }): Promise<StaticPage> {
     try {
@@ -444,7 +481,7 @@ export const adminService = {
     pageId: string,
     pageData: {
       title?: string;
-      content?: HomePageContent | AboutPageContent;
+      content?: HomePageContent | AboutPageContent | TeamPageContent;
       isPublished?: boolean;
     },
   ): Promise<StaticPage> {

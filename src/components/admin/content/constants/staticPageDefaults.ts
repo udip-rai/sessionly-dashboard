@@ -1,6 +1,7 @@
 import {
   AboutPageContent,
   HomePageContent,
+  TeamPageContent,
 } from "../../../../api/services/admin.service";
 
 // Default About Page Content
@@ -151,5 +152,125 @@ export const EMPTY_HOME_PAGE: HomePageContent = {
   testimonials: {
     title: "",
     description: "",
+  },
+};
+
+// Default Team Page Content
+export const DEFAULT_TEAM_PAGE: TeamPageContent = {
+  page: {
+    title: "Meet Our",
+    highlighted: "Team",
+    subtitle:
+      "We're a diverse group of passionate individuals dedicated to revolutionizing online learning and mentorship. Together, we're building the future of professional growth.",
+    description:
+      "Our team combines expertise in technology, education, and business to create an innovative platform that connects mentors and learners worldwide. With decades of combined experience, we're committed to transforming how knowledge is shared and careers are built.",
+  },
+  stats: [
+    {
+      value: "50K+",
+      label: "Active Users",
+      description:
+        "Growing community of professionals achieving their goals through targeted mentorship",
+    },
+    {
+      value: "95%",
+      label: "Success Rate",
+      description:
+        "Users reporting significant progress towards their career objectives within 3 months",
+    },
+    {
+      value: "3000+",
+      label: "Verified Experts",
+      description:
+        "Elite professionals from Fortune 500 companies and leading institutions",
+    },
+    {
+      value: "90%",
+      label: "Match Rate",
+      description:
+        "AI-powered matching accuracy ensuring optimal mentor-mentee partnerships",
+    },
+  ],
+  values: [
+    {
+      title: "Innovation First",
+      description:
+        "We constantly push boundaries in online learning and mentorship, embracing cutting-edge technology and AI to create transformative experiences. Our innovative approach ensures we stay ahead of industry trends and deliver exceptional value.",
+    },
+    {
+      title: "User-Centric",
+      description:
+        "Every feature, decision, and improvement starts with our users' needs. We actively listen to feedback, study user behavior, and iterate rapidly to create an intuitive and empowering platform that truly serves our community.",
+    },
+    {
+      title: "Excellence",
+      description:
+        "Quality is at the heart of everything we do. From our expert vetting process to platform reliability and customer support, we maintain the highest standards to ensure exceptional experiences for both mentors and mentees.",
+    },
+    {
+      title: "Continuous Learning",
+      description:
+        "Growth is in our DNA. We foster a culture of perpetual learning and knowledge sharing, encouraging both our team and users to expand their horizons, embrace challenges, and evolve together in this dynamic digital landscape.",
+    },
+  ],
+  sections: {
+    team: {
+      title: "Leadership",
+      highlighted: "Team",
+      subtitle: "Meet the people driving our vision forward",
+    },
+    values: {
+      title: "Our",
+      highlighted: "Values",
+      subtitle: "The principles that guide everything we do",
+    },
+    join: {
+      title: "Join Our",
+      highlighted: "Journey",
+      description:
+        "We're always looking for talented individuals who are passionate about revolutionizing online learning and mentorship.",
+      buttonText: "View Open Positions",
+      buttonLink: "/careers",
+    },
+  },
+};
+
+export const EMPTY_TEAM_PAGE: TeamPageContent = {
+  page: {
+    title: "",
+    highlighted: "",
+    subtitle: "",
+    description: "",
+  },
+  stats: [
+    { value: "", label: "", description: "" },
+    { value: "", label: "", description: "" },
+    { value: "", label: "", description: "" },
+    { value: "", label: "", description: "" },
+  ],
+  values: [
+    { title: "", description: "" },
+    { title: "", description: "" },
+    { title: "", description: "" },
+    { title: "", description: "" },
+  ],
+  sections: {
+    team: {
+      title: "",
+      highlighted: "",
+      subtitle: "",
+    },
+    values: {
+      title: "",
+      highlighted: "",
+      subtitle: "",
+    },
+    join: {
+      title: "",
+      highlighted: "",
+      description: "",
+      buttonText: "",
+      buttonLink: "",
+    },
   },
 };
