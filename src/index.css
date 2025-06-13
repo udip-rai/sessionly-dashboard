@@ -646,10 +646,68 @@
   bottom: 0 !important;
 }
 
-/* Toast z-index priority - Always on top */
+/* Toast z-index priority - ABSOLUTE TOP PRIORITY */
 .__react-hot-toast__,
-[data-hot-toast] {
-  z-index: 9999999 !important;
+[data-hot-toast],
+[data-hot-toast] > *,
+.hot-toast-bar,
+[data-react-hot-toast],
+#__react-hot-toast__,
+div[data-hot-toast],
+[data-hot-toast-container],
+#hot-toast-container,
+.Toaster__toast,
+.go318386747,
+div[role="alert"] {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Force react-hot-toast to appear above everything */
+[data-hot-toast-container] {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Ensure react-hot-toast container is on top */
+[data-react-hot-toast] {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Override any other z-index for toasts */
+.__react-hot-toast__ *,
+[data-hot-toast] *,
+div[data-hot-toast] * {
+  z-index: inherit !important;
+}
+
+/* Force all toast-related elements to top */
+[class*="toast"],
+[id*="toast"],
+[data-testid*="toast"] {
+  z-index: 2147483647 !important;
+}
+
+/* Additional nuclear option for toast visibility */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+}
+
+/* Ensure toasts are always visible and interactive */
+.__react-hot-toast__,
+[data-hot-toast],
+div[data-hot-toast] {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Ensure modal backdrops are always below modal content */
@@ -687,5 +745,6 @@ body.modal-open {
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  /* -webkit-line-clamp: 3; */
+  line-clamp: 3;
 }

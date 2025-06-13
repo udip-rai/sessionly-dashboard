@@ -334,64 +334,85 @@ function ExpertDetailsModal({
   const handleToggleFeatured = () => {
     onToggleFeatured(expert._id, expert.isFeatured || false);
   };
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" title="Expert Details">
       <div className="space-y-6">
         {/* Expert Header */}
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-            {expert.image ? (
-              <img
-                src={expert.image}
-                alt={expert.username}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <FiUser className="w-8 h-8 text-gray-400" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+              {expert.image ? (
+                <img
+                  src={expert.image}
+                  alt={expert.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <FiUser className="w-8 h-8 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 truncate">
+                {expert.username || expert.email}
+              </h2>
+              <div className="flex items-center space-x-2 mt-1 flex-wrap">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    expert.isFeatured
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  <FiStar
+                    className={`w-3 h-3 mr-1 ${
+                      expert.isFeatured ? "text-yellow-600" : "text-gray-400"
+                    }`}
+                  />
+                  {expert.isFeatured ? "Featured" : "Not Featured"}
+                </span>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    expert.emailVerified
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  <FiMail
+                    className={`w-3 h-3 mr-1 ${
+                      expert.emailVerified ? "text-green-600" : "text-gray-400"
+                    }`}
+                  />
+                  {expert.emailVerified ? "Verified" : "Unverified"}
+                </span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <FiTag className="w-3 h-3 mr-1 text-green-600" />
+                  {expert.rate || "Rate not set"}
+                </span>
               </div>
-            )}
-          </div>{" "}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 truncate">
-              {expert.username || expert.email}
-            </h2>
-            <div className="flex items-center space-x-2 mt-1 flex-wrap">
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  expert.isFeatured
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                <FiStar
-                  className={`w-3 h-3 mr-1 ${
-                    expert.isFeatured ? "text-yellow-600" : "text-gray-400"
-                  }`}
-                />
-                {expert.isFeatured ? "Featured" : "Not Featured"}
-              </span>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  expert.emailVerified
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                <FiMail
-                  className={`w-3 h-3 mr-1 ${
-                    expert.emailVerified ? "text-green-600" : "text-gray-400"
-                  }`}
-                />
-                {expert.emailVerified ? "Verified" : "Unverified"}
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <FiTag className="w-3 h-3 mr-1 text-green-600" />
-                {expert.rate || "Rate not set"}
-              </span>
             </div>
           </div>
+
+          {/* Feature/Unfeature Button - Moved to top right */}
+          <button
+            onClick={handleToggleFeatured}
+            disabled={updating}
+            className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              expert.isFeatured
+                ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+            } ${updating ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            {updating ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+            ) : expert.isFeatured ? (
+              <FiToggleRight className="w-4 h-4 mr-2" />
+            ) : (
+              <FiToggleLeft className="w-4 h-4 mr-2" />
+            )}
+            {expert.isFeatured ? "Unfeature Expert" : "Feature Expert"}
+          </button>
         </div>
         {/* Contact Information */}
         <div>
@@ -550,27 +571,6 @@ function ExpertDetailsModal({
               </div>
             </div>
           </div>
-        </div>
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-          <button
-            onClick={handleToggleFeatured}
-            disabled={updating}
-            className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              expert.isFeatured
-                ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-                : "bg-blue-100 text-blue-800 hover:bg-blue-200"
-            } ${updating ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {updating ? (
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-            ) : expert.isFeatured ? (
-              <FiToggleRight className="w-4 h-4 mr-2" />
-            ) : (
-              <FiToggleLeft className="w-4 h-4 mr-2" />
-            )}
-            {expert.isFeatured ? "Unfeature Expert" : "Feature Expert"}
-          </button>
         </div>
       </div>
     </Modal>
