@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import {
+  FiEye,
+  FiEyeOff,
+  FiMail,
+  FiLock,
+  FiUser,
+  FiArrowRight,
+  FiCheckCircle,
+} from "react-icons/fi";
 import { useStudentSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
-import { userService } from "../api/services/user.service";
-import { useAuthStore } from "../store/useAuthStore";
 import { showToast } from "../utils/toast";
-import { FormButton } from "../components/auth/AuthForm";
+import {
+  FormButton,
+  FormInput,
+  FormLabel,
+} from "../components/auth/AuthForm";
 import { Spinner } from "../components/ui/Spinner";
 
 interface GoogleCredentialResponse {
@@ -18,8 +28,6 @@ interface GoogleCredentialResponse {
 export default function StudentSignup() {
   const navigate = useNavigate();
   const studentSignupMutation = useStudentSignup();
-  const setUser = useAuthStore((state) => state.setUser);
-  const setToken = useAuthStore((state) => state.setToken);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -50,6 +58,7 @@ export default function StudentSignup() {
     }
 
     setError("");
+    setIsSubmitting(true);
 
     try {
       const response = await studentSignupMutation.mutateAsync({
@@ -93,170 +102,201 @@ export default function StudentSignup() {
       } else {
         setError(errorMessage);
       }
+    } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+  };
+  const handleGoogleSuccess = async (
+    credentialResponse: GoogleCredentialResponse,
+  ) => {
+    setIsGoogleLoading(true);
+    try {
+      if (!credentialResponse.credential) {
+        showToast.error("Google authentication failed");
+        return;
+      }
+
+      // Use the existing signUpWithGoogle method
+      const response = await googleAuthService.signUpWithGoogle(
+        credentialResponse.credential,
+        "student"
+      );
+
+      if (response?.requireVerification) {
+        showToast.info("Please verify your email using the OTP sent to your inbox.");
+        navigate("/otp-verification", {
+          state: {
+            userId: response.result?._id,
+            userType: response.result?.userType || "student",
+            email: response.result?.email,
+          },
+        });
+      } else if (response) {
+        showToast.success("Account created successfully!");
+        navigate("/student-dashboard");
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Google signup failed. Please try again.";
+      
+      // Handle email already exists
+      if (errorMessage === "Email already exists") {
+        showToast.info("Account already exists. Redirecting to login...");
+        navigate("/login");
+      } else {
+        showToast.error(errorMessage);
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100">
-      {/* Form Section - Left */}
-      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white/80 backdrop-blur-xl flex flex-col shadow-2xl relative z-10 max-h-screen overflow-auto scrollbar-thin">
-        {/* Fixed Header */}
-        <div className="px-8 md:px-10 pt-8 sticky top-0 bg-white/90 backdrop-blur-xl z-10 pb-6 border-b border-gray-50">
-          <div className="w-full max-w-sm mx-auto space-y-1.5 text-center">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-navy via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-              Create Student Account
-            </h2>
-            <p className="text-sm text-gray-600">
-              Join our community of learners
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="flex flex-col lg:flex-row min-h-screen">        {/* Left side - Hero */}
+        <div className="hidden lg:flex lg:w-1/2 xl:w-3/5">
+          <AuthHero />
         </div>
 
-        {/* Form Container */}
-        <div className="flex-1 px-8 md:px-10 py-8">
-          <div className="w-full max-w-sm mx-auto space-y-6">
-            <div className="w-full flex justify-center relative">
-              {/* Loading overlay */}
-              {isGoogleLoading && (
-                <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-lg">
-                  <div className="flex flex-col items-center space-y-2">
-                    <Spinner size="md" />
-                    <span className="text-sm text-gray-600">
-                      Signing in with Google...
-                    </span>
+        {/* Right side - Signup Form */}
+        <div className="flex-1 flex items-center justify-center px-6 sm:px-8 lg:px-12 py-12">
+          <div className="w-full max-w-md space-y-8">
+            {/* Header */}
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                <FiUser className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Create Student Account
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Start your learning journey with expert guidance
+              </p>
+            </div>
+
+            {/* Benefits */}
+            <div className="bg-blue-50 rounded-xl p-4 space-y-2">
+              <div className="flex items-center gap-3 text-sm text-blue-700">
+                <FiCheckCircle className="w-4 h-4 text-blue-600" />
+                <span>Access to 500+ expert mentors</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-blue-700">
+                <FiCheckCircle className="w-4 h-4 text-blue-600" />
+                <span>Personalized learning paths</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-blue-700">
+                <FiCheckCircle className="w-4 h-4 text-blue-600" />
+                <span>1-on-1 mentoring sessions</span>
+              </div>
+            </div>
+
+            {/* Google Signup */}
+            <div className="space-y-4">
+              <div className="relative">
+                {isGoogleLoading && (
+                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                    <div className="flex items-center gap-3">
+                      <Spinner size="sm" />
+                      <span className="text-sm text-gray-600">
+                        Signing up with Google...
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    setIsGoogleLoading(false);
+                    showToast.error("Google signup failed");
+                  }}
+                  useOneTap={false}
+                  theme="outline"
+                  size="large"
+                  text="signup_with"
+                  shape="rectangular"
+                  width="100%"
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 bg-white text-sm text-gray-500 font-medium">
+                    or continue with email
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-red-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-red-800">{error}</p>
                   </div>
                 </div>
-              )}
-              <GoogleLogin
-                onSuccess={async (
-                  credentialResponse: GoogleCredentialResponse,
-                ) => {
-                  setIsGoogleLoading(true);
-                  try {
-                    if (!credentialResponse.credential) {
-                      throw new Error("No credentials received from Google");
-                    }
-                    const response = await googleAuthService.signUpWithGoogle(
-                      credentialResponse.credential,
-                      "student",
-                    );
-
-                    // Store auth token first so it's available for subsequent API calls
-                    setToken(response.token);
-
-                    // Now fetch user data with the new token
-                    const userData = await userService.getCurrentUser(
-                      "student",
-                    );
-
-                    // Store complete user data
-                    setUser({
-                      id: response.id,
-                      userType: response.userType,
-                      redirectUrl: response.redirectUrl,
-                      name:
-                        userData?.user?.username ||
-                        userData?.user?.email?.split("@")[0] ||
-                        "User",
-                    });
-
-                    // Navigate based on profile status
-                    if (
-                      response.profileStatus &&
-                      !response.profileStatus.isComplete
-                    ) {
-                      navigate("/student-dashboard/profile-setup");
-                    } else {
-                      navigate(response.redirectUrl || "/student-dashboard");
-                    }
-                  } catch (error: unknown) {
-                    const errorMessage =
-                      error instanceof Error
-                        ? error.message
-                        : "Failed to sign up with Google. Please try again.";
-
-                    setError(errorMessage);
-                    console.error("Error during Google signup:", error);
-                  } finally {
-                    setIsGoogleLoading(false);
-                  }
-                }}
-                onError={() => {
-                  setError("Failed to sign up with Google. Please try again.");
-                  console.error("Google OAuth Sign-in failed");
-                }}
-                useOneTap
-                theme="outline"
-                size="large"
-                text="signup_with"
-                shape="rectangular"
-                width="100%"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-4 bg-white text-xs text-gray-500">
-                  or continue with email
-                </span>
-              </div>
-            </div>
-
-            {/* Rest of the form */}
-            {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50/80 backdrop-blur-sm rounded-xl border border-red-100">
-                {error}
               </div>
             )}
 
+            {/* Email Signup Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Field */}
               <div>
-                <label
+                <FormLabel
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-800"
+                  className="flex items-center gap-2 mb-2"
                 >
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
-                  />
-                </div>
+                  <FiMail className="w-4 h-4 text-gray-500" />
+                  Email Address
+                </FormLabel>
+                <FormInput
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email address"
+                  className="transition-all duration-200"
+                />
               </div>
 
+              {/* Password Field */}
               <div>
-                <label
+                <FormLabel
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-800"
+                  className="flex items-center gap-2 mb-2"
                 >
+                  <FiLock className="w-4 h-4 text-gray-500" />
                   Password
-                </label>
-                <div className="mt-1 relative">
-                  <input
+                </FormLabel>
+                <div className="relative">
+                  <FormInput
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
@@ -264,31 +304,33 @@ export default function StudentSignup() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Create a strong password"
+                    className="pr-12 transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
-                      <FiEyeOff className="h-4 w-4" />
+                      <FiEyeOff className="h-5 w-5" />
                     ) : (
-                      <FiEye className="h-4 w-4" />
+                      <FiEye className="h-5 w-5" />
                     )}
                   </button>
                 </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Must be at least 6 characters long
+                </p>
               </div>
 
+              {/* Confirm Password Field */}
               <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-800"
-                >
+                <FormLabel htmlFor="confirmPassword" className="mb-2">
                   Confirm Password
-                </label>
-                <div className="mt-1 relative">
-                  <input
+                </FormLabel>
+                <div className="relative">
+                  <FormInput
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
@@ -296,75 +338,70 @@ export default function StudentSignup() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Confirm your password"
+                    className="pr-12 transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showConfirmPassword ? (
-                      <FiEyeOff className="h-4 w-4" />
+                      <FiEyeOff className="h-5 w-5" />
                     ) : (
-                      <FiEye className="h-4 w-4" />
+                      <FiEye className="h-5 w-5" />
                     )}
                   </button>
                 </div>
               </div>
 
-              <div>
+              {/* Submit Button */}
+              <div className="pt-2">
                 <FormButton
                   type="submit"
                   isLoading={isSubmitting}
                   loadingText="Creating Account..."
-                  className="relative w-full flex justify-center items-center px-6 py-3.5 mt-6
-                  bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
-                  text-white text-sm font-semibold rounded-xl shadow-lg
-                  transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl
-                  focus:outline-none focus:ring-4 focus:ring-navy/30 focus:ring-offset-2
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                  group overflow-hidden transform-gpu"
+                  disabled={isSubmitting}
+                  className="group relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-navy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10 flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     Create Student Account
-                    <svg
-                      className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
+                    <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                   </span>
-                  <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
                 </FormButton>
               </div>
+            </form>
 
-              <div className="mt-6 text-center">
+            {/* Footer */}
+            <div className="text-center space-y-4">
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
                 <Link
                   to="/login"
-                  className="text-sm text-gray-600 hover:text-navy transition-colors duration-200 flex items-center justify-center gap-2 group"
+                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
                 >
-                  Already have an account?{" "}
-                  <span className="font-semibold text-navy group-hover:text-blue-700">
-                    Sign in
-                  </span>
+                  Sign in
                 </Link>
-              </div>
-            </form>
+              </p>
+              <p className="text-xs text-gray-500">
+                By creating an account, you agree to our{" "}
+                <Link
+                  to="/terms"
+                  className="underline hover:text-gray-700 transition-colors"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  className="underline hover:text-gray-700 transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Hero Section - Right */}
-      <div className="hidden lg:block lg:w-[60%] xl:w-[65%] h-screen">
-        <AuthHero />
       </div>
     </div>
   );

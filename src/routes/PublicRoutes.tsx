@@ -29,8 +29,8 @@ export function usePublicRoutes() {
       element={redirectIfAuthenticated(<StudentSignup />)}
     />,
     <Route
-      key="signup-staff"
-      path={ROUTE_PATHS.SIGNUP_STAFF}
+      key="signup-expert"
+      path={ROUTE_PATHS.SIGNUP_EXPERT}
       element={redirectIfAuthenticated(<ExpertSignup />)}
     />,
   ];

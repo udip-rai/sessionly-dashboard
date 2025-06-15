@@ -21,7 +21,7 @@ export const ROUTE_PATHS = {
   // Auth routes
   LOGIN: "/login",
   SIGNUP_STUDENT: "/signup/student",
-  SIGNUP_STAFF: "/signup/staff",
+  SIGNUP_EXPERT: "/signup/expert",
 
   // Admin routes
   ADMIN_DASHBOARD: "/admin-dashboard",
