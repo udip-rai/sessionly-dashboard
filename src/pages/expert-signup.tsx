@@ -82,8 +82,8 @@ export default function ExpertSignup() {
             });
             return;
           }
-
           if (response) {
+            showToast.success("Expert account created successfully!");
             navigate("/expert-dashboard");
           }
         },
@@ -102,6 +102,7 @@ export default function ExpertSignup() {
               navigate("/login");
             }, 2000);
           } else {
+            showToast.error(errorMessage);
             setError(errorMessage);
           }
         },

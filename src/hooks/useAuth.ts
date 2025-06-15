@@ -4,7 +4,6 @@ import { studentService } from "../api/services/student.service";
 import { expertService } from "../api/services/expert.service";
 import { userService } from "../api/services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
-import { showToast } from "../utils/toast";
 import Cookies from "js-cookie";
 
 const setAuthToken = (token: string) => {
@@ -20,7 +19,6 @@ export function useExpertSignup() {
     onSuccess: (response) => {
       // Check if email verification is required
       if (response.requireVerification) {
-        showToast.info("Please check your email for verification code.");
         return response; // Don't set auth state yet
       }
 
@@ -34,18 +32,11 @@ export function useExpertSignup() {
         setToken(response.token);
         setAuthToken(response.token);
       }
-      showToast.success("Expert account created successfully!");
       return response;
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message;
-
-      // Handle "Email already exists" case
-      if (errorMessage === "Email already exists") {
-        showToast.error("Email already exists. Please try logging in instead.");
-      } else {
-        showToast.error(errorMessage || "Failed to create expert account");
-      }
+      // Let the component handle error display
+      throw error;
     },
   });
 }
@@ -59,7 +50,6 @@ export function useStudentSignup() {
     onSuccess: (response) => {
       // Check if email verification is required
       if (response.requireVerification) {
-        showToast.info("Please check your email for verification code.");
         return response; // Don't set auth state yet
       }
 
@@ -73,18 +63,11 @@ export function useStudentSignup() {
         setToken(response.token);
         setAuthToken(response.token);
       }
-      showToast.success("Student account created successfully!");
       return response;
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message;
-
-      // Handle "Email already exists" case
-      if (errorMessage === "Email already exists") {
-        showToast.error("Email already exists. Please try logging in instead.");
-      } else {
-        showToast.error(errorMessage || "Failed to create student account");
-      }
+      // Let the component handle error display
+      throw error;
     },
   });
 }
@@ -148,12 +131,12 @@ export function useLogin() {
         return response;
       }
 
-      // Only show success for actual successful logins
-      showToast.success("Logged in successfully!");
+      // Return response for component to handle success feedback
       return response;
     },
     onError: (error: any) => {
-      showToast.error(error.message);
+      // Let the component handle error display
+      throw error;
     },
   });
 }

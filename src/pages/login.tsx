@@ -46,9 +46,7 @@ export default function LoginPage() {
       { email, password },
       {
         onSuccess: (response) => {
-          setIsLoading(false);
-
-          // Check if email verification is required
+          setIsLoading(false); // Check if email verification is required
           if (response.requireVerification) {
             showToast.info(
               "Your email is not verified yet. Please verify using the OTP sent to your email.",
@@ -62,6 +60,9 @@ export default function LoginPage() {
             });
             return;
           }
+
+          // Show success toast for successful login
+          showToast.success("Welcome back!");
 
           // Navigation is handled by the login function in useAuth
         },
@@ -83,10 +84,10 @@ export default function LoginPage() {
             });
             return;
           }
-
-          setError(
-            errorResponse?.message || "Invalid credentials. Please try again.",
-          );
+          const errorMessage =
+            errorResponse?.message || "Invalid credentials. Please try again.";
+          showToast.error(errorMessage);
+          setError(errorMessage);
         },
       },
     );
@@ -137,6 +138,7 @@ export default function LoginPage() {
       const errorMessage =
         error?.response?.data?.message ||
         "Failed to login with Google. Please try again.";
+      showToast.error(errorMessage);
       setError(errorMessage);
       console.error("Error during Google login:", error);
     } finally {
@@ -211,6 +213,9 @@ export default function LoginPage() {
                   onSuccess={handleGoogleSuccess}
                   onError={() => {
                     setIsGoogleLoading(false);
+                    showToast.error(
+                      "Failed to login with Google. Please try again.",
+                    );
                     setError("Failed to login with Google. Please try again.");
                   }}
                   useOneTap={false}
@@ -363,13 +368,15 @@ export default function LoginPage() {
             <div className="text-center space-y-4">
               <p className="text-sm text-gray-600">
                 Don't have an account yet?
-              </p>              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              </p>{" "}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
                   to="/signup/student"
                   className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
                 >
                   Sign up as Student
-                </Link>                <Link
+                </Link>{" "}
+                <Link
                   to="/signup/expert"
                   className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200"
                 >

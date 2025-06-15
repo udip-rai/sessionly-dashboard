@@ -13,13 +13,9 @@ import { useStudentSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
-import { showToast } from "../utils/toast";
-import {
-  FormButton,
-  FormInput,
-  FormLabel,
-} from "../components/auth/AuthForm";
+import { FormButton, FormInput, FormLabel } from "../components/auth/AuthForm";
 import { Spinner } from "../components/ui/Spinner";
+import { showToast } from "../utils/toast";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -56,7 +52,6 @@ export default function StudentSignup() {
       setError(validationError);
       return;
     }
-
     setError("");
     setIsSubmitting(true);
 
@@ -65,13 +60,9 @@ export default function StudentSignup() {
         email: formData.email,
         password: formData.password,
         userType: "student",
-      });
-
-      // Check if email verification is required
+      }); // Check if email verification is required
       if (response?.requireVerification) {
-        showToast.info(
-          "Account created successfully! Please verify your email using the OTP sent to your inbox.",
-        );
+        showToast.info("Please check your email for verification code.");
         navigate("/otp-verification", {
           state: {
             userId: response.result?._id,
@@ -83,6 +74,7 @@ export default function StudentSignup() {
       }
 
       if (response) {
+        showToast.success("Student account created successfully!");
         navigate("/student-dashboard");
       }
     } catch (err: any) {
@@ -93,13 +85,12 @@ export default function StudentSignup() {
 
       // Check if it's an email already exists error
       if (errorMessage === "Email already exists") {
-        showToast.info(
-          "This email is already registered. Please log in instead.",
-        );
+        showToast.info("Account already exists. Redirecting to login...");
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       } else {
+        showToast.error(errorMessage);
         setError(errorMessage);
       }
     } finally {
@@ -120,18 +111,17 @@ export default function StudentSignup() {
     setIsGoogleLoading(true);
     try {
       if (!credentialResponse.credential) {
-        showToast.error("Google authentication failed");
+        setError("Google authentication failed");
         return;
       }
 
       // Use the existing signUpWithGoogle method
       const response = await googleAuthService.signUpWithGoogle(
         credentialResponse.credential,
-        "student"
+        "student",
       );
-
       if (response?.requireVerification) {
-        showToast.info("Please verify your email using the OTP sent to your inbox.");
+        showToast.info("Please check your email for verification code.");
         navigate("/otp-verification", {
           state: {
             userId: response.result?._id,
@@ -140,18 +130,21 @@ export default function StudentSignup() {
           },
         });
       } else if (response) {
-        showToast.success("Account created successfully!");
+        showToast.success("Student account created successfully!");
         navigate("/student-dashboard");
       }
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "Google signup failed. Please try again.";
-      
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Google signup failed. Please try again.";
+
       // Handle email already exists
       if (errorMessage === "Email already exists") {
         showToast.info("Account already exists. Redirecting to login...");
         navigate("/login");
       } else {
         showToast.error(errorMessage);
+        setError(errorMessage);
       }
     } finally {
       setIsGoogleLoading(false);
@@ -160,11 +153,12 @@ export default function StudentSignup() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="flex flex-col lg:flex-row min-h-screen">        {/* Left side - Hero */}
+      <div className="flex flex-col lg:flex-row min-h-screen">
+        {" "}
+        {/* Left side - Hero */}
         <div className="hidden lg:flex lg:w-1/2 xl:w-3/5">
           <AuthHero />
         </div>
-
         {/* Right side - Signup Form */}
         <div className="flex-1 flex items-center justify-center px-6 sm:px-8 lg:px-12 py-12">
           <div className="w-full max-w-md space-y-8">
@@ -215,6 +209,7 @@ export default function StudentSignup() {
                   onError={() => {
                     setIsGoogleLoading(false);
                     showToast.error("Google signup failed");
+                    setError("Google signup failed");
                   }}
                   useOneTap={false}
                   theme="outline"
