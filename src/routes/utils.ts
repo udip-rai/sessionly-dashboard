@@ -48,6 +48,6 @@ export function isPublicRoute(path: string): boolean {
   return [
     ROUTE_PATHS.LOGIN,
     ROUTE_PATHS.SIGNUP_STUDENT,
-    ROUTE_PATHS.SIGNUP_STAFF,
+    ROUTE_PATHS.SIGNUP_EXPERT,
   ].includes(path as any);
 }
