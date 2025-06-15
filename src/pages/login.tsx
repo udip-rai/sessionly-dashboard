@@ -6,6 +6,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { useAuthStore } from "../store/useAuthStore";
 import { userService } from "../api/services/user.service";
+import { showToast } from "../utils/toast";
 import AuthHero from "../components/auth/AuthHero";
 import {
   FormContainer,
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
@@ -34,12 +36,16 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const response = await login({ email, password });
 
       // Check if email verification is required
       if (response.requireVerification) {
+        showToast.info(
+          "Your email is not verified yet. Please verify using the OTP sent to your email.",
+        );
         navigate("/otp-verification", {
           state: {
             userId: response.userId || response.id,
@@ -52,12 +58,28 @@ export default function LoginPage() {
 
       // Navigation is handled by the login function in useAuth
     } catch (err: any) {
+      const errorResponse = err?.response?.data;
+
+      // Check if the error indicates email not verified
+      if (errorResponse?.requireVerification) {
+        showToast.info(
+          "Your email is not verified yet. Please verify using the OTP sent to your email.",
+        );
+        navigate("/otp-verification", {
+          state: {
+            userId: errorResponse.userId,
+            userType: errorResponse.userType,
+            email: errorResponse.email || email,
+          },
+        });
+        return;
+      }
+
       setError(
-        err?.response?.data?.message ||
-          "Invalid credentials. Please try again.",
+        errorResponse?.message || "Invalid credentials. Please try again.",
       );
-      e.preventDefault();
-      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,7 +229,13 @@ export default function LoginPage() {
                 </div>
               </FormSection>
 
-              <FormButton type="submit">Sign in</FormButton>
+              <FormButton
+                type="submit"
+                isLoading={isLoading}
+                loadingText="Signing in..."
+              >
+                Sign in
+              </FormButton>
             </form>
           </FormContainer>
         </div>

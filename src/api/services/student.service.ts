@@ -13,17 +13,29 @@ export interface StudentResponse {
   userType: "student";
 }
 
-interface StudentSignupResponse {
-  redirectUrl: string;
-  token: string;
-  id: string;
-  userType: "student";
-  requireVerification?: boolean;
+export interface StudentSignupResponse {
+  message: string;
+  result: {
+    _id: string;
+    username: string;
+    email: string;
+    userType: "student";
+    emailVerified: boolean;
+    otherUrls: string[];
+    password: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  success: boolean;
+  requireVerification: boolean;
+  emailSent: boolean;
+  // Legacy fields for backward compatibility
+  redirectUrl?: string;
+  token?: string;
+  id?: string;
   userId?: string;
-  email?: string;
-  emailSent?: boolean;
-  success?: boolean;
-  message?: string;
+  userType?: "student";
 }
 
 interface UpdateStudentProfileData {

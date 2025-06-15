@@ -26,12 +26,14 @@ export function useExpertSignup() {
 
       // Normal flow - set auth state
       setUser({
-        id: response.id,
-        userType: response.userType,
+        id: response.id || response.result?._id || "",
+        userType: response.userType || response.result?.userType || "staff",
         redirectUrl: response.redirectUrl,
       });
-      setToken(response.token);
-      setAuthToken(response.token);
+      if (response.token) {
+        setToken(response.token);
+        setAuthToken(response.token);
+      }
       showToast.success("Expert account created successfully!");
       return response;
     },
@@ -63,12 +65,14 @@ export function useStudentSignup() {
 
       // Normal flow - set auth state
       setUser({
-        id: response.id,
-        userType: response.userType,
+        id: response.id || response.result?._id || "",
+        userType: response.userType || response.result?.userType || "student",
         redirectUrl: response.redirectUrl,
       });
-      setToken(response.token);
-      setAuthToken(response.token);
+      if (response.token) {
+        setToken(response.token);
+        setAuthToken(response.token);
+      }
       showToast.success("Student account created successfully!");
       return response;
     },
@@ -123,32 +127,28 @@ export function useLogin() {
           ...userData,
         };
       } catch (error: any) {
-        // Clear auth store in case of error
+        // Check if the error is due to email not being verified
+        const errorData = error?.response?.data;
+        if (errorData?.requireVerification) {
+          // Return the verification response instead of throwing
+          return errorData;
+        }
+
+        // Clear auth store in case of other errors
         setToken(null);
         setUser(null);
-        throw new Error(
-          error?.response?.data?.message || "Invalid credentials",
-        );
+        throw new Error(errorData?.message || "Invalid credentials");
       }
     },
     onSuccess: (response) => {
-      console.log("response", response);
+      console.log("Login response:", response);
 
-      // If email verification is required, don't set auth state
+      // If email verification is required, don't set auth state or show success
       if (response.requireVerification) {
-        showToast.info(
-          "Email not verified. A new verification code has been sent to your email.",
-        );
         return response;
       }
 
-      setUser({
-        id: response.id,
-        userType: response.userType,
-        redirectUrl: response.redirectUrl,
-      });
-      setToken(response.token);
-      setAuthToken(response.token);
+      // Only show success for actual successful logins
       showToast.success("Logged in successfully!");
       return response;
     },

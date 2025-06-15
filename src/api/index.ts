@@ -19,5 +19,5 @@ export const LOGIN_APIS = {
   login: "login",
   logout: "logout",
   verifyEmail: "verify-email",
-  resendOTP: "resend-otp",
+  resendOTP: "resend-verification",
 };

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft, FiMail, FiRefreshCw } from "react-icons/fi";
 import { BASE_API } from "../api/axios";
 import { useAuthStore } from "../store/useAuthStore";
 import { showToast } from "../utils/toast";
 import AuthHero from "../components/auth/AuthHero";
-import { FormButton } from "../components/auth/AuthForm";
+import { LOGIN_APIS } from "../api";
 
 interface OTPPageState {
   userId: string;
@@ -17,15 +17,17 @@ export default function OTPVerificationPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser, setToken } = useAuthStore();
-
   // Get state from navigation or redirect to login if not available
   const state = location.state as OTPPageState;
 
-  const [otp, setOtp] = useState("");
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [error, setError] = useState("");
+
+  // Create refs for each OTP input
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Redirect to login if no state is provided
   useEffect(() => {
@@ -44,13 +46,45 @@ export default function OTPVerificationPage() {
     }
     return () => clearInterval(interval);
   }, [resendTimer]);
+  const handleOTPChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return; // Only allow numbers
 
-  const handleOTPChange = (value: string) => {
-    // Only allow digits and limit to 6 characters
-    const numericValue = value.replace(/\D/g, "").slice(0, 6);
-    setOtp(numericValue);
+    const newOtpDigits = [...otpDigits];
+    newOtpDigits[index] = value.slice(-1); // Only take the last character
+    setOtpDigits(newOtpDigits);
     setError("");
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
   };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const numericData = pastedData.replace(/\D/g, "").slice(0, 6);
+
+    const newOtpDigits = ["", "", "", "", "", ""];
+    for (let i = 0; i < numericData.length; i++) {
+      newOtpDigits[i] = numericData[i];
+    }
+    setOtpDigits(newOtpDigits);
+
+    // Focus the next empty input or the last input
+    const nextEmptyIndex = newOtpDigits.findIndex((digit) => !digit);
+    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
+    inputRefs.current[focusIndex]?.focus();
+  };
+
+  // Get OTP as string
+  const otp = otpDigits.join("");
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -117,7 +151,7 @@ export default function OTPVerificationPage() {
     setIsResending(true);
     setError("");
     try {
-      const response = await BASE_API.post("/resend-otp", {
+      const response = await BASE_API.post(LOGIN_APIS.resendOTP, {
         userId: state.userId,
         userType: state.userType,
       });
@@ -129,7 +163,7 @@ export default function OTPVerificationPage() {
           `Verification code sent to ${data.email || state.email}`,
         );
         setResendTimer(120); // 2 minutes countdown
-        setOtp(""); // Clear current OTP
+        setOtpDigits(["", "", "", "", "", ""]); // Clear current OTP
       }
     } catch (error: any) {
       const errorMessage =
@@ -206,70 +240,97 @@ export default function OTPVerificationPage() {
                 <div className="p-3 text-sm text-red-600 bg-red-50/80 backdrop-blur-sm rounded-xl border border-red-100">
                   {error}
                 </div>
-              )}
-
+              )}{" "}
               <div>
-                <label
-                  htmlFor="otp"
-                  className="block text-sm font-medium text-gray-800 mb-2"
-                >
+                <label className="block text-sm font-medium text-gray-800 mb-4 text-center">
                   Verification Code
                 </label>
-                <input
-                  id="otp"
-                  name="otp"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={6}
-                  required
-                  value={otp}
-                  onChange={(e) => handleOTPChange(e.target.value)}
-                  placeholder="000000"
-                  className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-lg text-center font-mono tracking-wider
-                  transition-all duration-300 ease-in-out bg-white/80
-                  focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                  hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                  placeholder:text-gray-400"
-                />
-                <p className="text-xs text-gray-500 mt-2">
+                <div
+                  className="flex justify-center space-x-3 mb-4"
+                  onPaste={handlePaste}
+                >
+                  {otpDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => (inputRefs.current[index] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOTPChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      className="w-12 h-12 text-center text-lg font-semibold border-2 border-gray-200 rounded-xl
+                      transition-all duration-300 ease-in-out bg-white/90
+                      focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500
+                      hover:border-blue-300 hover:shadow-md hover:bg-white
+                      disabled:opacity-50 disabled:cursor-not-allowed"
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 text-center">
                   Enter the 6-digit code from your email
                 </p>
               </div>
-
-              <FormButton
+              <button
                 type="submit"
-                isLoading={isVerifying}
-                loadingText="Verifying..."
-                disabled={otp.length !== 6}
+                disabled={otp.length !== 6 || isVerifying}
                 className="relative w-full flex justify-center items-center px-6 py-3.5 mt-6
-                bg-gradient-to-r from-navy via-indigo-600 to-blue-500 
+                bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 
                 text-white text-sm font-semibold rounded-xl shadow-lg
                 transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl
-                focus:outline-none focus:ring-4 focus:ring-navy/30 focus:ring-offset-2
+                focus:outline-none focus:ring-4 focus:ring-blue-600/30 focus:ring-offset-2
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                 group overflow-hidden transform-gpu"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-navy opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="relative z-10 flex items-center gap-2">
-                  Verify Email
-                  <svg
-                    className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
+                  {isVerifying ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      Verify Email
+                      <svg
+                        className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </>
+                  )}
                 </span>
                 <div className="absolute inset-0 border border-white/20 rounded-xl"></div>
-              </FormButton>
-
+              </button>
               {/* Resend OTP */}
               <div className="text-center space-y-3">
                 <p className="text-sm text-gray-600">

@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { FiUser, FiPhone, FiLink, FiGithub } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import {
+  FiUser,
+  FiPhone,
+  FiLink,
+  FiGithub,
+  FiSkipForward,
+} from "react-icons/fi";
 import { studentService } from "../../api/services/student.service";
 import { useAuth } from "../../context/AuthContext";
 import { showToast } from "../../utils/toast";
@@ -64,6 +71,7 @@ export default function StudentProfileSetup({
 }: ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     phone: "",
@@ -111,6 +119,13 @@ export default function StudentProfileSetup({
       showToast.error(errorMessage);
     },
   });
+
+  const handleSkip = () => {
+    showToast.info(
+      "Profile setup skipped. You can complete it later from your profile settings.",
+    );
+    navigate("/student-dashboard");
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -496,18 +511,30 @@ export default function StudentProfileSetup({
                 }
               }
             `}</style>
-            <div className="flex justify-between pt-8 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={handleBack}
-                disabled={currentStep === 1}
-                className="px-6 py-2.5 text-sm font-medium text-navy hover:text-navy/80 disabled:opacity-50 
-                disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:scale-105 
-                disabled:hover:scale-100 rounded-lg border border-gray-200/60 hover:border-navy/30 
-                hover:shadow-md disabled:hover:shadow-none bg-white/80 hover:bg-white/90"
-              >
-                Back
-              </button>
+            <div className="flex justify-between items-center pt-8 border-t border-gray-100">
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  disabled={currentStep === 1}
+                  className="px-6 py-2.5 text-sm font-medium text-navy hover:text-navy/80 disabled:opacity-50 
+                  disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:scale-105 
+                  disabled:hover:scale-100 rounded-lg border border-gray-200/60 hover:border-navy/30 
+                  hover:shadow-md disabled:hover:shadow-none bg-white/80 hover:bg-white/90"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="px-6 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 
+                  transition-all duration-300 ease-in-out hover:scale-105 rounded-lg border border-gray-200/60 
+                  hover:border-gray-300 hover:shadow-md bg-white/80 hover:bg-white/90 flex items-center space-x-2"
+                >
+                  <FiSkipForward className="w-4 h-4" />
+                  <span>Skip for now</span>
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleNext}

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useStudentSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { userService } from "../api/services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
+import { showToast } from "../utils/toast";
 
 interface GoogleCredentialResponse {
   credential?: string;
@@ -23,6 +25,8 @@ export default function StudentSignup() {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateForm = () => {
     if (!formData.email.trim()) return "Email is required";
@@ -54,11 +58,14 @@ export default function StudentSignup() {
 
       // Check if email verification is required
       if (response?.requireVerification) {
+        showToast.info(
+          "Account created successfully! Please verify your email using the OTP sent to your inbox.",
+        );
         navigate("/otp-verification", {
           state: {
-            userId: response.userId || response.id,
-            userType: response.userType,
-            email: response.email || formData.email,
+            userId: response.result?._id,
+            userType: response.result?.userType || "student",
+            email: response.result?.email || formData.email,
           },
         });
         return;
@@ -71,24 +78,15 @@ export default function StudentSignup() {
       }
     } catch (err: any) {
       const errorMessage =
-        err?.message || "An error occurred during registration";
+        err?.response?.data?.message ||
+        err?.message ||
+        "An error occurred during registration";
 
-      // Check if it's an email already exists error but requires verification
+      // Check if it's an email already exists error
       if (errorMessage === "Email already exists") {
-        // Check if the error response contains verification info
-        const errorResponse = err?.response?.data;
-        if (errorResponse?.requireVerification) {
-          navigate("/otp-verification", {
-            state: {
-              userId: errorResponse.userId || errorResponse.id,
-              userType: "student",
-              email: errorResponse.email || formData.email,
-            },
-          });
-          return;
-        }
-        // If no verification required, redirect to login
-        setError("Email already exists. Redirecting to login...");
+        showToast.info(
+          "This email is already registered. Please log in instead.",
+        );
         setTimeout(() => {
           navigate("/login");
         }, 2000);
@@ -239,17 +237,28 @@ export default function StudentSignup() {
                 >
                   Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -260,17 +269,28 @@ export default function StudentSignup() {
                 >
                   Confirm Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
