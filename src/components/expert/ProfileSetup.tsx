@@ -12,12 +12,18 @@ import { profileService } from "../../api/services/profile.service";
 import { useAuth } from "../../context/AuthContext";
 import { showToast } from "../../utils/toast";
 import { CategoriesResponse } from "../../types/expertise";
-import { ExpertData, ProfileSetupProps, StepProps } from "./profile/_types";
-import { INITIAL_EXPERT_DATA } from "./profile/_constants";
+import { ProfileSetupProps, StepProps } from "./profile/_types";
 
-// Extended type for ProfileSetup that allows File objects for image uploads
-interface ProfileSetupData extends Omit<ExpertData, "image"> {
-  image: File | string;
+// Simple form data interface for profile setup
+interface ExpertFormData {
+  username?: string;
+  phone: string;
+  bio: string;
+  image: File | string | null;
+  rate: string;
+  linkedinUrl: string;
+  websiteUrl: string;
+  expertiseAreas: any[];
 }
 
 const ProgressSteps = ({ currentStep, totalSteps }: StepProps) => (
@@ -71,8 +77,16 @@ ProfileSetupProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] =
-    useState<ProfileSetupData>(INITIAL_EXPERT_DATA);
+  const [formData, setFormData] = useState<ExpertFormData>({
+    username: "",
+    phone: "",
+    bio: "",
+    image: null,
+    rate: "",
+    linkedinUrl: "",
+    websiteUrl: "",
+    expertiseAreas: [],
+  });
   const [_, setError] = useState("");
   const { data: categoriesResponse } = useQuery<CategoriesResponse>({
     queryKey: ["expertiseAreas"],
@@ -85,7 +99,7 @@ ProfileSetupProps) {
     mutationFn: () => {
       if (!user?.id) throw new Error("User ID not found");
       return profileService.updateStaffProfile(user.id, {
-        username: formData.username,
+        username: formData.username || "",
         phone: formData.phone,
         bio: formData.bio,
         image: formData.image,
@@ -110,6 +124,13 @@ ProfileSetupProps) {
       setError(errorMessage);
     },
   });
+
+  const handleSkip = () => {
+    showToast.info(
+      "Profile setup skipped. You can complete it later from your profile settings.",
+    );
+    navigate("/expert-dashboard");
+  };
 
   const handleExpertiseChange = (categoryId: string, subCategoryId: string) => {
     setFormData((prev) => {
@@ -192,14 +213,6 @@ ProfileSetupProps) {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     }
-  };
-
-  const handleSkip = () => {
-    // Navigate directly to the expert dashboard
-    navigate("/expert-dashboard");
-    showToast.info(
-      "Profile setup skipped. You can complete it later from your dashboard.",
-    );
   };
 
   const renderExpertiseStep = () => (
@@ -548,18 +561,30 @@ ProfileSetupProps) {
                 }
               }
             `}</style>
-            <div className="flex justify-between pt-8 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={handleBack}
-                disabled={currentStep === 1}
-                className="px-6 py-2.5 text-sm font-medium text-navy hover:text-navy/80 disabled:opacity-50 
-                disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:scale-105 
-                disabled:hover:scale-100 rounded-lg border border-gray-200/60 hover:border-navy/30 
-                hover:shadow-md disabled:hover:shadow-none bg-white/80 hover:bg-white/90"
-              >
-                Back
-              </button>
+            <div className="flex justify-between items-center pt-8 border-t border-gray-100">
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  disabled={currentStep === 1}
+                  className="px-6 py-2.5 text-sm font-medium text-navy hover:text-navy/80 disabled:opacity-50 
+                  disabled:cursor-not-allowed transition-all duration-300 ease-in-out hover:scale-105 
+                  disabled:hover:scale-100 rounded-lg border border-gray-200/60 hover:border-navy/30 
+                  hover:shadow-md disabled:hover:shadow-none bg-white/80 hover:bg-white/90"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="px-6 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 
+                  transition-all duration-300 ease-in-out hover:scale-105 rounded-lg border border-gray-200/60 
+                  hover:border-gray-300 hover:shadow-md bg-white/80 hover:bg-white/90 flex items-center space-x-2"
+                >
+                  <FiSkipForward className="w-4 h-4" />
+                  <span>Skip for now</span>
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleNext}

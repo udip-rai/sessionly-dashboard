@@ -13,11 +13,29 @@ export interface ExpertResponse {
   userType: "staff";
 }
 
-interface ExpertSignupResponse {
-  redirectUrl: string;
-  token: string;
-  id: string;
-  userType: "staff";
+export interface ExpertSignupResponse {
+  message: string;
+  result: {
+    _id: string;
+    username: string;
+    email: string;
+    userType: "staff";
+    emailVerified: boolean;
+    otherUrls: string[];
+    password: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  success: boolean;
+  requireVerification: boolean;
+  emailSent: boolean;
+  // Legacy fields for backward compatibility
+  redirectUrl?: string;
+  token?: string;
+  id?: string;
+  userId?: string;
+  userType?: "staff";
 }
 
 export const expertService = {

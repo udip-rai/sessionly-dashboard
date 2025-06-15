@@ -18,20 +18,34 @@ export function useExpertSignup() {
   return useMutation({
     mutationFn: expertService.register,
     onSuccess: (response) => {
+      // Check if email verification is required
+      if (response.requireVerification) {
+        showToast.info("Please check your email for verification code.");
+        return response; // Don't set auth state yet
+      }
+
+      // Normal flow - set auth state
       setUser({
-        id: response.id,
-        userType: response.userType,
+        id: response.id || response.result?._id || "",
+        userType: response.userType || response.result?.userType || "staff",
         redirectUrl: response.redirectUrl,
       });
-      setToken(response.token);
-      setAuthToken(response.token);
+      if (response.token) {
+        setToken(response.token);
+        setAuthToken(response.token);
+      }
       showToast.success("Expert account created successfully!");
       return response;
     },
     onError: (error: any) => {
-      showToast.error(
-        error?.response?.data?.message || "Failed to create expert account",
-      );
+      const errorMessage = error?.response?.data?.message;
+
+      // Handle "Email already exists" case
+      if (errorMessage === "Email already exists") {
+        showToast.error("Email already exists. Please try logging in instead.");
+      } else {
+        showToast.error(errorMessage || "Failed to create expert account");
+      }
     },
   });
 }
@@ -43,20 +57,34 @@ export function useStudentSignup() {
   return useMutation({
     mutationFn: studentService.register,
     onSuccess: (response) => {
+      // Check if email verification is required
+      if (response.requireVerification) {
+        showToast.info("Please check your email for verification code.");
+        return response; // Don't set auth state yet
+      }
+
+      // Normal flow - set auth state
       setUser({
-        id: response.id,
-        userType: response.userType,
+        id: response.id || response.result?._id || "",
+        userType: response.userType || response.result?.userType || "student",
         redirectUrl: response.redirectUrl,
       });
-      setToken(response.token);
-      setAuthToken(response.token);
+      if (response.token) {
+        setToken(response.token);
+        setAuthToken(response.token);
+      }
       showToast.success("Student account created successfully!");
       return response;
     },
     onError: (error: any) => {
-      showToast.error(
-        error?.response?.data?.message || "Failed to create student account",
-      );
+      const errorMessage = error?.response?.data?.message;
+
+      // Handle "Email already exists" case
+      if (errorMessage === "Email already exists") {
+        showToast.error("Email already exists. Please try logging in instead.");
+      } else {
+        showToast.error(errorMessage || "Failed to create student account");
+      }
     },
   });
 }
@@ -70,6 +98,11 @@ export function useLogin() {
       try {
         // First get login data which includes token and userType
         const loginData = await authService.login(credentials);
+
+        // Check if email verification is required
+        if (loginData.requireVerification) {
+          return loginData; // Return immediately without fetching user data
+        }
 
         // Set the token in store
         setToken(loginData.token);
@@ -94,23 +127,28 @@ export function useLogin() {
           ...userData,
         };
       } catch (error: any) {
-        // Clear auth store in case of error
+        // Check if the error is due to email not being verified
+        const errorData = error?.response?.data;
+        if (errorData?.requireVerification) {
+          // Return the verification response instead of throwing
+          return errorData;
+        }
+
+        // Clear auth store in case of other errors
         setToken(null);
         setUser(null);
-        throw new Error(
-          error?.response?.data?.message || "Invalid credentials",
-        );
+        throw new Error(errorData?.message || "Invalid credentials");
       }
     },
     onSuccess: (response) => {
-      console.log("response", response);
-      setUser({
-        id: response.id,
-        userType: response.userType,
-        redirectUrl: response.redirectUrl,
-      });
-      setToken(response.token);
-      setAuthToken(response.token);
+      console.log("Login response:", response);
+
+      // If email verification is required, don't set auth state or show success
+      if (response.requireVerification) {
+        return response;
+      }
+
+      // Only show success for actual successful logins
       showToast.success("Logged in successfully!");
       return response;
     },

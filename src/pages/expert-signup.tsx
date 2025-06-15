@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useExpertSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
 import { userService } from "../api/services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
+import { showToast } from "../utils/toast";
 import { FormButton } from "../components/auth/AuthForm";
 import { Spinner } from "../components/ui/Spinner";
 
@@ -15,17 +17,19 @@ interface GoogleCredentialResponse {
 
 export default function ExpertSignup() {
   const navigate = useNavigate();
+  const { mutate: signup } = useExpertSignup();
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
-  const expertSignupMutation = useExpertSignup();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const isSubmitting = expertSignupMutation.isPending;
 
   const validateForm = () => {
     if (!formData.email.trim()) return "Email is required";
@@ -49,16 +53,62 @@ export default function ExpertSignup() {
 
     try {
       const { confirmPassword, ...signupData } = formData;
-      const response = await expertSignupMutation.mutateAsync({
-        ...signupData,
-        userType: "staff" as const,
-      });
 
-      if (response) {
-        navigate("/expert-dashboard");
-      }
+      signup(
+        {
+          ...signupData,
+          userType: "staff" as const,
+        },
+        {
+          onSuccess: (response) => {
+            // Check if email verification is required
+            if (response?.requireVerification) {
+              showToast.info(
+                "Account created successfully! Please verify your email using the OTP sent to your inbox.",
+              );
+              navigate("/otp-verification", {
+                state: {
+                  userId: response.result?._id,
+                  userType: response.result?.userType || "staff",
+                  email: response.result?.email || formData.email,
+                },
+              });
+              return;
+            }
+
+            if (response) {
+              navigate("/expert-dashboard");
+            } else {
+              setError("Failed to create account. Please try again.");
+            }
+            setIsSubmitting(false);
+          },
+          onError: (err: any) => {
+            const errorMessage =
+              err?.response?.data?.message ||
+              err?.message ||
+              "An error occurred during registration";
+
+            // Check if it's an email already exists error
+            if (errorMessage === "Email already exists") {
+              showToast.info(
+                "This email is already registered. Please log in instead.",
+              );
+              setTimeout(() => {
+                navigate("/login");
+              }, 2000);
+            } else {
+              setError(errorMessage);
+            }
+            setIsSubmitting(false);
+          },
+        },
+      );
     } catch (err: any) {
-      setError(err?.message || "An error occurred during registration");
+      const errorMessage =
+        err?.message || "An error occurred during registration";
+      setError(errorMessage);
+      setIsSubmitting(false);
     }
   };
 
@@ -218,21 +268,28 @@ export default function ExpertSignup() {
                 >
                   Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
+                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -243,21 +300,28 @@ export default function ExpertSignup() {
                 >
                   Confirm Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="block w-full px-4 py-3 border border-gray-200/60 rounded-xl shadow-sm text-sm
-                    transition-all duration-300 ease-in-out bg-white/80
-                    focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-transparent
-                    hover:border-navy/30 hover:shadow-md hover:bg-white/90
-                    placeholder:text-gray-400"
+                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <FiEyeOff className="h-4 w-4" />
+                    ) : (
+                      <FiEye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 

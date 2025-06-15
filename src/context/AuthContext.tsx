@@ -38,10 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: { email: string; password: string }) => {
     const response = await loginMutation.mutateAsync(credentials);
 
+    // If email verification is required, return the response without navigation
+    if (response.requireVerification) {
+      return response;
+    }
+
     // Store profile status from response
     if (response.profileStatus) {
       setProfileStatus(response.profileStatus);
-    } // Navigate based on profile completion and user type
+    }
+
+    // Navigate based on profile completion and user type
     if (response.profileStatus && !response.profileStatus.isComplete) {
       if (response.userType === "staff") {
         navigate("/staff-dashboard/profile-setup");
@@ -63,7 +70,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         response = await studentSignup.mutateAsync(data);
       }
-      navigate(response.redirectUrl || `/${response.userType}-dashboard`);
+      navigate(
+        response.redirectUrl ||
+          `/${
+            response.userType || response.result?.userType || data.userType
+          }-dashboard`,
+      );
       return true;
     } catch (error) {
       console.error("Signup error:", error);
