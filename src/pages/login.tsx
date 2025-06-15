@@ -377,7 +377,7 @@ export default function LoginPage() {
                   Sign up as Student
                 </Link>{" "}
                 <Link
-                  to="/signup/expert"
+                  to="/signup/staff"
                   className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200"
                 >
                   Become an Expert

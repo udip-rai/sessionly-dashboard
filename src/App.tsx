@@ -51,14 +51,14 @@ function App() {
         }
       />
       <Route path="/signup/student" element={<StudentSignup />} />
-      <Route path="/signup/expert" element={<ExpertSignup />} />
+      <Route path="/signup/staff" element={<ExpertSignup />} />
       <Route
         path="/student-signup"
         element={<Navigate to="/signup/student" replace />}
       />
       <Route
         path="/expert-signup"
-        element={<Navigate to="/signup/expert" replace />}
+        element={<Navigate to="/signup/staff" replace />}
       />
       <Route path="/otp-verification" element={<OTPVerificationPage />} />
 
