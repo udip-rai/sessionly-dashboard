@@ -18,6 +18,12 @@ interface StudentSignupResponse {
   token: string;
   id: string;
   userType: "student";
+  requireVerification?: boolean;
+  userId?: string;
+  email?: string;
+  emailSent?: boolean;
+  success?: boolean;
+  message?: string;
 }
 
 interface UpdateStudentProfileData {

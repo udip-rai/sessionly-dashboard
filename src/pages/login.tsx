@@ -36,7 +36,21 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login({ email, password });
+      const response = await login({ email, password });
+
+      // Check if email verification is required
+      if (response.requireVerification) {
+        navigate("/otp-verification", {
+          state: {
+            userId: response.userId || response.id,
+            userType: response.userType,
+            email: response.email || email,
+          },
+        });
+        return;
+      }
+
+      // Navigation is handled by the login function in useAuth
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||

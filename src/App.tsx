@@ -29,6 +29,8 @@ import StudentSignup from "./pages/student-signup";
 import ProfileSetup from "./components/expert/ProfileSetup";
 import StudentProfileSetup from "./components/student/ProfileSetup";
 
+import OTPVerificationPage from "./pages/otp-verification";
+
 function App() {
   const { isAuthenticated, userRole, profileStatus, updateProfileStatus } =
     useAuth();
@@ -48,6 +50,7 @@ function App() {
       />
       <Route path="/signup/student" element={<StudentSignup />} />
       <Route path="/signup/staff" element={<ExpertSignup />} />
+      <Route path="/otp-verification" element={<OTPVerificationPage />} />
 
       {/* Staff Profile Setup */}
       <Route

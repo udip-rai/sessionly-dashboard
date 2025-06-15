@@ -18,6 +18,12 @@ interface ExpertSignupResponse {
   token: string;
   id: string;
   userType: "staff";
+  requireVerification?: boolean;
+  userId?: string;
+  email?: string;
+  emailSent?: boolean;
+  success?: boolean;
+  message?: string;
 }
 
 export const expertService = {

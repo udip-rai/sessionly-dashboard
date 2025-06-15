@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useStudentSignup } from "../hooks/useAuth";
 import AuthHero from "../components/auth/AuthHero";
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuthService } from "../api/services/google-auth.service";
@@ -13,7 +13,7 @@ interface GoogleCredentialResponse {
 
 export default function StudentSignup() {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const studentSignupMutation = useStudentSignup();
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
   const [formData, setFormData] = useState({
@@ -46,20 +46,55 @@ export default function StudentSignup() {
     setError("");
 
     try {
-      const success = await signup({
+      const response = await studentSignupMutation.mutateAsync({
         email: formData.email,
         password: formData.password,
         userType: "student",
       });
 
-      if (success) {
+      // Check if email verification is required
+      if (response?.requireVerification) {
+        navigate("/otp-verification", {
+          state: {
+            userId: response.userId || response.id,
+            userType: response.userType,
+            email: response.email || formData.email,
+          },
+        });
+        return;
+      }
+
+      if (response) {
         navigate("/student-dashboard");
       } else {
         setError("Failed to create account. Please try again.");
       }
-    } catch (err) {
-      setError("An error occurred during registration");
-    } finally {
+    } catch (err: any) {
+      const errorMessage =
+        err?.message || "An error occurred during registration";
+
+      // Check if it's an email already exists error but requires verification
+      if (errorMessage === "Email already exists") {
+        // Check if the error response contains verification info
+        const errorResponse = err?.response?.data;
+        if (errorResponse?.requireVerification) {
+          navigate("/otp-verification", {
+            state: {
+              userId: errorResponse.userId || errorResponse.id,
+              userType: "student",
+              email: errorResponse.email || formData.email,
+            },
+          });
+          return;
+        }
+        // If no verification required, redirect to login
+        setError("Email already exists. Redirecting to login...");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        setError(errorMessage);
+      }
       setIsSubmitting(false);
     }
   };

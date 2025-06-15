@@ -8,6 +8,9 @@ interface AuthResponse {
   userType: "student" | "staff" | "admin";
   redirectUrl: string;
   profileStatus?: ProfileStatus;
+  requireVerification?: boolean;
+  userId?: string;
+  email?: string;
 }
 
 export const authService = {

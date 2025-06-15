@@ -18,4 +18,6 @@ export const ADMIN_APIS = {
 export const LOGIN_APIS = {
   login: "login",
   logout: "logout",
+  verifyEmail: "verify-email",
+  resendOTP: "resend-otp",
 };
